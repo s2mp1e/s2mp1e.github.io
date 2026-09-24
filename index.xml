@@ -10,61 +10,61 @@
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/ATE%E7%94%B5%E6%BA%90-FVMI%E5%B7%A5%E4%BD%9C%E7%82%B9%E4%B8%8E%E5%8A%9F%E7%8E%87%E6%9B%B2%E7%BA%BF%E9%99%90%E5%88%B6</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/ATE%E7%94%B5%E6%BA%90-FVMI%E5%B7%A5%E4%BD%9C%E7%82%B9%E4%B8%8E%E5%8A%9F%E7%8E%87%E6%9B%B2%E7%BA%BF%E9%99%90%E5%88%B6</guid>
     <description><![CDATA[ ATE 电源：FVMI 工作点与功率曲线限制 分类： 电源量测 / 工作区限制 状态： 待核实 来源： 用户提供的对话资料；未指定板卡型号和规格版本 现象 Force Voltage Measure Current（FVMI，强制电压并测量电流）时，可能出现实际电压无法达到设定值、电流受限或过载告警。对话资料将这些现象与板卡工作区联系起来。 条件 板卡型号、版本、通道及配置：未提供 目标电压、实测电流和负载持续时间：未提供 对应工作区曲线和告警日志：未提供 排查与发现 按实际通道端电压和电流计算工作点功率：P = V × I。例如 5 V、2 A 对应 10 W；这只是算术示例，不代表板卡允许... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>ICLAMP 对 Force V 上升过程的影响</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/ICLAMP%E5%AF%B9Force-V%E4%B8%8A%E5%8D%87%E8%BF%87%E7%A8%8B%E7%9A%84%E5%BD%B1%E5%93%8D</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/ICLAMP%E5%AF%B9Force-V%E4%B8%8A%E5%8D%87%E8%BF%87%E7%A8%8B%E7%9A%84%E5%BD%B1%E5%93%8D</guid>
     <description><![CDATA[ ICLAMP 对 Force V 上升过程的影响 来源： 用户提供的问答。不同资源的 Force / Clamp / Slew 行为需依对应手册与配置核实。 原理判断 对主要呈电容性的负载，所需充电电流近似为 I = C × dV/dt。若电流限值过低且负载要求的充电电流触及限值，电压上升时间可能变长；若工作点未触及限值，单独降低 ICLAMP 不一定会改变 Force V 上升速率。 flowchart LR SR[Slew / Ramp设定] --&gt; DV[目标 dV/dt] CLOAD[负载电容] --&gt; IREQ[充电需求 I = C × dV/dt] DV --&gt; ... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>V93000：DPS128HC 分段 SOA 曲线判读</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128HC%E5%88%86%E6%AE%B5SOA%E6%9B%B2%E7%BA%BF%E5%88%A4%E8%AF%BB</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128HC%E5%88%86%E6%AE%B5SOA%E6%9B%B2%E7%BA%BF%E5%88%A4%E8%AF%BB</guid>
     <description><![CDATA[ V93000：DPS128HC 分段 SOA 曲线判读 分类： 电源量测 / 安全工作区 状态： 待核实 来源： 用户提供的对话资料；导出文档中未包含曲线图片 现象 对话后续把曲线描述为几个电压区间对应不同电流上限，并称其为“分段 SOA”。由于原图没有包含在导出文档中，无法确认曲线是否为台阶、连续边界或多个工作区。 条件 DPS128HC 曲线图片及官方规格版本：缺失 电压、电流象限及工作持续时间：未提供 排查与发现 找到官方曲线并确认图例、坐标、工作象限及各限制边界。 分清曲线上的边界是连续 SOA、不同量程、热降额还是其他限制，不只凭图形外观推断内部电路机制。 对每个目标电压，读取对应方... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>V93000：DPS128HC 功率曲线的 4 V 工作点</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128HC%E5%8A%9F%E7%8E%87%E6%9B%B2%E7%BA%BF%E7%9A%844V%E5%B7%A5%E4%BD%9C%E7%82%B9</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128HC%E5%8A%9F%E7%8E%87%E6%9B%B2%E7%BA%BF%E7%9A%844V%E5%B7%A5%E4%BD%9C%E7%82%B9</guid>
     <description><![CDATA[ V93000：DPS128HC 功率曲线的 4 V 工作点 分类： 电源量测 / 曲线读值 状态： 待核实 来源： 用户提供的对话资料；导出文档仅保留图片附件编号，没有曲线图片本身 现象 用户询问 DPS128HC 曲线在 4 V 时允许的电流。原对话中的回答给出约 0.85 A，但导出文档未包含原曲线图，无法独立确认曲线区域、坐标、正负方向或读值精度。 条件 曲线图片：导出资料中缺失，仅有附件编号 DPS128HC 硬件版本和曲线来源：未提供 4 V 工作点属于源电流还是吸收电流：未核实 排查与发现 找回原始曲线图片或官方手册页面。 确认横纵坐标、曲线边界、正负象限以及 4 V 所在区段。 ... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>V93000：DPS128 功率曲线查阅</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128%E5%8A%9F%E7%8E%87%E6%9B%B2%E7%BA%BF%E6%9F%A5%E9%98%85</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128%E5%8A%9F%E7%8E%87%E6%9B%B2%E7%BA%BF%E6%9F%A5%E9%98%85</guid>
     <description><![CDATA[ V93000：DPS128 功率曲线查阅 分类： 电源量测 / 设备规格查询 状态： 待核实 来源： 用户提供的对话资料；未提供 DPS128 具体版本及 TDC 页面 现象 测试工程需要判断 DPS128 在特定电压下可提供或吸收多少电流，但手头资料中的对话回答给出了未经证实的“典型范围”和示意值。 条件 DPS128 型号后缀、硬件版本和通道配置：未提供 工作象限、量程、温度及持续时间：未提供 官方曲线或手册页：未提供 排查与发现 从对应产品和硬件版本的 Advantest TDC / 仪器手册获取电压、电流、功率和 SOA 曲线。 核对曲线适用条件：单通道或并联、源电流或吸收电流、脉冲或... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>V93000：DPS128 电压测量与采样率</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128%E7%94%B5%E5%8E%8B%E6%B5%8B%E9%87%8F%E4%B8%8E%E9%87%87%E6%A0%B7%E7%8E%87</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS128%E7%94%B5%E5%8E%8B%E6%B5%8B%E9%87%8F%E4%B8%8E%E9%87%87%E6%A0%B7%E7%8E%87</guid>
     <description><![CDATA[ V93000：DPS128 电压测量与采样率 分类： 电源量测 / 测量时序 状态： 待核实 来源： 用户提供的对话资料；未提供 Measure API、配置或对应手册页 现象 需要确认 DPS128 Measure Voltage 的采样率。原对话指出，普通 DC 电压测量返回值、测量窗口 / 积分时间和高速波形采样不能混为一谈；但没有提供可确认的具体采样率。 条件 SmarTest 版本及 Measure API：未提供 测量模式、量程、积分 / 平均设置：未提供 是否使用专用动态测量资源：未提供 排查与发现 找到项目实际调用的 Measure Voltage 方法和配置项。 查阅对应版本... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>V93000：DPS 电流 Clamp H 与 Clamp L 选择</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS%E7%94%B5%E6%B5%81ClampH%E4%B8%8EClampL%E9%80%89%E6%8B%A9</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-DPS%E7%94%B5%E6%B5%81ClampH%E4%B8%8EClampL%E9%80%89%E6%8B%A9</guid>
     <description><![CDATA[ V93000：DPS 电流 Clamp H 与 Clamp L 选择 分类： 电源量测 / 电流保护设置 状态： 待核实 来源： 用户提供的对话资料；未提供实际代码、仪器版本和接线图 现象 在 DUT 输出端使用机台拉载时，需要判断应设置电流上限 Clamp H 还是 Clamp L。原对话按“流入 DUT 为正、DUT 向测试机回流为负”给出了选择建议。 条件 仪器资源及电流符号定义：未提供 实际接线、量测端口和代码配置：未提供 拉载方向和预期电流范围：未提供 排查与发现 从对应资源手册确认电流正方向定义，不能把其他机台或其他资源的符号约定直接套用。 查看实测电流符号，确认 DUT 是向资源... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>V93000：Ramp 方向 NEG 的含义</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-Ramp%E6%96%B9%E5%90%91NEG%E7%9A%84%E5%90%AB%E4%B9%89</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/V93000-Ramp%E6%96%B9%E5%90%91NEG%E7%9A%84%E5%90%AB%E4%B9%89</guid>
     <description><![CDATA[ V93000：Ramp 方向 NEG 的含义 分类： 电源量测 / Ramp 扫描 状态： 待核实 来源： 用户提供的对话资料；未提供 Ramp API 文档或项目代码 现象 项目代码中出现 .direction(NEG)，需要判断扫描的先后方向及其对电流或电压测试的影响。 条件 实际 Ramp API、起点、终点和步进：资料未提供 使用的仪器资源及 SmarTest 版本：资料未提供 排查与发现 查看该 API 对 direction 的定义，确认它代表数值递增 / 递减、源极性还是其他方向选项。 同时核对起点、终点、步进、量程和停止条件，不能只看 NEG 判断实际扫描路径。 用安全的小范围... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>ATE 平台与仪器</title>
     <link>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/</link>
     <guid>https://s2mp1e.github.io/40.debug/ATE%E5%B9%B3%E5%8F%B0%E4%B8%8E%E4%BB%AA%E5%99%A8/</guid>
     <description><![CDATA[ ATE 平台与仪器 电源能力与工作区 ATE电源-FVMI工作点与功率曲线限制 V93000-DPS128功率曲线查阅 V93000-DPS128HC功率曲线的4V工作点 V93000-DPS128HC分段SOA曲线判读 量测与资源设置 V93000-DPS128电压测量与采样率 V93000-DPS电流ClampH与ClampL选择 V93000-Ramp方向NEG的含义 ICLAMP对Force V上升过程的影响 . ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item><item>
     <title>Buck Ton 与 ACT TIME 测试区别</title>
     <link>https://s2mp1e.github.io/40.debug/PMIC%E4%B8%8EBuck/Buck-Ton%E4%B8%8EACT-TIME%E6%B5%8B%E8%AF%95%E5%8C%BA%E5%88%AB</link>
     <guid>https://s2mp1e.github.io/40.debug/PMIC%E4%B8%8EBuck/Buck-Ton%E4%B8%8EACT-TIME%E6%B5%8B%E8%AF%95%E5%8C%BA%E5%88%AB</guid>
     <description><![CDATA[ Buck Ton 与 ACT TIME 测试区别 来源： 用户提供的多轮时序测试问答。ACT TIME 的正式定义要以产品规格 / 测试规范为准。 区别 项目TonACT TIME（常见用法）时间尺度单个或多个开关周期内的导通脉宽使能或启动事件到规定输出 / 状态的系统时间观察信号SW、Gate、LX 或规定测试点EN、VOUT、PG 等系统级信号常见目的验证定时、控制模式、Trim 和开关行为验证启动速度、软启动与系统响应常见误判把周期脉宽等同于启动时间不同规格对起止阈值定义可能不同 sequenceDiagram participant EN as EN participant SW as... ]]></description>
-    <pubDate>Thu, 24 Sep 2026 09:20:17 GMT</pubDate>
+    <pubDate>Thu, 24 Sep 2026 09:59:03 GMT</pubDate>
   </item>
     </channel>
   </rss>
