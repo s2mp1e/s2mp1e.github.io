@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>Buck-Boost 变换器修调知识库</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="Buck-Boost 变换器修调知识库"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="Buck-Boost 变换器修调知识库"/><meta name="twitter:description" content="PMIC Buck-Boost 变换器所有修调项的原理、测试方法及注意事项"/><meta property="og:description" content="PMIC Buck-Boost 变换器所有修调项的原理、测试方法及注意事项"/><meta property="og:image:alt" content="PMIC Buck-Boost 变换器所有修调项的原理、测试方法及注意事项"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC Buck-Boost 变换器所有修调项的原理、测试方法及注意事项"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-241"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-241" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/Trim测试知识库/">Trim测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>Buck Boost 变换器修调知识库</a></div></nav><h1 class="article-title">Buck-Boost 变换器修调知识库</h1><p show-comma="true" class="content-meta"><time datetime="2026-09-24T09:20:17.000Z">2026年9月24日</time><span>28分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/PMIC" class="internal tag-link">PMIC</a></li><li><a href="../../../tags/Buck-Boost" class="internal tag-link">Buck-Boost</a></li><li><a href="../../../tags/Trim" class="internal tag-link">Trim</a></li><li><a href="../../../tags/Calibration" class="internal tag-link">Calibration</a></li><li><a href="../../../tags/DMD" class="internal tag-link">DMD</a></li><li><a href="../../../tags/TON" class="internal tag-link">TON</a></li><li><a href="../../../tags/TOFF" class="internal tag-link">TOFF</a></li><li><a href="../../../tags/EA-Clamp" class="internal tag-link">EA-Clamp</a></li><li><a href="../../../tags/Comparator" class="internal tag-link">Comparator</a></li></ul></div></div><article class="popover-hint"><h1 id="buck-boost-变换器修调">Buck-Boost 变换器修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#buck-boost-变换器修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<h2 id="概述">概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Buck-Boost 变换器是 PMIC 中核心的功率级拓扑之一，能够在输入电压高于或低于输出电压时稳定工作。由于工艺偏差（Process Variation），芯片内部的参考电压、电流源、电阻电容（RC）定时元件、比较器失调（Offset）等均存在不确定性，需要通过修调（Trim/Calibration）来保证转换器的各项性能指标落在规格范围内。</p>
+<p>本文档系统性地覆盖 Buck-Boost 变换器的 11 项修调内容，从底层原理出发，阐述测试方法与工程注意事项。</p>
+<hr/>
+<h2 id="1-dmd-点修调-duty-mode-detection-threshold-trim">1. DMD 点修调 (Duty Mode Detection Threshold Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-dmd-点修调-duty-mode-detection-threshold-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>DMD（Duty Mode Detection）用于实时检测 Buck-Boost 的电感电流负载水平，判断当前应工作在 <strong>DCM（Discontinuous Conduction Mode，断续导通模式）</strong> 还是 <strong>CCM（Continuous Conduction Mode，连续导通模式）</strong>。</p>
+<ul>
+<li>DMD 核心是一个<strong>电流检测比较器</strong>，其参考阈值由一个 <strong>Current DAC</strong> 产生。</li>
+<li>当电感电流（或负载电流）低于设定的 DMD 阈值时，系统进入 DCM 以提高轻载效率；当负载高于该阈值时，系统进入 CCM 以提供足够的输出能力。</li>
+<li>Trim 的目标是将 DMD 比较器的翻转点修调到目标值，例如 <strong>20mA</strong>。即当负载电流等于 20mA 时，DCM/CCM 刚好发生切换。</li>
+</ul>
+<h3 id="测试方法">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>设置测试条件</strong>：
+<ul>
+<li>配置 Buck-Boost 为固定输出电压（例如 3.3V）。</li>
+<li>输入电压 VIN 设置为典型值（如 3.7V）。</li>
+<li>电子负载或电流源连接到输出端。</li>
+</ul>
+</li>
+<li><strong>电流扫描 (Current Sweep)</strong>：
+<ul>
+<li>从轻载（例如 1mA）开始，逐步增大负载电流至超过预期 DMD 点（例如 50mA）。</li>
+<li>每一步保持稳定后，检测以下之一：
+<ul>
+<li>LX 引脚波形：DCM 时 LX 会出现振铃（Ring）和断续，CCM 时 LX 连续开关无断续间隙。</li>
+<li>电感电流过零检测（ZCD）信号状态。</li>
+<li>内部 DMD 标志位（如有寄存器可读）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>定位翻转点</strong>：
+<ul>
+<li>找到 DCM 到 CCM 的过渡电流值。</li>
+<li>通过二分法（Binary Search）或线性扫描，精确确定翻转电流。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>读取当前 Trim Code，调整 Current DAC 的码值。</li>
+<li>重复扫描，直到翻转点落在目标值 ± 允差内（例如 20mA ± 2mA）。</li>
+<li>典型的 DMD 修调范围覆盖 5mA — 50mA。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>DMD 翻转点存在<strong>迟滞 (Hysteresis)</strong> 设计，DCM→CCM 和 CCM→DCM 的翻转点可能不同。测试时需明确修调的是哪一个方向的阈值。</li>
+<li>负载瞬态响应可能影响 DMD 判断，扫描时应等待输出稳定后再记录结果。</li>
+<li>温度对 DMD 阈值有显著影响，常温修调后需在高温/低温下做 Corner 验证。</li>
+<li>电感电流纹波大小会影响 DMD 检测精度，测试时需使用标准电感值。</li>
+</ul>
+<hr/>
+<h2 id="2-ton-时间修调-turn-on-time-trim">2. TON 时间修调 (Turn-On Time Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-ton-时间修调-turn-on-time-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-1">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>TON（Turn-On Time）指 Buck-Boost 功率管在每个开关周期中导通的时间长度，在 <strong>COT（Constant On-Time, 恒定导通时间）</strong> 或 <strong>AOT（Adaptive On-Time, 自适应导通时间）</strong> 控制架构中，TON 由内部定时电路决定：</p>
+<ul>
+<li>一个<strong>恒流源</strong>向一个内部<strong>电容</strong>充电，电容电压达到参考电平时，比较器翻转，结束 TON。</li>
+<li>TON 与 RC 乘积成正比：<code>TON = (C × VREF) / ICHG</code>。</li>
+<li>工艺偏差会导致片上 RC 有 ±15%—±30% 的变化，因此需要修调使 TON 对准设计目标。</li>
+<li>目标 TON 通常由应用条件决定：<code>TON ≈ (VOUT / VIN) × TSW</code>，典型值在几百纳秒到几微秒之间。</li>
+</ul>
+<h3 id="测试方法-1">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>连接测试设备</strong>：
+<ul>
+<li>示波器（带宽 ≥ 200MHz）连接到 LX 引脚和 VOUT。</li>
+<li>或者使用 ATE 上的 Time Measurement Unit (TMU) 进行时域测量。</li>
+</ul>
+</li>
+<li><strong>设置稳态工作条件</strong>：
+<ul>
+<li>VIN 和 VOUT 设定为修调所需的典型比值（例如 VIN=3.7V, VOUT=3.3V）。</li>
+<li>负载设为中等值（如 100mA），确保工作在 CCM。</li>
+</ul>
+</li>
+<li><strong>测量导通脉宽</strong>：
+<ul>
+<li>在 LX 波形上测量高端功率管导通脉冲的宽度（从 LX 上升沿到下降沿，或根据拓扑中具体开关节点的特征）。</li>
+<li>多次取平均（例如 16 次或 32 次）以消除噪声和抖动（Jitter）。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>若测得的 TON 偏大，减小充电电流或减小电容 Trim Code；若偏小则反之。</li>
+<li>迭代测试直到 TON 达到目标值 ± 允差（例如 ±5%）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-1">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>TON 与输入电压有关，在 AOT 架构中 TON 会自适应调节 VIN 变化，修调需在指定 VIN/VOUT 条件下进行。</li>
+<li>示波器探头的地线尽量短，避免地回路引入噪声导致脉宽测量误差。</li>
+<li>测试时需注意死区时间（Dead Time）不应被误计入 TON。</li>
+<li>修调 TON 时也会影响开关频率，需要同时验证频率是否落在目标范围内。</li>
+</ul>
+<hr/>
+<h2 id="3-toff-时间修调-turn-off-time-trim">3. TOFF 时间修调 (Turn-Off Time Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-toff-时间修调-turn-off-time-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-2">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>TOFF（Turn-Off Time）指功率管关断的时间长度。在与 TON 配合时，<code>TON + TOFF</code> 决定开关周期。</p>
+<ul>
+<li>与控制模式相关：在 <strong>恒定关断时间 (Constant Off-Time, COT)</strong> 架构中，TOFF 由片上 RC 定时器决定。</li>
+<li>定时原理与 TON 类似：电流源充电到比较器阈值，比较器翻转结束 TOFF。</li>
+<li>片上 RC 工艺偏差同样会使 TOFF 偏离目标值，需要修调。</li>
+</ul>
+<h3 id="测试方法-2">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>测试条件</strong>：与 TON 测试类似的稳态设置，确保 CCM 工作模式。</li>
+<li><strong>测量 LX 关断脉宽</strong>：
+<ul>
+<li>测量 LX 引脚上功率管关断脉冲的宽度（TON 脉冲之间的低电平时间，具体视拓扑而定）。</li>
+<li>使用示波器测量时，取多个周期的平均值。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>调整 TOFF 定时器的 Trim Code（通常也是调整充电电流或电容阵列）。</li>
+<li>每次调整后重新测量，迭代到目标值。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-2">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>TOFF 在轻载 DCM 下会被跳过或变动，因此修调必须在 CCM 模式下进行。</li>
+<li>如果 TON 和 TOFF 使用共用的 RC 定时电路，修调其中一个可能会影响另一个，需确认其独立性。</li>
+<li>部分设计中 TOFF 具有自适应特性（与 VOUT 或 VIN 有关），需按数据手册中的公式确认修调条件。</li>
+</ul>
+<hr/>
+<h2 id="4-min-ton-时间修调-minimum-turn-on-time-trim">4. Min TON 时间修调 (Minimum Turn-On Time Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-min-ton-时间修调-minimum-turn-on-time-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-3">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Min TON（Minimum On-Time）是 Buck-Boost 能够可靠输出的最短导通脉宽，是功率管驱动和死区控制能够响应并完成的最小时间。</p>
+<ul>
+<li>在高 VIN、低 VOUT 的情况下（例如 VIN=12V, VOUT=1.8V），占空比 D 很小，需要的 TON 非常短。</li>
+<li>如果目标 TON 小于芯片物理上能支持的最小导通时间，输出电压将失控（输出电压高于目标值，即 Output Overvoltage）。</li>
+<li>Min TON 受到内部驱动延迟、电平移位器（Level Shifter）传输时间、栅极驱动（Gate Drive）上下拉能力等因素的限制。</li>
+<li>修调通过调整一个限制 TON 的比较器阈值或延迟链（Delay Chain）来实现。</li>
+</ul>
+<h3 id="测试方法-3">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>设置极限条件</strong>：
+<ul>
+<li>设置 VIN 为最大值，VOUT 为最小值，使占空比最小。</li>
+<li>例如 VIN=5.5V, VOUT=1.8V（以实际芯片规格为准）。</li>
+<li>空载或极轻载。</li>
+</ul>
+</li>
+<li><strong>测量 LX 脉宽</strong>：
+<ul>
+<li>在 LX 上测量功率管的最小导通脉冲宽度。</li>
+<li>多次测量取其最小值。</li>
+</ul>
+</li>
+<li><strong>检测输出异常</strong>：
+<ul>
+<li>观察 VOUT 是否超过目标值（过压指标）。</li>
+<li>如果 VOUT 偏高，说明实际占空比无法进一步减小，需要修调 Min TON 更小。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>调整最小导通时间限制电路的 Trim Code。</li>
+<li>通常修调的是延迟链中的电容负载或电流源。</li>
+<li>重复测试直到 VOUT 保持在规格范围内，且 LX 脉冲宽度符合 Min TON 目标。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-3">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>Min TON 大小受温度影响很大，高温下驱动速度变慢，Min TON 可能增大。需在最高工作温度下验证。</li>
+<li>修调 Min TON 过小可能导致驱动不完全开启（不完全导通）或可靠性问题（栅极氧化层应力），需留有裕量。</li>
+<li>测试时需要注意 LX 节点是否存在振铃导致误判脉宽。</li>
+</ul>
+<hr/>
+<h2 id="5-max-toff-修调-maximum-turn-off-time-trim">5. Max TOFF 修调 (Maximum Turn-Off Time Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-max-toff-修调-maximum-turn-off-time-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-4">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Max TOFF（Maximum Off-Time）是 Buck-Boost 在单个开关周期中允许的最长关断时间，主要用于：</p>
+<ul>
+<li>限制轻载或空载时的最低开关频率。</li>
+<li>防止轻载下输出电压下降过大。</li>
+<li>在最坏条件下保证足够的电感能量传递。</li>
+<li>与 TON 一起构成开关周期的上界，确保系统时钟/频率不会过低（以避免可听噪声或系统不稳定）。</li>
+</ul>
+<p>Max TOFF 由定时器电路产生，通常也有一个 RC 振荡器或计数器决定。</p>
+<h3 id="测试方法-4">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>设置测试条件</strong>：
+<ul>
+<li>设置 VIN 和 VOUT 为轻载条件，使芯片倾向于进入最大关断时间状态。</li>
+<li>例如空载、VIN 略高于 VOUT 的轻载条件。</li>
+</ul>
+</li>
+<li><strong>测量</strong>：
+<ul>
+<li>使用示波器测量 LX 上的最长的关断时间（从开关脉冲结束到下一个脉冲开始的时间间隔）。</li>
+<li>在 DCM 模式下，观察 skip 周期之间的最大间隔。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>调整 Max TOFF 定时器的 Trim Code。</li>
+<li>每次调整后测量最长的 TOFF，迭代到目标值。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-4">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>Max TOFF 修调通常在空载或极轻载条件下进行，确保系统不会因频率过低进入可听频段。</li>
+<li>不同的工作模式（Buck、Boost、Buck-Boost）下 Max TOFF 行为可能不同，需要在对应模式下分别验证。</li>
+<li>Max TOFF 过长可能导致输出纹波过大，过短会导致轻载效率下降。</li>
+</ul>
+<hr/>
+<h2 id="6-ea-clamp-low-修调-error-amplifier-low-clamp-trim">6. EA Clamp LOW 修调 (Error Amplifier Low Clamp Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6-ea-clamp-low-修调-error-amplifier-low-clamp-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-5">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>EA（Error Amplifier，误差放大器）的输出电压控制着 Buck-Boost 的 PWM 占空比。EA 输出 LOW 钳位（Low Clamp）是指 EA 输出电压能够达到的最低电平。</p>
+<ul>
+<li>EA 输出 LOW 在 Buck-Boost 中对应<strong>电感谷值电流（Valley Current）</strong> 的下限。</li>
+<li>当 EA 输出被钳位在 LOW 时，PWM 比较器会限制占空比，使能量传递最小化。</li>
+<li>对于 Buck 模式，EA LOW 钳位对应着峰值电流/谷值电流的下界。</li>
+<li>修调 EA Clamp LOW 是为了确保在轻载或空载时，EA 不会进入饱和区过深，避免系统反应过慢导致输出过冲。</li>
+<li>修调通过调整钳位二极管的偏置电流或钳位比较器的参考电压实现。</li>
+</ul>
+<h3 id="测试方法-5">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>强制 EA 输出 LOW</strong>：
+<ul>
+<li>设置 VOUT 远高于目标值（例如强制过压条件），使 FB 反馈电压远高于 VREF，迫使 EA 输出饱和到 LOW。</li>
+<li>或者通过测试模式（Test Mode）直接读取 EA 输出节点。</li>
+</ul>
+</li>
+<li><strong>测量 EA 输出 LOW 电压</strong>：
+<ul>
+<li>直接测量 EA_OUT（如果有测试引脚）或通过内部 ADC 读取。</li>
+<li>如果无法直接测量，可以间接测量占空比/谷值电流。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>调整 EA Clamp LOW 的 Trim Code（通常是调整钳位电流或参考）。</li>
+<li>验证 EA 输出 LOW 电压是否达到目标值。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-5">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>EA 输出 LOW 钳位与 EA 输出 HIGH 钳位是独立的两个电路，修调互不影响。</li>
+<li>如果钳位过低，EA 恢复时间变长，可能导致负载瞬态响应恶化。</li>
+<li>注意区分 EA 输出 LOW 电压与 EA 输入失调电压，两者不同。</li>
+<li>部分设计中 EA 输出 LOW 钳位用于限制最小占空比，需与 Min TON/TOFF 配合验证。</li>
+</ul>
+<hr/>
+<h2 id="7-ea-clamp-high-修调-error-amplifier-high-clamp-trim">7. EA Clamp HIGH 修调 (Error Amplifier High Clamp Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#7-ea-clamp-high-修调-error-amplifier-high-clamp-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-6">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-6" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>EA Clamp HIGH 是指 EA 输出电压能够达到的最高电平，它限制了 PWM 比较器允许的最大占空比，对应<strong>电感峰值电流（Peak Current）</strong> 的上限。</p>
+<ul>
+<li>EA 输出 HIGH 钳位相当于间接设置了峰值电流限制（Peak Current Limit）。</li>
+<li>当系统需要大占空比（如 Boost 模式或者重载），EA 输出上升，HIGH 钳位决定了 EA 能拉高到的最大电平。</li>
+<li>过高的 EA Clamp HIGH 可能导致过流，过低则限制输出带载能力。</li>
+<li>修调原理与 LOW 钳位对称：调整钳位电路或参考电压。</li>
+</ul>
+<h3 id="测试方法-6">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-6" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>强制 EA 输出 HIGH</strong>：
+<ul>
+<li>设置 VOUT 远低于目标值（例如强制欠压条件），使 FB 电压远低于 VREF，迫使 EA 输出饱和到 HIGH。</li>
+<li>或通过测试模式强制 EA 输出为 HIGH。</li>
+</ul>
+</li>
+<li><strong>测量 EA 输出 HIGH 电压</strong>：
+<ul>
+<li>直接测量 EA_OUT 电压或通过内部 ADC 读取。</li>
+<li>间接验证：观察占空比是否被限制在预期最大值。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>调整 EA Clamp HIGH 的 Trim Code。</li>
+<li>验证 EA 输出 HIGH 电压是否达到目标值。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-6">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-6" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>EA Clamp HIGH 修调与系统的过流保护点（OCP）直接相关，修调后需要验证 OCP 是否仍然在规格内。</li>
+<li>注意在 Buck 模式和 Boost 模式下，EA 的输出范围和控制关系可能不同，建议在两种模式下分别验证。</li>
+<li>EA HIGH 钳位电压过低会导致最大输出电流不足，尤其在高负载时。</li>
+<li>与其他保护机制（如逐周期限流 Cycle-by-Cycle Current Limit）存在交互，需确认优先级。</li>
+</ul>
+<hr/>
+<h2 id="8-bb-输出电压修调-output-voltage-trim">8. BB 输出电压修调 (Output Voltage Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#8-bb-输出电压修调-output-voltage-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-7">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-7" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Buck-Boost 输出电压精度由内部参考电压 VREF 和反馈电阻分压网络共同决定：</p>
+<ul>
+<li><code>VOUT = VREF × (1 + R1/R2)</code>，其中 R1、R2 是反馈分压电阻。</li>
+<li>片上电阻和多晶硅电阻的工艺偏差会导致 R1/R2 比例偏移，从而使 VOUT 偏离目标值。</li>
+<li>修调通过调整一个 <strong>DAC 控制的参考电压</strong> 或修调反馈分压电阻网络来实现。</li>
+<li>典型做法是将 VREF 设计为一个可编程的电压源（通过 Trim Code 选择不同的 VREF 档位），从而微调输出电压。</li>
+</ul>
+<h3 id="测试方法-7">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-7" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>设置带载条件</strong>：
+<ul>
+<li>VIN 设为典型值。</li>
+<li>输出接额定负载（如 100mA 或数据手册中的修调负载条件）。</li>
+<li>使能 Buck-Boost 输出。</li>
+</ul>
+</li>
+<li><strong>测量输出电压</strong>：
+<ul>
+<li>使用高精度万用表（DMM）或 ATE 的电压测量单元在输出电容两端测量 VOUT。</li>
+<li>取稳定后的读数。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>读取输出电压误差：<code>VOUT_Target - VOUT_Measured</code>。</li>
+<li>根据误差查找 Trim Table（VREF DAC Code vs VOUT）。</li>
+<li>写入新的 Trim Code，重新测量，迭代到目标值 ± 允差（例如 ±1% 或 ±15mV）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-7">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-7" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>输出电压修调建议在额定负载下进行，因为负载调节（Load Regulation）也会影响 VOUT。</li>
+<li>修调时需要让输出电压稳定后再测量，特别是大输出电容时建立时间较长。</li>
+<li>不同输出电压档位（例如 1.8V / 2.5V / 3.3V）可能需要各自独立的 Trim Code。</li>
+<li>若芯片支持 I2C 动态电压调节（Dynamic Voltage Scaling, DVS），需确认所有电压点的精度。</li>
+<li>反馈电阻修调和 VREF 修调不能混淆，需确认芯片采用的修调架构。</li>
+</ul>
+<hr/>
+<h2 id="9-bb-vo_det-比较器修调-output-voltage-detector-comparator-trim">9. BB VO_DET 比较器修调 (Output Voltage Detector Comparator Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#9-bb-vo_det-比较器修调-output-voltage-detector-comparator-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-8">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-8" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>VO_DET（Voltage Output Detector）是用于监测 Buck-Boost 输出电压状态的比较器，用于产生以下标志：</p>
+<ul>
+<li><strong>PGOOD（Power Good）</strong>：当 VOUT 在目标电压的 ±X% 范围内时置位。</li>
+<li><strong>OV（Overvoltage，过压保护）</strong>：当 VOUT 超过某个阈值时触发保护。</li>
+<li><strong>UV（Undervoltage，欠压保护）</strong>：当 VOUT 低于某个阈值时触发保护。</li>
+</ul>
+<p>比较器的参考电压由一个分压网络和 DAC 生成。由于工艺误差，比较器的<strong>输入失调电压（Input Offset Voltage）</strong> 和分压网络的精度都需要通过修调来校准。</p>
+<h3 id="测试方法-8">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-8" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>设置测试条件</strong>：
+<ul>
+<li>Buck-Boost 输出配置为目标电压。</li>
+<li>可提供一个外部电源直接驱动 VOUT 引脚（Force VOUT），用于精确控制 VOUT 电平。</li>
+</ul>
+</li>
+<li><strong>扫描 VOUT，测量翻转点</strong>：
+<ul>
+<li>从低于目标电压开始，缓慢升高 VOUT。</li>
+<li>监控 VO_DET 输出（通常是 GPIO 电平或寄存器标志位）。</li>
+<li>记录 VOUT 升高时比较器翻转（如 PGOOD 从低变高）的电压点。</li>
+<li>再从高于目标电压开始缓慢降低 VOUT，记录另一个方向的翻转点（迟滞测量）。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>比较实测翻转点与设计目标值的差值。</li>
+<li>调整比较器失调 Trim Code 或分压网络 Trim Code。</li>
+<li>修调目标是使比较器的上下门限（含迟滞）对称于目标电压。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-8">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-8" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>VO_DET 比较器通常设计有<strong>迟滞</strong>以避免噪声误触发。修调前需明确迟滞量是固定的还是可调的。</li>
+<li>测试时 VOUT 变化速率要足够慢（quasi-static），避免比较器响应延迟导致测量误差。</li>
+<li>比较器的传输延迟（Propagation Delay）会影响动态响应测试，但在静态 trim 时影响不大。</li>
+<li>温度变化会引入比较器的失调漂移，建议高温和低温下进行 Corner 验证。</li>
+</ul>
+<hr/>
+<h2 id="10-bb-sleep-比较器修调-sleep-mode-comparator-trim">10. BB Sleep 比较器修调 (Sleep Mode Comparator Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#10-bb-sleep-比较器修调-sleep-mode-comparator-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-9">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-9" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Sleep 比较器是 Buck-Boost 在 <strong>睡眠模式（Sleep Mode/PFM Mode）</strong> 下使用的低功耗比较器。</p>
+<ul>
+<li>在轻载或空载时，Buck-Boost 进入睡眠模式，通过一个低带宽、低功耗的比较器监控 VOUT 是否下降到阈值以下。</li>
+<li>当 VOUT 跌落到 Sleep 阈值以下，比较器唤醒芯片，触发一个开关脉冲将 VOUT 拉回正常范围。</li>
+<li>由于睡眠模式下静态电流极小（微安级），该比较器必须工作在极低功耗（nA 级偏置电流），因此其失调电压通常比正常比较器大。</li>
+<li>修调目的是补偿比较器的固有失调，确保睡眠阈值准确。</li>
+</ul>
+<h3 id="测试方法-9">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-9" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>进入睡眠模式</strong>：
+<ul>
+<li>设置输入电压，使能 Buck-Boost 输出。</li>
+<li>空载或极轻载（&lt;1mA），等待芯片进入睡眠/PFM 模式。</li>
+<li>确认模式标志位或 LX 脉冲特征（稀疏脉冲）。</li>
+</ul>
+</li>
+<li><strong>施加外部电压或控制负载</strong>：
+<ul>
+<li><strong>方法一（静态法）</strong>：断开 Buck-Boost 输出与负载的连接，用外部电源精确控制 VOUT 引脚。
+<ul>
+<li>从正常 VOUT 开始，缓慢降低外部电压。</li>
+<li>检测 Sleep 比较器的输出翻转点（芯片是否发出下一个开关脉冲）。</li>
+</ul>
+</li>
+<li><strong>方法二（动态法）</strong>：连接电子负载，恒流拉载使 VOUT 自然跌落。
+<ul>
+<li>测量 VOUT 上触发下一个开关脉冲时的电压谷值。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>调整 Sleep 比较器的 Offset Trim Code（通过 Current DAC 调整输入级的负载电流以抵消失调）。</li>
+<li>目标使比较器翻转点与设计 Sleep 阈值一致。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-9">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-9" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>Sleep 比较器由于功耗极低，响应速度较慢，翻转点的测量需要足够的稳定时间。</li>
+<li>睡眠模式阈值与正常工作模式阈值之间可能有切换逻辑，需确认没有逻辑干扰。</li>
+<li>不同输出电容、ESR 会影响 VOUT 跌落速率，可能导致测得的触发电压有差异。</li>
+<li>由于比较器电流极小，测试环境噪声和耦合噪声容易引起误触发，测试布局需注意屏蔽。</li>
+</ul>
+<hr/>
+<h2 id="11-bb-bk_mode-比较器修调-buckboost-mode-comparator-trim">11. BB BK_MODE 比较器修调 (Buck/Boost Mode Comparator Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-bb-bk_mode-比较器修调-buckboost-mode-comparator-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-10">原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-10" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>BK_MODE（Buck/Boost Mode Detection）比较器用于检测输入电压 VIN 与输出电压 VOUT 之间的关系，从而决定 Buck-Boost 变换器的工作模式：</p>
+<ul>
+<li><strong>Buck 模式</strong>：VIN >> VOUT（降压模式）。</li>
+<li><strong>Boost 模式</strong>：VIN &lt;&lt; VOUT（升压模式）。</li>
+<li><strong>Buck-Boost 模式</strong>：VIN ≈ VOUT（降压-升压过渡模式，部分时间段 Buck 部分工作，部分时间段 Boost 部分工作）。</li>
+</ul>
+<p>模式切换由比较器检测 VIN 与 VOUT（或分压后的 VIN_SENSE 与 VOUT_SENSE）的比值决定。</p>
+<ul>
+<li>比较器的参考电压由一个电阻分压网络产生，分压比经过精确设计。</li>
+<li>工艺偏差导致分压网络和比较器本身存在失调，需要修调以确保模式切换在正确的 VIN/VOUT 比值下发生。</li>
+<li>典型的模式切换点例如：
+<ul>
+<li>Buck→Buck-Boost 切换：VIN = VOUT + 200mV</li>
+<li>Buck-Boost→Boost 切换：VIN = VOUT - 200mV
+（具体值由芯片设计决定）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="测试方法-10">测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-10" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>设置测试条件</strong>：
+<ul>
+<li>VOUT 设置为固定值（例如 3.3V）。</li>
+<li>VIN 从高于 VOUT 开始（确保为 Buck 模式），通过可编程电源或 ATE 的 VIN 通道控制。</li>
+</ul>
+</li>
+<li><strong>扫描 VIN，检测模式切换</strong>：
+<ul>
+<li><strong>Buck → Buck-Boost 切换</strong>：
+<ul>
+<li>从高 VIN 开始逐步降低 VIN。</li>
+<li>检测 LX 波形或模式标志位：当 LX 波形中出现 Boost 部分（LX 在开关周期中出现负压或反相特征）时，或者模式寄存器标志位改变。</li>
+<li>记录切换时的 VIN 电压。</li>
+</ul>
+</li>
+<li><strong>Buck-Boost → Boost 切换</strong>：
+<ul>
+<li>继续降低 VIN。</li>
+<li>当 LX 波形不再出现 Buck 模式的开关特征，完全变为 Boost 特征时，记录切换 VIN。</li>
+</ul>
+</li>
+<li>反向扫描同样做一遍，记录迟滞。</li>
+</ul>
+</li>
+<li><strong>Trim 调整</strong>：
+<ul>
+<li>调整 BK_MODE 比较器的参考电压 Trim Code 或失调 Trim Code。</li>
+<li>修调目标是使模式切换点 VIN 与设计目标值的偏差在允差范围内（例如 ±30mV）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="注意事项-10">注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-10" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>Buck-Boost 模式切换点存在原理性<strong>迟滞（Hysteresis）</strong>，避免在 VIN ≈ VOUT 时模式频繁切换。正向和反向的切换点不同，修调时需明确修调的是哪一个方向。</li>
+<li>模式切换时输出电压可能出现短暂波动，测试时需要给足够的时间让输出稳定。</li>
+<li>温度变化会影响比较器的失调，建议在典型温度下修调，在极限温度下验证。</li>
+<li>负载电流也可能会影响模式切换点的实际表现，建议在典型负载下修调。</li>
+<li>需确认芯片内部的模式切换逻辑是一步切换（直接 Buck↔Boost 切换）还是三步切换（Buck→Buck-Boost→Boost），以选择正确的修调策略。</li>
+</ul>
+<hr/>
+<h2 id="附录修调策略通用原则">附录：修调策略通用原则<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#附录修调策略通用原则" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="trim-code-存储">Trim Code 存储<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#trim-code-存储" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>修调值通常存储在 <strong>OTP (One-Time Programmable) Memory</strong> 或 <strong>EFuse</strong> 中。</li>
+<li>修调流程：探针测试（CP Test）→ 计算 Trim Code → 写入 OTP/epoly → 在 FT（Final Test）中回读验证。</li>
+<li>部分芯片支持 Packaging 后的二次修调。</li>
+</ul>
+<h3 id="修调优先级">修调优先级<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调优先级" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>先修调基准（VREF / IREF / VBG），再修调 Buck-Boost 相关项。</li>
+<li>输出电压修调建议在 EA Clamp 修调之后进行，因为 EA Clamp 范围会影响输出的实际控制能力。</li>
+</ul>
+<h3 id="数据记录">数据记录<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#数据记录" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>每次修调应记录：Die ID、Trim Code、修调前后测量值、温度、测试时间。</li>
+<li>用于良率分析（Yield Analysis）和后续工艺改进（Process Improvement）。</li>
+</ul>
+<hr/>
+<blockquote>
+<p>本文档对应 Trim.md 中 <code>BUCKBOOST修调</code> 章节的 11 项修调内容，是 CP/FT 测试工程师进行相关修调项开发和调试的参考指南。</p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-93" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#buck-boost-变换器修调" data-for="buck-boost-变换器修调">Buck-Boost 变换器修调</a></li><li class="depth-1"><a href="#概述" data-for="概述">概述</a></li><li class="depth-1"><a href="#1-dmd-点修调-duty-mode-detection-threshold-trim" data-for="1-dmd-点修调-duty-mode-detection-threshold-trim">1. DMD 点修调 (Duty Mode Detection Threshold Trim)</a></li><li class="depth-2"><a href="#原理" data-for="原理">原理</a></li><li class="depth-2"><a href="#测试方法" data-for="测试方法">测试方法</a></li><li class="depth-2"><a href="#注意事项" data-for="注意事项">注意事项</a></li><li class="depth-1"><a href="#2-ton-时间修调-turn-on-time-trim" data-for="2-ton-时间修调-turn-on-time-trim">2. TON 时间修调 (Turn-On Time Trim)</a></li><li class="depth-2"><a href="#原理-1" data-for="原理-1">原理</a></li><li class="depth-2"><a href="#测试方法-1" data-for="测试方法-1">测试方法</a></li><li class="depth-2"><a href="#注意事项-1" data-for="注意事项-1">注意事项</a></li><li class="depth-1"><a href="#3-toff-时间修调-turn-off-time-trim" data-for="3-toff-时间修调-turn-off-time-trim">3. TOFF 时间修调 (Turn-Off Time Trim)</a></li><li class="depth-2"><a href="#原理-2" data-for="原理-2">原理</a></li><li class="depth-2"><a href="#测试方法-2" data-for="测试方法-2">测试方法</a></li><li class="depth-2"><a href="#注意事项-2" data-for="注意事项-2">注意事项</a></li><li class="depth-1"><a href="#4-min-ton-时间修调-minimum-turn-on-time-trim" data-for="4-min-ton-时间修调-minimum-turn-on-time-trim">4. Min TON 时间修调 (Minimum Turn-On Time Trim)</a></li><li class="depth-2"><a href="#原理-3" data-for="原理-3">原理</a></li><li class="depth-2"><a href="#测试方法-3" data-for="测试方法-3">测试方法</a></li><li class="depth-2"><a href="#注意事项-3" data-for="注意事项-3">注意事项</a></li><li class="depth-1"><a href="#5-max-toff-修调-maximum-turn-off-time-trim" data-for="5-max-toff-修调-maximum-turn-off-time-trim">5. Max TOFF 修调 (Maximum Turn-Off Time Trim)</a></li><li class="depth-2"><a href="#原理-4" data-for="原理-4">原理</a></li><li class="depth-2"><a href="#测试方法-4" data-for="测试方法-4">测试方法</a></li><li class="depth-2"><a href="#注意事项-4" data-for="注意事项-4">注意事项</a></li><li class="depth-1"><a href="#6-ea-clamp-low-修调-error-amplifier-low-clamp-trim" data-for="6-ea-clamp-low-修调-error-amplifier-low-clamp-trim">6. EA Clamp LOW 修调 (Error Amplifier Low Clamp Trim)</a></li><li class="depth-2"><a href="#原理-5" data-for="原理-5">原理</a></li><li class="depth-2"><a href="#测试方法-5" data-for="测试方法-5">测试方法</a></li><li class="depth-2"><a href="#注意事项-5" data-for="注意事项-5">注意事项</a></li><li class="depth-1"><a href="#7-ea-clamp-high-修调-error-amplifier-high-clamp-trim" data-for="7-ea-clamp-high-修调-error-amplifier-high-clamp-trim">7. EA Clamp HIGH 修调 (Error Amplifier High Clamp Trim)</a></li><li class="depth-2"><a href="#原理-6" data-for="原理-6">原理</a></li><li class="depth-2"><a href="#测试方法-6" data-for="测试方法-6">测试方法</a></li><li class="depth-2"><a href="#注意事项-6" data-for="注意事项-6">注意事项</a></li><li class="depth-1"><a href="#8-bb-输出电压修调-output-voltage-trim" data-for="8-bb-输出电压修调-output-voltage-trim">8. BB 输出电压修调 (Output Voltage Trim)</a></li><li class="depth-2"><a href="#原理-7" data-for="原理-7">原理</a></li><li class="depth-2"><a href="#测试方法-7" data-for="测试方法-7">测试方法</a></li><li class="depth-2"><a href="#注意事项-7" data-for="注意事项-7">注意事项</a></li><li class="depth-1"><a href="#9-bb-vo_det-比较器修调-output-voltage-detector-comparator-trim" data-for="9-bb-vo_det-比较器修调-output-voltage-detector-comparator-trim">9. BB VO_DET 比较器修调 (Output Voltage Detector Comparator Trim)</a></li><li class="depth-2"><a href="#原理-8" data-for="原理-8">原理</a></li><li class="depth-2"><a href="#测试方法-8" data-for="测试方法-8">测试方法</a></li><li class="depth-2"><a href="#注意事项-8" data-for="注意事项-8">注意事项</a></li><li class="depth-1"><a href="#10-bb-sleep-比较器修调-sleep-mode-comparator-trim" data-for="10-bb-sleep-比较器修调-sleep-mode-comparator-trim">10. BB Sleep 比较器修调 (Sleep Mode Comparator Trim)</a></li><li class="depth-2"><a href="#原理-9" data-for="原理-9">原理</a></li><li class="depth-2"><a href="#测试方法-9" data-for="测试方法-9">测试方法</a></li><li class="depth-2"><a href="#注意事项-9" data-for="注意事项-9">注意事项</a></li><li class="depth-1"><a href="#11-bb-bk_mode-比较器修调-buckboost-mode-comparator-trim" data-for="11-bb-bk_mode-比较器修调-buckboost-mode-comparator-trim">11. BB BK_MODE 比较器修调 (Buck/Boost Mode Comparator Trim)</a></li><li class="depth-2"><a href="#原理-10" data-for="原理-10">原理</a></li><li class="depth-2"><a href="#测试方法-10" data-for="测试方法-10">测试方法</a></li><li class="depth-2"><a href="#注意事项-10" data-for="注意事项-10">注意事项</a></li><li class="depth-1"><a href="#附录修调策略通用原则" data-for="附录修调策略通用原则">附录：修调策略通用原则</a></li><li class="depth-2"><a href="#trim-code-存储" data-for="trim-code-存储">Trim Code 存储</a></li><li class="depth-2"><a href="#修调优先级" data-for="修调优先级">修调优先级</a></li><li class="depth-2"><a href="#数据记录" data-for="数据记录">数据记录</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/04_时钟测试" class="internal">时钟测试 — PMIC 时钟与振荡器 FT 测试</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>迟滞Buck变换器修调</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="迟滞Buck变换器修调"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="迟滞Buck变换器修调"/><meta name="twitter:description" content="迟滞Buck变换器（Hysteretic Buck Converter）各修调项的详细原理、测试方法与注意事项"/><meta property="og:description" content="迟滞Buck变换器（Hysteretic Buck Converter）各修调项的详细原理、测试方法与注意事项"/><meta property="og:image:alt" content="迟滞Buck变换器（Hysteretic Buck Converter）各修调项的详细原理、测试方法与注意事项"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="迟滞Buck变换器（Hysteretic Buck Converter）各修调项的详细原理、测试方法与注意事项"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-245"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-245" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/Trim测试知识库/">Trim测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>迟滞Buck变换器修调</a></div></nav><h1 class="article-title">迟滞Buck变换器修调</h1><p show-comma="true" class="content-meta"><time datetime="2026-09-24T09:20:17.000Z">2026年9月24日</time><span>49分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/PMIC" class="internal tag-link">PMIC</a></li><li><a href="../../../tags/hysteretic-buck" class="internal tag-link">hysteretic-buck</a></li><li><a href="../../../tags/trim" class="internal tag-link">trim</a></li><li><a href="../../../tags/calibration" class="internal tag-link">calibration</a></li><li><a href="../../../tags/DMD" class="internal tag-link">DMD</a></li><li><a href="../../../tags/OCP" class="internal tag-link">OCP</a></li><li><a href="../../../tags/TON" class="internal tag-link">TON</a></li><li><a href="../../../tags/feedback-resistor" class="internal tag-link">feedback-resistor</a></li></ul></div></div><article class="popover-hint"><h1 id="迟滞buck变换器修调">迟滞Buck变换器修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#迟滞buck变换器修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<h2 id="一迟滞buck变换器概述">一、迟滞Buck变换器概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一迟滞buck变换器概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-什么是迟滞buck变换器">1.1 什么是迟滞Buck变换器<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-什么是迟滞buck变换器" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck变换器（Hysteretic Buck Converter）是一种<strong>电压模式（Voltage-Mode）</strong> 的降压变换器，其核心控制方式如下：</p>
+<ul>
+<li><strong>纹波注入（Ripple Injection）</strong>：输出纹波通过注入网络耦合到比较器输入端，作为反馈信号的一部分参与调制。</li>
+<li><strong>基于比较器的控制（Comparator-Based Control）</strong>：使用迟滞比较器（Hysteretic Comparator）而非传统的误差放大器（EA）+ 补偿网络来控制开关动作。当反馈电压低于下限阈值时开启上管，高于上限阈值时关闭上管。</li>
+<li><strong>无需外部补偿（No External Compensation）</strong>：由于采用迟滞比较器直接控制，系统天然稳定，不需要外部的RC补偿网络。</li>
+<li><strong>变频工作（Variable Frequency Operation，VFO）</strong>：开关频率随输入电压、输出电压和负载电流变化，而非固定频率PWM。</li>
+<li><strong>快速瞬态响应（Fast Transient Response）</strong>：迟滞结构比较器直接响应输出电压变化，几乎无延迟，瞬态响应速度远快于传统的电压模式或电流模式PWM变换器。</li>
+</ul>
+<h3 id="12-迟滞buck的典型修调项概览">1.2 迟滞Buck的典型修调项概览<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-迟滞buck的典型修调项概览" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>由于工艺偏差（PVT Variation），迟滞Buck的内部电路参数需要经过修调（Trim）来保证最终产品的各项指标在规格书范围内。主要修调项如下：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>编号</th><th>修调项</th><th>英文描述</th><th>核心目的</th></tr></thead><tbody><tr><td>1</td><td>LX电阻修调</td><td>LX Rds(on) Trim</td><td>DCM检测精度、效率优化</td></tr><tr><td>2</td><td>VO_R电阻精度修调</td><td>Output Voltage Feedback Resistor Trim</td><td>输出电压精度</td></tr><tr><td>3</td><td>Vref_R电阻精度修调</td><td>Reference Resistor Trim</td><td>内部参考电流/时序精度</td></tr><tr><td>4</td><td>RC Ton时间修调</td><td>RC Turn-On Time Trim</td><td>Ton时间精度</td></tr><tr><td>5</td><td>输出电压带载修调</td><td>VOUT Trim under Load</td><td>带载输出电压精度</td></tr><tr><td>6</td><td>POCP修调</td><td>Peak Over-Current Protection Trim</td><td>过流保护点精度</td></tr><tr><td>7</td><td>负DMD修调</td><td>Negative Current Detection Trim</td><td>DCM/CCM切换精度</td></tr></tbody></table></div>
+<hr/>
+<h2 id="二迟滞buck的lx电阻修调">二、迟滞Buck的LX电阻修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二迟滞buck的lx电阻修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-原理principle">2.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck变换器的功率管（Power FET）导通电阻（Rds(on)）在制造过程中会随<strong>工艺角（Process Corner）</strong> 发生显著变化。LX节点是指功率管（上管Source/下管Drain）与电感之间的连接点。</p>
+<p>LX电阻修调的核心目的包括：</p>
+<ul>
+<li><strong>DCM检测</strong>：迟滞Buck在轻载时进入非连续导通模式（DCM），需要精确检测电感电流过零点（Zero-Cross）。过零检测电路通常通过检测LX节点电压（即下管Vds）来推断电感电流方向。若Rds(on)不准确，过零检测点会偏移，导致DCM/CCM边界控制不精确。</li>
+<li><strong>效率优化</strong>：Rds(on)直接影响导通损耗。修调Rds(on)感知值（Sensed Resistance）确保检测电路正确评估功耗和电流状态。</li>
+<li><strong>OCP精度基础</strong>：部分OCP检测也依赖于下管Rds(on)的 sensing 值。</li>
+</ul>
+<p>修调的本质是<strong>调整检测通路中用于补偿Rds(on)工艺漂移的可调电阻或电流源</strong>，使检测电路”认为”的Rds(on)值与实际值匹配。</p>
+<h3 id="22-测试方法test-method">2.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>基本思路</strong>：在LX节点注入已知电流，测量电压降，计算实际的Rds(on)，然后调整修调码使检测电路匹配该值。</p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li>
+<p><strong>上管（High-Side FET）Rds(on)测量</strong>：</p>
+<ul>
+<li>将Buck设置为强制PWM模式（FPWM），使其在CCM下工作。</li>
+<li>让Buck输出额定负载电流（I_LOAD）。</li>
+<li>在上管导通期间，测量LX节点的电压（相对于VIN或PGND）。</li>
+<li>已知电流 = I_LOAD（上管导通时电流近似等于负载电流），计算 Rds(on)_HS = (VIN - VLX) / I_LOAD。</li>
+<li>依次扫描修调码（Trim Code），找到使检测值与目标值最接近的码值。</li>
+</ul>
+</li>
+<li>
+<p><strong>下管（Low-Side FET）Rds(on)测量</strong>：</p>
+<ul>
+<li>Buck工作在CCM下，在下管导通期间测量LX节点电压（相对于PGND）。</li>
+<li>Rds(on)_LS = VLX / I_LOAD（下管导通时LX到GND的压降）。</li>
+<li>同样扫描修调码，找到最优码值。</li>
+</ul>
+</li>
+<li>
+<p><strong>零负载/小电流交叉验证</strong>：</p>
+<ul>
+<li>在轻载（DCM）条件下，观察过零检测点的LX波形，确认DCM检测是否正常。</li>
+</ul>
+</li>
+</ol>
+<h3 id="23-注意事项considerations">2.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>测量Rds(on)时需要准确知道通过功率管的电流。当电感纹波电流较大时，需要在导通时间的中点采样以得到平均电流值。</li>
+<li>LX节点的高速开关特性会产生振铃（Ringing），采样窗口应避开开关切换瞬态。</li>
+<li>温度和电压条件：Rds(on)随温度升高而增大（正温度系数），修调应在常温下完成，但要考虑高温工况下的余量。</li>
+<li>死区时间（Dead Time）的影响：在上下管切换的死区时间内，体二极管导通会产生额外压降，需要避开此窗口采样。</li>
+<li>对于多相Buck，各相的Rds(on)需独立修调并分别存储修调码。</li>
+<li><strong>外部连接确认</strong>：确保LX节点到外部测试点的连接路径引入的额外阻抗已被考虑（de-embedding），特别是使用长导线或探针卡时。</li>
+</ul>
+<hr/>
+<h2 id="三迟滞buck的vo_r电阻精度修调">三、迟滞Buck的VO_R电阻精度修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三迟滞buck的vo_r电阻精度修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-原理principle">3.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck的输出电压由<strong>内部反馈电阻分压网络（Feedback Resistor Divider）</strong> 决定：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.8em;vertical-align:-0.65em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0077em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">BOTTOM</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0077em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">TOP</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li>VREF是内部参考电压（通常由带隙基准产生）</li>
+<li>R_TOP是上端反馈电阻（接VOUT到反馈节点）</li>
+<li>R_BOTTOM是下端反馈电阻（接反馈节点到GND）</li>
+</ul>
+<p>电阻分压网络通常由<strong>多晶硅电阻（Poly Resistor）</strong> 或<strong>扩散电阻（Diffusion Resistor）</strong> 组成，其绝对值在工艺角下可能偏差±15%~±30%，但电阻比率（Ratio）的匹配精度相对较好（1%~3%）。然而对于高精度输出电压要求（如±1%），仍需通过修调来补偿：</p>
+<ul>
+<li>电阻比率偏差（Mask/Etch 导致的微小失配）</li>
+<li>VREF电压本身的偏差（由BG修调项补偿）</li>
+<li>反馈节点的漏电流影响</li>
+</ul>
+<p>修调方式通常为<strong>修调电阻阵列（Trimmable Resistor Ladder）</strong>：通过熔丝（EFuse/One-Time Programmable, OTP）或寄存器控制开关，在R_TOP或R_BOTTOM上并联/串联修调电阻步进（Trim Step），从而微调分压比。</p>
+<h3 id="32-测试方法test-method">3.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>基本思路</strong>：在特定负载条件下（通常为轻载或空载）测量VOUT，与目标值比较，迭代修调码。</p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li>
+<p><strong>准备条件</strong>：</p>
+<ul>
+<li>设置输入电压VIN为典型值（如3.7V）。</li>
+<li>设置输出电压目标值（如1.8V）。</li>
+<li>负载电流设置为轻载（如10mA或空载），以排除IR Drop对测量的干扰（注意：空载时可能进入DCM模式，纹波较大，建议使用10~50mA轻载CCM模式）。</li>
+</ul>
+</li>
+<li>
+<p><strong>测量VOUT</strong>：</p>
+<ul>
+<li>使用高精度万用表（DMM）或采样系统在输出电容后端（即测试板上的sense点）测量VOUT。</li>
+<li>确保测量点尽量靠近芯片反馈回路，而非负载端，避免PCB走线IR Drop引入误差。</li>
+</ul>
+</li>
+<li>
+<p><strong>扫描修调码</strong>：</p>
+<ul>
+<li>依次遍历所有的VO_R trim code。</li>
+<li>记录每个码值对应的VOUT读数。</li>
+<li>选择最接近目标电压的码值。</li>
+</ul>
+</li>
+<li>
+<p><strong>验证</strong>：</p>
+<ul>
+<li>写入最优码并重新测量VOUT，确认在误差范围内。</li>
+<li>如有需要，在不同VIN和温度条件下验证修调效果。</li>
+</ul>
+</li>
+</ol>
+<h3 id="33-注意事项considerations">3.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>VO_R修调通常在<strong>空载或轻载</strong>下进行，重载下的VOUT偏差由后续的”输出电压带载修调”补偿。</li>
+<li>务必确认芯片内部反馈回路的状态。有些芯片在测试模式下可以通过寄存器直接读取反馈节点电压，从而将VREF偏差和电阻偏差分离开来。</li>
+<li>电阻的<strong>温度系数（TCR）</strong>：修调只能在某一温度点校准电阻比率，但TCR失配会导致不同温度下的比率变化。需要评估TCR mismatch的影响是否在规格范围内。</li>
+<li>并联和串联修调的区别：并联修调（在现有电阻上并联小电阻）会使总阻值变小（VOUT变低），串联修调则相反。测试前需确认修调方向和步进精度。</li>
+<li><strong>输出纹波影响</strong>：滞回Buck的输出纹波较大，测量时建议使用平均值（Average）或多点采样取平均，避免纹波峰值影响修调判断。</li>
+</ul>
+<hr/>
+<h2 id="四迟滞buck的vref_r电阻精度修调">四、迟滞Buck的Vref_R电阻精度修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四迟滞buck的vref_r电阻精度修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-原理principle">4.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Vref_R是指<strong>内部参考电阻（Reference Resistor）</strong>，通常是一颗经过设计的高精度多晶硅电阻（如RNWELL/Poly Resistor），用于：</p>
+<ul>
+<li><strong>电流参考（Current Reference）</strong>：与内部带隙基准电压（VBG或IREF）配合，生成精确的偏置电流（如：I = VREF / R_REF）。</li>
+<li><strong>时序参考</strong>：用于产生开关控制时序（如TON/TOFF定时器的Cap充电电流）。</li>
+<li><strong>过流检测参考</strong>：部分OCP方案中，过流阈值由IREF流过Vref_R产生的压降决定。</li>
+</ul>
+<p>由于工艺偏差，Vref_R的绝对值可能偏离设计值±20%~±30%。通过修调，可以：</p>
+<ul>
+<li>调整参考电阻的有效阻值，使IREF等关键电流源恢复到设计值。</li>
+<li>间接补偿整个Buck电流回路的精度。</li>
+</ul>
+<p><strong>与VO_R的区别</strong>：</p>
+<ul>
+<li>VO_R修调的是<strong>反馈分压电阻比率</strong>，直接影响VOUT直流值。</li>
+<li>Vref_R修调的是<strong>单一电阻的绝对值</strong>，影响电流/时序，间接影响频率和效率。</li>
+</ul>
+<h3 id="42-测试方法test-method">4.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>基本思路</strong>：让一已知的精确电流流过Vref_R，测量其上的电压降，计算实际电阻值，然后调整修调码。</p>
+<p><strong>方法一（直接法）</strong>：</p>
+<ol>
+<li>将芯片置于测试模式，使Vref_R的一端连接到外部测试引脚（或通过测试多路复用器MUX引出）。</li>
+<li>从外部施加精确的已知电流（如10uA）流过Vref_R。</li>
+<li>用高精度DMM测量Vref_R两端的电压。</li>
+<li>计算R_actual = V_measured / I_forced。</li>
+<li>比较R_actual与R_target，选择修调码。</li>
+</ol>
+<p><strong>方法二（间接法——通过IREF测试）</strong>：</p>
+<ol>
+<li>
+<p>不使用芯片时，通过外部电源可测量芯片的IREF输出电流。</p>
+</li>
+<li>
+<p>如果IREF = VREF / Vref_R，已知VREF（通过BG修调已校准），则可以通过IREF反算R值：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3339em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+</li>
+<li>
+<p>调整Vref_R修调码直到IREF达到目标值。</p>
+</li>
+</ol>
+<h3 id="43-注意事项considerations">4.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>Vref_R修调应在VREF电压已经过BG修调且稳定的前提下进行（如果VREF本身不准，则Vref_R修调失去了基准）。</li>
+<li>直接法测量时，注意测试通路上的额外串联电阻（开关导通电阻、引脚寄生电阻），必要时使用<strong>Kelvin连接（四线法）</strong> 或通过已知电阻进行 de-embedding。</li>
+<li>间接法（通过IREF反算）时，注意IREF输出端口是否还有其他负载路径导致电流分流。</li>
+<li>Vref_R的温度特性和电压系数（Voltage Coefficient）应在修调后进行评估，确保全温度范围和全电压范围内精度达标。</li>
+<li><strong>IR Drop影响</strong>：芯片内部走线也有寄生电阻，尤其当Vref_R阻值较小（如几十kΩ）时，走线电阻可能占据可观的百分比。</li>
+</ul>
+<hr/>
+<h2 id="五迟滞buck的rc-ton时间修调">五、迟滞Buck的RC Ton时间修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五迟滞buck的rc-ton时间修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-原理principle">5.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck的导通时间（Turn-On Time, Ton）由<strong>RC定时网络</strong>或<strong>电流源+电容</strong>结构决定：</p>
+<p><strong>RC型（RC Type）</strong>：
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">ON</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">TON</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">TON</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p><strong>电流源型（Current-Source Type）</strong>：
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">ON</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3339em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">TON</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0715em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">TON</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mbin mtight">×</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mathnormal mtight" style="margin-right:0.08125em;">H</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li>R_TON / C_TON 是片内RC元件</li>
+<li>k是常数（取决于比较器阈值比例）</li>
+<li>V_TH是比较器翻转阈值</li>
+<li>I_TON是由IREF产生的充电电流</li>
+</ul>
+<p>Ton的精度直接影响：</p>
+<ul>
+<li><strong>开关频率（Switching Frequency）</strong>：Ton + Toff 决定周期，Ton偏差直接影响频率。</li>
+<li><strong>电感电流纹波</strong>：ΔI_L = (VIN - VOUT) × TON / L，纹波过大或过小影响效率和稳定性。</li>
+<li><strong>输出电压纹波</strong>：与Ton正相关。</li>
+<li><strong>DCM/CCM切换点</strong>：Ton决定了最小能量传递周期。</li>
+</ul>
+<p>由于片内RC和电流源均受PVT影响（电阻±20%，电容±10%，电流±15%），Ton偏差可达±30%以上，必须通过修调补偿。</p>
+<h3 id="52-测试方法test-method">5.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>基本思路</strong>：测量Buck LX引脚上的脉冲宽度（Pulse Width）作为Ton，扫描修调码使其匹配目标值。</p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li>
+<p><strong>波形获取</strong>：</p>
+<ul>
+<li>设置Buck工作在稳态CCM模式（或特定VIN/VOUT条件下）。</li>
+<li>使用示波器（Oscilloscope）高带宽探头（建议>100MHz）连接LX引脚。</li>
+<li>触发模式设为上升沿（Rising Edge）触发，采集稳定的LX开关波形。</li>
+</ul>
+</li>
+<li>
+<p><strong>Ton测量</strong>：</p>
+<ul>
+<li>使用示波器的脉冲宽度测量功能（Pulse Width Measurement）。</li>
+<li>测量50%幅度处的Ton脉宽（High-Side FET导通时间）。</li>
+<li>读取多个周期并取平均，以减小单周期抖动的影响。</li>
+</ul>
+</li>
+<li>
+<p><strong>阈值测量</strong>（若示波器不支持PWM分析）：</p>
+<ul>
+<li>也可用Frequency Counter或Time Interval Analyzer测量Ton。</li>
+<li>或者通过数字采集系统（如ATE的数字通道板卡）采样LX波形并软件计算。</li>
+</ul>
+</li>
+<li>
+<p><strong>修调码扫描</strong>：</p>
+<ul>
+<li>遍历所有RC Ton修调码（通常为二进制或温度计编码）。</li>
+<li>记录每个码值对应的Ton。</li>
+<li>构建Ton vs Trim Code 曲线，选择最接近目标Ton的码值。</li>
+<li>注意修调方向：增加RC值会使Ton增大，反之减小。</li>
+</ul>
+</li>
+<li>
+<p><strong>交叉验证</strong>：</p>
+<ul>
+<li>在多个VIN/VOUT条件下验证Ton修调效果。</li>
+<li>测量对应条件下的开关频率，确认频率在规格范围内。</li>
+</ul>
+</li>
+</ol>
+<h3 id="53-注意事项considerations">5.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>Ton测量条件</strong>：Ton与VIN、VOUT有直接关系，修调条件应严格参考数据手册指定的测试条件（如VIN=3.7V, VOUT=1.8V, ILOAD=200mA）。</li>
+<li><strong>示波器精度</strong>：Ton通常在几十ns到几百ns量级，需要示波器具有足够的采样率（至少≥2GSa/s）和时间分辨率。</li>
+<li><strong>探头带宽</strong>：LX节点的switching node有快速上升/下降沿（纳秒级），使用10x无源探头时注意其带宽是否足够（最好使用差分探头或有源探头）。</li>
+<li><strong>死区时间和振铃</strong>：LX波形在Ton的开始和结束处有振铃和死区时间。测量时应以50% VIN幅度点作为Ton的起止点，而非过零或峰值点。</li>
+<li><strong>修调码的单调性</strong>：确保修调码的变化对Ton的影响是单调的（Monotonic）。如果存在非单调性，说明修调网络存在设计缺陷。</li>
+<li><strong>频率抖动（Frequency Jitter）</strong>：迟滞Buck本身存在频率抖动，多次测量取平均是必要的。</li>
+<li><strong>同步基准</strong>：如果使用ATE系统测试，数字通道的时序校准至关重要，特别是当Ton &lt; 100ns时。</li>
+<li><strong>不同模式下的差异</strong>：DCM和CCM下的Ton可能有差异（由于负载和电感的能量状态不同），建议在修调时统一在CCM下进行。</li>
+</ul>
+<hr/>
+<h2 id="六迟滞buck的输出电压修调带载">六、迟滞Buck的输出电压修调（带载）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六迟滞buck的输出电压修调带载" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-原理principle">6.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>前文的VO_R修调是在轻载条件下进行的，主要校准了反馈电阻分压网络的精度。然而，在<strong>重载（Heavy Load）</strong> 条件下，实际VOUT会偏离轻载值，原因包括：</p>
+<ul>
+<li><strong>IR Drop（压降）</strong>：从芯片输出引脚到反馈采样点之间的PCB走线和封装引线（Bond Wire）存在电阻，重载电流下产生显著压降。</li>
+<li><strong>DC Regulation Offset（直流调节偏移）</strong>：迟滞比较器的输入失调电压（Input Offset Voltage）在不同负载下可能有变化（受共模输入范围影响）。</li>
+<li><strong>纹波中心偏移（Ripple Center Shift）</strong>：重载时电感纹波电流增大，加上比较器迟滞窗口和传输延迟，可能使输出电压平均值（Average）偏移。</li>
+<li><strong>地弹（Ground Bounce）</strong>：大电流瞬态在地线上产生的电压偏移影响输出电压传感。</li>
+</ul>
+<p>因此，<strong>带载输出电压修调（VOUT Trim under Load）</strong> 是在实际的负载条件下对输出电压进行最终校准，补偿IR Drop和调节偏移。</p>
+<h3 id="62-测试方法test-method">6.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>基本思路</strong>：在额定负载电流下测量VOUT，调整输出电压修调码（可能是一个独立的VOUT Trim码，或调整VREF/反馈电阻），使VOUT符合目标值。</p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li>
+<p><strong>测试条件建立</strong>：</p>
+<ul>
+<li>VIN设为额定值（如3.7V）。</li>
+<li>电子负载（Electronic Load）连接到VOUT，设置为额定负载电流（如1A或数据手册指定值）。</li>
+<li>测量点选择：在芯片输出电容的两端（Force和Sense采用Kelvin连接）。</li>
+<li>让Buck在目标模式下工作（如FPWM/CCM）。</li>
+</ul>
+</li>
+<li>
+<p><strong>基准测量</strong>：</p>
+<ul>
+<li>写入VO_R轻载修调码（已在前一步完成）。</li>
+<li>读取带载VOUT（VOUT_LOAD）。</li>
+<li>计算偏差：ΔV = VOUT_LOAD - VOUT_TARGET。</li>
+</ul>
+</li>
+<li>
+<p><strong>修调码扫描</strong>：</p>
+<ul>
+<li>遍历带载VOUT修调码，每个码值测量并记录VOUT。</li>
+<li>选择使VOUT最接近VOUT_TARGET的码值。</li>
+<li>一些设计将VOUT修调实现为调整VREF（VREF微调DAC）或调整R_TOP（额外电阻串）。</li>
+</ul>
+</li>
+<li>
+<p><strong>IR Drop测量（辅助分析）</strong>：</p>
+<ul>
+<li>如果芯片有独立的输出电压Sense引脚（Remote Sense），比较VOUT_SENSE和VOUT_FORCE的差值可以得到IR Drop。</li>
+<li>若没有Remote Sense，可通过在不同负载电流下测量VOUT的变化斜率来估算IR Drop。</li>
+</ul>
+</li>
+<li>
+<p><strong>交叉验证</strong>：</p>
+<ul>
+<li>在修调码确定后，检查轻载VOUT是否仍在规格范围内（因为带载修调可能影响轻载VOUT，需要trade-off）。</li>
+<li>检查全负载范围内的VOUT精度是否满足规格要求。</li>
+</ul>
+</li>
+</ol>
+<h3 id="63-注意事项considerations">6.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>测量点选择至关重要</strong>：Force/Sense必须分开。Sense线要连接到芯片VOUT引脚最靠近封装的位置（Kelvin检测），Force线连接到电子负载。这是带载修调中最大的误差来源。</li>
+<li><strong>负载瞬态</strong>：如果负载有动态变化（Pulse Load），需要在负载稳定后（稳态窗口内）测量。</li>
+<li><strong>线损补偿</strong>：如果测试系统使用继电器矩阵或长导线，需要对Force/Sense进行校准（Short/Open校准）。</li>
+<li><strong>散热/自热效应</strong>：重载下芯片温度会上升，VOUT会随温度漂移。测量应在热平衡后进行（通常等待数十秒至数分钟）。</li>
+<li><strong>耦合到反馈路径</strong>：注意大电流回路和反馈回路不应共享同一地路径，否则共阻抗耦合（Ground Loop）会引入测量误差。</li>
+<li><strong>修调顺序依赖性</strong>：带载VOUT修调通常是在VO_R轻载修调之后执行。如果带载修调的方式是调整VREF，注意VREF本身还有其他用途，确保不会影响到其他模块。</li>
+<li><strong>Ripple Averaging</strong>：由于迟滞Buck的纹波在重载下变大（尤其在陶瓷输出电容上ESR很小时），测量平均值时要确保DMM的积分时间（Integration Time）覆盖至少几个开关周期（PLC ≥ 10 或 NPLC ≥ 1）。</li>
+</ul>
+<hr/>
+<h2 id="七迟滞buck的pocp修调">七、迟滞Buck的POCP修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七迟滞buck的pocp修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>POCP（Peak Over-Current Protection，峰值过流保护）是迟滞Buck的关键保护功能。当电感电流峰值超过设定的OCP阈值时，控制逻辑会关闭上管或触发逐周期限流（Cycle-by-Cycle Current Limit）。POCP修调包含三个子项。</p>
+<h3 id="71-buck的ocp比较器失调电压修调">7.1 Buck的OCP比较器失调电压修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-buck的ocp比较器失调电压修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="711-原理principle">7.1.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#711-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>OCP检测的核心是一个<strong>电流检测比较器（Current Sense Comparator）</strong>。该比较器将检测到的电感电流信号（通常是通过Sense FET采样得到的电压信号）与一个参考阈值电压进行比较。</p>
+<p>比较器本身存在<strong>输入失调电压（Input Offset Voltage, VOS）</strong>，这会导致：</p>
+<ul>
+<li>OCP触发点偏移：实际OCP阈值 = 理想阈值 ± VOS</li>
+<li>随共模输入电压变化的VOS变化（CMRR）</li>
+<li>随温度变化的VOS漂移</li>
+</ul>
+<p>VOS修调的目的是<strong>校准比较器的失调电压到接近零</strong>，使OCP触发点准确。</p>
+<h4 id="712-测试方法test-method">7.1.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#712-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>基本思路</strong>：找到比较器的翻转点（Trip Point），计算出实际失调电压，然后通过修调DAC补偿。</p>
+<p><strong>方法——电压扫描法（Voltage Ramp Method）</strong>：</p>
+<ol>
+<li>
+<p><strong>进入测试模式</strong>：</p>
+<ul>
+<li>将芯片置于特殊测试模式，使得比较器的两个输入引脚可以直接或间接访问。</li>
+<li>通常需要禁用功率管开关操作（Power Stage Disabled），使检测电流为零。</li>
+</ul>
+</li>
+<li>
+<p><strong>差分电压扫描</strong>：</p>
+<ul>
+<li>在比较器的正输入端（Sense+）和负输入端（Sense- / Reference）之间施加可变的差分电压。</li>
+<li>从低于预期VOS的值开始线性扫描（或二进制搜索），直到比较器输出翻转。</li>
+<li>记录翻转点的差分电压，该值即为VOS。</li>
+</ul>
+</li>
+<li>
+<p><strong>修调码选择</strong>：</p>
+<ul>
+<li>根据VOS的极性和幅度，选择对应的Trim Code。</li>
+<li>修调DAC通常可提供 ±VOS_RANGE 的调节范围，步进为 LSB。</li>
+<li>每个码值写入后重新测量VOS，直到VOS在目标范围内（如 ±0.5mV）。</li>
+</ul>
+</li>
+<li>
+<p><strong>多通道/多模式</strong>：</p>
+<ul>
+<li>如果芯片有多个Buck通道，每个通道的OCP比较器需独立修调。</li>
+<li>部分设计有不同OCP模式（如低速/高速模式），可能需要分别修调。</li>
+</ul>
+</li>
+</ol>
+<h4 id="713-注意事项considerations">7.1.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#713-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>测试模式入口</strong>：进入测试模式的方法因芯片而异，可能涉及特殊寄存器写入序列或特定的引脚电压条件。确保测试程序正确且完整地执行了进入序列。</li>
+<li><strong>比较器速度与建立时间</strong>：比较器在测试模式下可能被配置为低速低功耗模式，其翻转响应时间较长。扫描电压时的步进速度需要足够慢，以便比较器有充分时间响应。</li>
+<li><strong>迟滞的影响</strong>：部分OCP比较器设计有少量的迟滞（Hysteresis，通常0.5~2mV）以防止噪声误触发。测量VOS时需要明确是上升沿翻转还是下降沿翻转（或取两者的平均值）。</li>
+<li><strong>多路复用通路寄生</strong>：如果比较器的输入通过MUX连接到测试引脚，通路上的开关电阻和漏电流会增加测量误差。需要注意MUX的Ron压降。</li>
+<li><strong>温度系数</strong>：VOS随温度漂移，常温修调后需要在高温和低温下验证效果。部分高精度芯片提供温度补偿修调（TC Trim）。</li>
+</ul>
+<hr/>
+<h3 id="72-buck-pocp-sense修调">7.2 Buck POCP Sense修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-buck-pocp-sense修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="721-原理principle">7.2.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#721-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>POCP Sense修调校准的是<strong>电流检测通路（Current Sense Path）</strong> 的总增益和偏移。典型结构如下：</p>
+<ul>
+<li><strong>Sense FET（感测功率管）</strong>：一个小尺寸的MOSFET（通常为功率管的1/N比例）与功率管并联，通过Mirror结构复制电感电流。</li>
+<li><strong>Sense Amplifier（感测放大器）</strong>：钳位Sense FET的漏极电压与功率管漏极电压相等（VDS匹配），使Sense电流精确比例于功率管电流。</li>
+<li><strong>Sense Resistor（感测电阻）</strong>：Sense电流流过检测电阻，产生电压信号 VSENSE = ISENSE × RSENSE = (ILOAD / N) × RSENSE。</li>
+</ul>
+<p>工艺偏差导致：</p>
+<ul>
+<li>Sense FET的W/L比例失配</li>
+<li>Sense Amplifier的失调电压（影响VDS匹配精度）</li>
+<li>Sense Resistor的绝对值偏差</li>
+</ul>
+<p>POCP Sense修调即<strong>调整感测通路的总增益</strong>，使得VSENSE准确反映ILOAD。</p>
+<h4 id="722-测试方法test-method">7.2.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#722-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>基本思路</strong>：注入已知的负载电流，测量或推断sense amplifier的输出电压（或OCP触发点），调整sense校准码。</p>
+<p><strong>方法——V-I Transfer校准</strong>：</p>
+<ol>
+<li>
+<p><strong>测试条件</strong>：</p>
+<ul>
+<li>强制Buck输出一个已知的电流（I_LOAD_FORCE）。</li>
+<li>确保Buck工作在FPWM模式下（避免DCM干扰）。</li>
+</ul>
+</li>
+<li>
+<p><strong>测量Sense电压</strong>：</p>
+<ul>
+<li>如果芯片测试模式允许，直接从Sense Amplifier输出引脚测量VSENSE。</li>
+<li>如果无法直接测量，则通过读取OCP触发点来间接推算：
+a. 缓慢增加负载电流（或强制拉载），直到OCP触发（通过状态寄存器读取或LX波形确认）。
+b. 记录OCP触发时的电流I_TRIP。
+c. 计算I_TRIP与理论OCP阈值的比值。</li>
+</ul>
+</li>
+<li>
+<p><strong>修调码扫描</strong>：</p>
+<ul>
+<li>遍历POCP Sense Trim Code。</li>
+<li>在每个码值下测量I_TRIP。</li>
+<li>选择使I_TRIP最接近目标OCP阈值的码值。</li>
+</ul>
+</li>
+<li>
+<p><strong>增益线性度检查</strong>：</p>
+<ul>
+<li>在多个电流点（如50% OCP, 80% OCP, 100% OCP）下测量Sense输出，确认增益的线性度（Linearity）在规格内。</li>
+</ul>
+</li>
+</ol>
+<h4 id="723-注意事项considerations">7.2.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#723-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>大电流测试的安全性</strong>：POCP测试涉及接近或过流条件，可能触发OCP导致Buck关闭或进入Hiccup模式。测试序列需要设计为快速扫描并设定好恢复机制。</li>
+<li><strong>自热效应</strong>：大电流下功率管结温迅速上升，使Rds(on)增大，可能影响Sense FET的匹配。建议采用脉冲式测试（Pulsed Test）来避免自热。</li>
+<li><strong>Sense Amplifier带宽</strong>：瞬时过流检测需要在每个开关周期内完成，Sense通路带宽不足会影响POCP响应时间。修调验证时也要确认响应时间。</li>
+<li><strong>区分静态增益校准和动态失调</strong>：POCP Sense修调主要调整的是DC增益，但与OCP比较器VOS修调可能相互影响（系统级校准）。建议先做VOS Trim再做Sense Trim，或两者迭代进行。</li>
+<li><strong>Trim Code的冗余设计</strong>：如果POCP Sense修调码是非易失性存储（EFuse/OTP）中存储的，务必在烧录前验证所有码值的有效性，避免烧录后发现非单调或跳码问题。</li>
+</ul>
+<hr/>
+<h3 id="73-buck-ocp自修调">7.3 Buck OCP自修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-buck-ocp自修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="731-原理principle">7.3.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#731-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>OCP自修调（Self-Calibration / Self-Trim）是芯片内部集成的<strong>自动校准序列</strong>，可以在上电时或由主机触发启动，自动完成OCP修调而不需要外部ATE介入。</p>
+<p><strong>典型流程</strong>：</p>
+<ol>
+<li><strong>上电序列触发</strong>：芯片上电复位（POR）后，自动开始自修调序列。</li>
+<li><strong>内部电流注入</strong>：芯片内部产生一个精确的参考电流（基于已修调的IREF和VREF），施加到Sense通路上。</li>
+<li><strong>自比较</strong>：内部逻辑自动调整校准DAC（比较器失调DAC 或 Sense增益DAC），直到Sense比较器在预设的参考点翻转。</li>
+<li><strong>码值锁定</strong>：将得到的校准码值存入内部寄存器（RAM-based，每次上电后需要重做）或烧录到非易失性存储器（EFuse/OTP）。</li>
+</ol>
+<p>自修调的优势：</p>
+<ul>
+<li><strong>降低ATE测试成本</strong>：减少外部测试时间和仪器需求。</li>
+<li><strong>实时补偿</strong>：可以补偿温度漂移和环境变化（若每次上电执行）。</li>
+<li><strong>简化量产流程</strong>：ATE仅需验证自修调结果是否正确，而非逐项修调。</li>
+</ul>
+<h4 id="732-测试方法test-method">7.3.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#732-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>基本思路</strong>：触发芯片自修调序列，然后通过外部测量验证自修调后的OCP阈值是否落在规格范围内。</p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li>
+<p><strong>触发自修调</strong>：</p>
+<ul>
+<li>如果是上电自动触发：芯片上电后等待自修调完成（通常几毫秒到几百毫秒，可通过状态寄存器读取完成标志）。</li>
+<li>如果是命令触发：通过I2C/SPI等接口发送特定的自修调启动命令。</li>
+</ul>
+</li>
+<li>
+<p><strong>读取校准码</strong>：</p>
+<ul>
+<li>通过寄存器读取自修调后的DAC码值。</li>
+<li>确认码值在合理范围内（没有饱和在最大或最小值，否则说明器件可能异常）。</li>
+</ul>
+</li>
+<li>
+<p><strong>外部验证</strong>：</p>
+<ul>
+<li>如7.2节所述，将Buck加载到接近OCP阈值的电流。</li>
+<li>验证OCP触发点是否在规格范围内。</li>
+<li>如果有多颗芯片，统计自修调码的分布情况（Process Distribution），一致性好说明自修调算法稳定。</li>
+</ul>
+</li>
+<li>
+<p><strong>温度验证</strong>：</p>
+<ul>
+<li>在常温下完成自修调后，在高温（如85°C）和低温（如-40°C）下重新验证OCP阈值。</li>
+<li>确认自修调具有足够的温度补偿能力。</li>
+<li>如果自修调仅在上电时执行一次（非实时Tracking），高温下的OCP精度取决于校准电路的温漂特性。</li>
+</ul>
+</li>
+</ol>
+<h4 id="733-注意事项considerations">7.3.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#733-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>自修调的启动条件</strong>：某些芯片要求VIN和VOUT稳定后才能启动自修调。如果启动条件不满足，自修调结果可能无效。测试程序需检查相关的Power Good或Ready标志。</li>
+<li><strong>自修调与外部修调的优先级</strong>：如果既设计有外部修调（ATE Trim）又有自修调（Self-Cal），需要明确两者的关系：
+<ul>
+<li>自修调是替代外部修调（采用后无需ATE修调）？</li>
+<li>还是自修调是在外部修调基础上的 Fine-Tune？</li>
+<li>不同方案的测试策略完全不同。</li>
+</ul>
+</li>
+<li><strong>自修调失败处理</strong>：芯片自修调可能因内部参考尚未稳定、时钟异常等因素失败。ATE需有能力检测自修调完成标志或校验码有效性，失败时标记为Fail或进行重试。</li>
+<li><strong>测试覆盖</strong>：自修调减少了ATE测试项，但ATE仍需覆盖自修调功能的验证——即验证”自修调确实工作并产生了正确结果”，而不是完全跳过。</li>
+<li><strong>自修调码的上电保持</strong>：如果自修调码仅保存在易失性寄存器中，ATE断电后丢失，需要在每次ATE测试的初始化序列中触发自修调。如果一次ATE测试涉及多次下电（如多工位并行测试），需注意时序。</li>
+<li><strong>诊断模式</strong>：自修调通常不提供外部干预的接口。当自修调结果异常时，ATE应能回退到手动修调模式进行故障分析（Failure Analysis）。</li>
+</ul>
+<hr/>
+<h2 id="八buck的负dmd修调">八、Buck的负DMD修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#八buck的负dmd修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="81-原理principle">8.1 原理（Principle）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#81-原理principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>负DMD（Negative Current Detection，或称为负电流检测 / Zero-Cross Detection）用于检测<strong>电感电流过零点</strong>，是迟滞Buck在DCM（断续导通模式）和CCM（连续导通模式）之间切换的关键控制信号。</p>
+<p><strong>物理含义</strong>：</p>
+<p>在Buck变换器中：</p>
+<ul>
+<li><strong>CCM模式</strong>：电感电流在整个周期内始终大于零（上管导通时上升，下管导通时下降但仍大于零）。</li>
+<li><strong>DCM模式</strong>：电感电流在下管导通期间下降到零后，下管关闭，进入断续状态。体二极管不导通（或只在死区时间短暂导通）。</li>
+</ul>
+<p>负DMD检测即检测电感电流何时下降到零（或接近零），此时关闭下管以防止：</p>
+<ol>
+<li><strong>反向电流（Reverse Inductor Current）</strong>：如果下管在电流过零后继续导通，电流反向流动（从输出端流向输入端），会增加损耗、降低轻载效率。</li>
+<li><strong>输出电压泵升</strong>：反向电流可能给输出电容充电，使VOUT异常升高。</li>
+<li><strong>系统效率劣化</strong>：反向电流会产生额外的导通损耗和磁芯损耗。</li>
+</ol>
+<p><strong>检测方法</strong>：</p>
+<ul>
+<li>负DMD比较器（Zero-Cross Comparator）检测下管导通时LX节点的电压：
+<ul>
+<li>当电感电流正向（下管到输出）时，LX电压 = IL × Rds(on)_LS，为正（相对于PGND）。</li>
+<li>当电感电流降到零并开始反向时，LX电压变为负（电流从输出流入LX再经下管到GND，实际上VDS反向）。</li>
+<li>比较器检测LX电压与PGND（或一个小的负参考电压）的差值，当LX电压越过零/负参考值时触发翻转。</li>
+</ul>
+</li>
+</ul>
+<p>由于Rds(on)的工艺偏差直接影响VDS = IL × Rds(on)，负DMD比较器的翻转点与Rds(on)有关，这也是为什么负DMD修调和LX Rds(on)修调密切相关。</p>
+<h3 id="82-测试方法test-method">8.2 测试方法（Test Method）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#82-测试方法test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>基本思路</strong>：将负载电流从正（输出电流）逐渐减小到零并过零（注入电流到输出），观察DMD比较器何时触发，调整修调码使得过零检测点在目标电流范围内。</p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li>
+<p><strong>测试条件</strong>：</p>
+<ul>
+<li>Buck设置为DCM使能模式（即允许进入DCM）。</li>
+<li>初始负载电流设置在DCM边界以上（如CCM区域），例如100mA。</li>
+<li>VIN和VOUT设为典型值。</li>
+<li>使用电子负载在CC（Constant Current）模式下工作。</li>
+</ul>
+</li>
+<li>
+<p><strong>正向扫描（通过零到负）</strong>：</p>
+<ul>
+<li>缓慢减少电子负载电流（或增加Source电流），速率建议 &lt; 10mA/s 或步进足够小（如1mA/步），以给DMD比较器和控制环路足够响应时间。</li>
+<li>如果使用ATE，可以通过DAC控制负载/源电流的连续扫描。</li>
+</ul>
+</li>
+<li>
+<p><strong>检测DCM标志</strong>：</p>
+<ul>
+<li>读取芯片内部的状态寄存器（如 DCM_FLAG、ZCD_FLAG、MODE_INDICATOR）。</li>
+<li>如果没有寄存器标志，观测LX波形：进入DCM后LX会出现一段时间的High-Z（高阻状态，由体二极管导通或寄生振荡指示）。</li>
+<li>记录DCM_FALG置位（或DCM/CCM状态切换）时的电流值I_DMD。</li>
+</ul>
+</li>
+<li>
+<p><strong>确定DMD点</strong>：</p>
+<ul>
+<li>I_DMD即为负DMD检测点。</li>
+<li>典型目标值：0mA（理想零电流检测）附近，允许一定的负值范围（如-5mA ~ +5mA）。</li>
+<li>如果I_DMD在目标范围内，则不需要修调。</li>
+</ul>
+</li>
+<li>
+<p><strong>修调码扫描</strong>：</p>
+<ul>
+<li>如果I_DMD不在目标范围内，遍历负DMD修调码。</li>
+<li>每个码值重新扫描负载电流并测量I_DMD。</li>
+<li>选择使I_DMD最接近目标值的码值。</li>
+</ul>
+</li>
+<li>
+<p><strong>验证</strong>：</p>
+<ul>
+<li>在修调码写入后，在DCM模式下检查轻载（如1mA~20mA）的效率是否有异常提升（说明负电流得到了有效防止）。</li>
+<li>同时验证在CCM模式下（负载增加到200mA以上）是否能正常工作且不失步。</li>
+</ul>
+</li>
+</ol>
+<h3 id="83-注意事项considerations">8.3 注意事项（Considerations）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#83-注意事项considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>扫描速度的影响</strong>：如果电流扫描速度过快，电感电流和芯片内部控制环路可能跟不上，导致DMD检测滞后。建议低速扫描并加入稳定等待时间。</li>
+<li><strong>正弦波特性</strong>：DCM边界处LX波形会出现由电感和寄生电容谐振引起的阻尼振荡（Damped Sinusoidal Ringing）。这属于正常的DCM行为，但在判断DCM/CCM状态时需要鉴别。</li>
+<li><strong>温度影响</strong>：Rds(on)随温度升高而增大，这意味着负DMD点在热态下会偏移（电流检测值偏大/偏小取决于具体实现）。评估高温/低温下的DMD点漂移量。</li>
+<li><strong>LX Rds(on) Trim vs 负DMD Trim</strong>：
+<ul>
+<li>LX Rds(on)修调解决的是Rds(on)绝对值（用于电流感知的物理量）。</li>
+<li>负DMD修调解决的是比较器阈值。</li>
+<li>两者有交集，建议修调顺序：先LX Rds(on) Trim，再负DMD Trim。</li>
+</ul>
+</li>
+<li><strong>负载电流方向的重要性</strong>：测试负DMD时需要<strong>能从输出吸取电流即可逆电流源/主动负载（Active Load / Bidirectional Supply）</strong>，普通电子负载只能消耗电流无法注入电流。如果芯片要求检测负电流到一定的负值范围（如-50mA），需要双向电源/源表（SMU）支持。</li>
+<li><strong>AC耦合干扰</strong>：当负载电流接近于零时，Buck的输出纹波本身可能引起负载电流的微小幅值波动。测量时需使用平均电流，而非瞬时值。</li>
+<li><strong>与POCP的互斥性</strong>：当OCP触发时，芯片会关闭上管并可能进入Hiccup模式，这与DCM检测无关。在测试负DMD时需要确保不会误触发OCP（特别是当电流从零变为负时）。</li>
+<li><strong>死区时间影响</strong>：在死区时间内，体二极管导通导致LX电压为负（-0.7V 到 -1V），这是正常情况，不被视为负DMD的触发条件。比较器需要有一个Blanking Time（消隐时间）来避开死区。</li>
+<li><strong>效率验证</strong>：修调结束后，建议对比修调前和修调后在轻载（1mA, 10mA, 50mA）下的效率数据。负DMD修调不当导致的负电流会显著降低轻载效率。</li>
+</ul>
+<hr/>
+<h2 id="九修调顺序总结">九、修调顺序总结<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#九修调顺序总结" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>为确保各修调项互不干扰，建议在ATE测试程序中遵循以下执行顺序：</p>
+<pre><code>1. 基准修调
+   ├── VBG基准电压修调 (Bandgap Reference Trim)
+   ├── VREF1P0电压修调 (1.0V Reference Trim)
+   └── IREF基准电流修调 (Current Reference Trim)
+   
+2. 迟滞Buck修调
+   ├── [1] Vref_R电阻精度修调 (参考电阻 Trim)
+   ├── [2] VO_R电阻精度修调 (反馈分压电阻 Trim — 轻载)
+   ├── [3] RC Ton时间修调 (导通时间 Trim)
+   ├── [4] LX电阻修调 (Rdson Trim)
+   ├── [5] 负DMD修调 (零电流检测 Trim)
+   ├── [6] OCP比较器失调电压修调 (Vos Trim)
+   ├── [7] POCP Sense修调 (感测通路 Trim)
+   ├── [8] 自修调验证 (Self-Cal Validation)
+   └── [9] 输出电压带载修调 (VOUT Trim under Load)
+</code></pre>
+<p><strong>说明</strong>：</p>
+<ul>
+<li>VBG/VREF/IREF等基准修调在任何其他修调之前完成，它们是后续所有修调的基础。</li>
+<li>Vref_R电阻精度修调影响电流源精度，应在RC Ton和POCP Sense修调之前。</li>
+<li>VO_R修调应在轻载条件下先完成，带载VOUT修调在最后执行（因为它的补偿效果最接近最终使用条件，且不会影响其他修调项）。</li>
+<li>LX Rds(on)修调在负DMD修调和OCP修调之前，因为两者都依赖于Rds(on)精度。</li>
+<li>如果芯片支持OCP自修调（Self-Cal），ATE的主要任务变为验证自修调结果，但仍建议先完成基准和电阻类的校准修调。</li>
+</ul>
+<hr/>
+<h2 id="十常用仪器与设备建议">十、常用仪器与设备建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十常用仪器与设备建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>修调项</th><th>推荐仪器</th><th>关键指标要求</th></tr></thead><tbody><tr><td>LX电阻修调</td><td>SMU (Source Measure Unit) / DMM + 电流源</td><td>电流精度±0.1%，电压测量分辨率≥10uV</td></tr><tr><td>VO_R修调</td><td>DMM (6.5位或更高)</td><td>电压测量精度±0.01%</td></tr><tr><td>Vref_R修调</td><td>SMU (四线Kelvin)</td><td>四线测量能力，分辨率≥1uV</td></tr><tr><td>RC Ton修调</td><td>示波器 (≥200MHz, ≥2GSa/s)</td><td>时间分辨率≤500ps</td></tr><tr><td>带载VOUT修调</td><td>DMM + 电子负载</td><td>DMM高精度，电子负载CC模式稳定</td></tr><tr><td>OCP修调</td><td>SMU (双向/源能力) / 电子负载 + 示波器</td><td>电流范围覆盖1.5×OCP阈值</td></tr><tr><td>负DMD修调</td><td>双向SMU / 源表</td><td>电流源/吸收双向能力，mA级分辨率</td></tr></tbody></table></div>
+<hr/>
+<h2 id="十一常见问题与排查faq">十一、常见问题与排查（FAQ）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十一常见问题与排查faq" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="q1-为什么迟滞buck的vout修调必须在轻载和带载下分别进行">Q1: 为什么迟滞Buck的VOUT修调必须在轻载和带载下分别进行？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#q1-为什么迟滞buck的vout修调必须在轻载和带载下分别进行" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>因为轻载下主要校准的是反馈电阻分压比率和VREF精度（芯片自身精度），而重载下额外引入了IR Drop和调节偏移（系统级偏差）。分别校准可以得到最优的全负载范围VOUT精度。</p>
+<h3 id="q2-负dmd修调后为什么轻载效率反而下降了">Q2: 负DMD修调后，为什么轻载效率反而下降了？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#q2-负dmd修调后为什么轻载效率反而下降了" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>可能的原因：负DMD修调导致过零检测点偏正（即电感电流还未到零就关闭了下管），或偏负（允许了较多负电流）。前者导致能量传递减少（效率损失），后者导致负电流损耗。需要重新校准到接近零的位置。</p>
+<h3 id="q3-ocp自修调和ate手动修调应该如何选择">Q3: OCP自修调和ATE手动修调应该如何选择？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#q3-ocp自修调和ate手动修调应该如何选择" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>取决于成本和精度要求。自修调降低测试成本但芯片面积增加（内置修调DAC和逻辑），ATE手动修调精度可控但测试时间长。常见方案：自修调作为粗调（Coarse Trim），ATE做精调（Fine Trim）；或完全依赖自修调，ATE仅做Go/No-Go验证。</p>
+<h3 id="q4-rc-ton修调为何要在多个vinvout条件下验证">Q4: RC Ton修调为何要在多个VIN/VOUT条件下验证？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#q4-rc-ton修调为何要在多个vinvout条件下验证" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>因为Ton不仅取决于RC，还与VIN和VOUT有一定耦合关系（通过比较器阈值和传输延迟）。某些工艺角下VIN/VOUT影响更大，单一条件下的修调可能无法覆盖全工作范围。</p>
+<h3 id="q5-lx电阻修调时死区时间为什么需要避开">Q5: LX电阻修调时，死区时间为什么需要避开？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#q5-lx电阻修调时死区时间为什么需要避开" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>在死区时间内，上下管都关闭，LX节点处于高阻状态，体二极管导通产生约0.7V的压降，该压降不反映Rds(on)而是二极管正向压降。在此窗口内测量会得到错误的Rds(on)值。测量窗口应选在MOSFET完全导通且电流稳定的区间内。</p>
+<hr/>
+<p><em>本文档持续更新中。如有修正或补充，请联系ATE Team。</em></p></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-95" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#迟滞buck变换器修调" data-for="迟滞buck变换器修调">迟滞Buck变换器修调</a></li><li class="depth-1"><a href="#一迟滞buck变换器概述" data-for="一迟滞buck变换器概述">一、迟滞Buck变换器概述</a></li><li class="depth-2"><a href="#11-什么是迟滞buck变换器" data-for="11-什么是迟滞buck变换器">1.1 什么是迟滞Buck变换器</a></li><li class="depth-2"><a href="#12-迟滞buck的典型修调项概览" data-for="12-迟滞buck的典型修调项概览">1.2 迟滞Buck的典型修调项概览</a></li><li class="depth-1"><a href="#二迟滞buck的lx电阻修调" data-for="二迟滞buck的lx电阻修调">二、迟滞Buck的LX电阻修调</a></li><li class="depth-2"><a href="#21-原理principle" data-for="21-原理principle">2.1 原理（Principle）</a></li><li class="depth-2"><a href="#22-测试方法test-method" data-for="22-测试方法test-method">2.2 测试方法（Test Method）</a></li><li class="depth-2"><a href="#23-注意事项considerations" data-for="23-注意事项considerations">2.3 注意事项（Considerations）</a></li><li class="depth-1"><a href="#三迟滞buck的vo_r电阻精度修调" data-for="三迟滞buck的vo_r电阻精度修调">三、迟滞Buck的VO_R电阻精度修调</a></li><li class="depth-2"><a href="#31-原理principle" data-for="31-原理principle">3.1 原理（Principle）</a></li><li class="depth-2"><a href="#32-测试方法test-method" data-for="32-测试方法test-method">3.2 测试方法（Test Method）</a></li><li class="depth-2"><a href="#33-注意事项considerations" data-for="33-注意事项considerations">3.3 注意事项（Considerations）</a></li><li class="depth-1"><a href="#四迟滞buck的vref_r电阻精度修调" data-for="四迟滞buck的vref_r电阻精度修调">四、迟滞Buck的Vref_R电阻精度修调</a></li><li class="depth-2"><a href="#41-原理principle" data-for="41-原理principle">4.1 原理（Principle）</a></li><li class="depth-2"><a href="#42-测试方法test-method" data-for="42-测试方法test-method">4.2 测试方法（Test Method）</a></li><li class="depth-2"><a href="#43-注意事项considerations" data-for="43-注意事项considerations">4.3 注意事项（Considerations）</a></li><li class="depth-1"><a href="#五迟滞buck的rc-ton时间修调" data-for="五迟滞buck的rc-ton时间修调">五、迟滞Buck的RC Ton时间修调</a></li><li class="depth-2"><a href="#51-原理principle" data-for="51-原理principle">5.1 原理（Principle）</a></li><li class="depth-2"><a href="#52-测试方法test-method" data-for="52-测试方法test-method">5.2 测试方法（Test Method）</a></li><li class="depth-2"><a href="#53-注意事项considerations" data-for="53-注意事项considerations">5.3 注意事项（Considerations）</a></li><li class="depth-1"><a href="#六迟滞buck的输出电压修调带载" data-for="六迟滞buck的输出电压修调带载">六、迟滞Buck的输出电压修调（带载）</a></li><li class="depth-2"><a href="#61-原理principle" data-for="61-原理principle">6.1 原理（Principle）</a></li><li class="depth-2"><a href="#62-测试方法test-method" data-for="62-测试方法test-method">6.2 测试方法（Test Method）</a></li><li class="depth-2"><a href="#63-注意事项considerations" data-for="63-注意事项considerations">6.3 注意事项（Considerations）</a></li><li class="depth-1"><a href="#七迟滞buck的pocp修调" data-for="七迟滞buck的pocp修调">七、迟滞Buck的POCP修调</a></li><li class="depth-2"><a href="#71-buck的ocp比较器失调电压修调" data-for="71-buck的ocp比较器失调电压修调">7.1 Buck的OCP比较器失调电压修调</a></li><li class="depth-2"><a href="#72-buck-pocp-sense修调" data-for="72-buck-pocp-sense修调">7.2 Buck POCP Sense修调</a></li><li class="depth-2"><a href="#73-buck-ocp自修调" data-for="73-buck-ocp自修调">7.3 Buck OCP自修调</a></li><li class="depth-1"><a href="#八buck的负dmd修调" data-for="八buck的负dmd修调">八、Buck的负DMD修调</a></li><li class="depth-2"><a href="#81-原理principle" data-for="81-原理principle">8.1 原理（Principle）</a></li><li class="depth-2"><a href="#82-测试方法test-method" data-for="82-测试方法test-method">8.2 测试方法（Test Method）</a></li><li class="depth-2"><a href="#83-注意事项considerations" data-for="83-注意事项considerations">8.3 注意事项（Considerations）</a></li><li class="depth-1"><a href="#九修调顺序总结" data-for="九修调顺序总结">九、修调顺序总结</a></li><li class="depth-1"><a href="#十常用仪器与设备建议" data-for="十常用仪器与设备建议">十、常用仪器与设备建议</a></li><li class="depth-1"><a href="#十一常见问题与排查faq" data-for="十一常见问题与排查faq">十一、常见问题与排查（FAQ）</a></li><li class="depth-2"><a href="#q1-为什么迟滞buck的vout修调必须在轻载和带载下分别进行" data-for="q1-为什么迟滞buck的vout修调必须在轻载和带载下分别进行">Q1: 为什么迟滞Buck的VOUT修调必须在轻载和带载下分别进行？</a></li><li class="depth-2"><a href="#q2-负dmd修调后为什么轻载效率反而下降了" data-for="q2-负dmd修调后为什么轻载效率反而下降了">Q2: 负DMD修调后，为什么轻载效率反而下降了？</a></li><li class="depth-2"><a href="#q3-ocp自修调和ate手动修调应该如何选择" data-for="q3-ocp自修调和ate手动修调应该如何选择">Q3: OCP自修调和ATE手动修调应该如何选择？</a></li><li class="depth-2"><a href="#q4-rc-ton修调为何要在多个vinvout条件下验证" data-for="q4-rc-ton修调为何要在多个vinvout条件下验证">Q4: RC Ton修调为何要在多个VIN/VOUT条件下验证？</a></li><li class="depth-2"><a href="#q5-lx电阻修调时死区时间为什么需要避开" data-for="q5-lx电阻修调时死区时间为什么需要避开">Q5: LX电阻修调时，死区时间为什么需要避开？</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试" class="internal">迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

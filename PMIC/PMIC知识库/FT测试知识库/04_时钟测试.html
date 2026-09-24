@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>时钟测试 — PMIC 时钟与振荡器 FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="时钟测试 — PMIC 时钟与振荡器 FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="时钟测试 — PMIC 时钟与振荡器 FT 测试"/><meta name="twitter:description" content="PMIC 时钟与振荡器模块 FT (Final Test) 测试项详解，涵盖 1024KHz RC 振荡器、38.4MHz 晶体振荡器、32KHz RTC 时钟及其它时钟测试的原理、测试方法与判定标准"/><meta property="og:description" content="PMIC 时钟与振荡器模块 FT (Final Test) 测试项详解，涵盖 1024KHz RC 振荡器、38.4MHz 晶体振荡器、32KHz RTC 时钟及其它时钟测试的原理、测试方法与判定标准"/><meta property="og:image:alt" content="PMIC 时钟与振荡器模块 FT (Final Test) 测试项详解，涵盖 1024KHz RC 振荡器、38.4MHz 晶体振荡器、32KHz RTC 时钟及其它时钟测试的原理、测试方法与判定标准"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/04_时钟测试"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/04_时钟测试"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 时钟与振荡器模块 FT (Final Test) 测试项详解，涵盖 1024KHz RC 振荡器、38.4MHz 晶体振荡器、32KHz RTC 时钟及其它时钟测试的原理、测试方法与判定标准"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/04_时钟测试-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/04_时钟测试-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/04_时钟测试-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/04_时钟测试"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-222"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-222" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>时钟测试 — PMIC 时钟与振荡器 FT 测试</a></div></nav><h1 class="article-title">时钟测试 — PMIC 时钟与振荡器 FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>26分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../../tags/clock" class="internal tag-link">clock</a></li><li><a href="../../../tags/oscillator" class="internal tag-link">oscillator</a></li><li><a href="../../../tags/rc-oscillator" class="internal tag-link">rc-oscillator</a></li><li><a href="../../../tags/crystal-oscillator" class="internal tag-link">crystal-oscillator</a></li><li><a href="../../../tags/rtc" class="internal tag-link">rtc</a></li><li><a href="../../../tags/jitter" class="internal tag-link">jitter</a></li><li><a href="../../../tags/knowledge-base" class="internal tag-link">knowledge-base</a></li></ul></div></div><article class="popover-hint"><h1 id="时钟测试--pmic-时钟与振荡器-ft-测试">时钟测试 — PMIC 时钟与振荡器 FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#时钟测试--pmic-时钟与振荡器-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p>时钟与振荡器是 PMIC 的”心跳”，为数字控制逻辑、开关电源开关频率、RTC 计时、通信接口等提供精确的时间基准。FT 阶段需要验证时钟频率的准确性、占空比、抖动以及在不同电压和温度条件下的稳定性。</p>
+</blockquote>
+<hr/>
+<h2 id="目录">目录<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#目录" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ol>
+<li><a href="#%E4%B8%80%E6%A6%82%E6%A6%82%E8%BF%B0" class="internal alias">概述</a></li>
+<li><a href="#%E4%BA%8C1024khz-%E6%97%B6%E9%92%9F%E6%B5%8B%E8%AF%95" class="internal alias">1024KHz 时钟测试</a></li>
+<li><a href="#%E4%B8%89384mhz-%E6%97%B6%E9%92%9F%E6%B5%8B%E8%AF%95" class="internal alias">38.4MHz 时钟测试</a></li>
+<li><a href="#%E5%9B%9B32khz-rtc-%E6%97%B6%E9%92%9F%E6%B5%8B%E8%AF%95" class="internal alias">32KHz RTC 时钟测试</a></li>
+<li><a href="#%E4%BA%94%E5%85%B6%E4%BB%96%E6%97%B6%E9%92%9F%E6%B5%8B%E8%AF%95" class="internal alias">其他时钟测试</a></li>
+<li><a href="#%E5%85%AD%E6%B5%8B%E8%AF%95%E4%BB%AA%E5%99%A8%E4%B8%8E%E9%85%8D%E7%BD%AE" class="internal alias">测试仪器与配置</a></li>
+<li><a href="#%E4%B8%83%E6%80%BB%E7%BB%93" class="internal alias">总结</a></li>
+</ol>
+<hr/>
+<h2 id="一概述">一、概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-pmic-中的时钟源类型">1.1 PMIC 中的时钟源类型<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-pmic-中的时钟源类型" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>PMIC 芯片内部通常集成多种时钟源，以满足不同模块对时钟精度和功耗的要求：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>时钟源</th><th>典型频率</th><th>精度等级</th><th>功耗</th><th>典型用途</th></tr></thead><tbody><tr><td>RC 振荡器</td><td>1024 KHz ~ 数 MHz</td><td>±1% ~ ±5%</td><td>低</td><td>开关电源开关频率、数字逻辑时钟、状态机时钟</td></tr><tr><td>晶体振荡器 (XOSC)</td><td>38.4 MHz / 32.768 KHz</td><td>±10 ~ ±100 ppm</td><td>中~高</td><td>高精度计时、RF 参考时钟、通信接口</td></tr><tr><td>PLL 倍频时钟</td><td>数 MHz ~ 数百 MHz</td><td>取决于参考源</td><td>高</td><td>高速数字接口、音频采样率、PWM 发生器</td></tr><tr><td>内部低频振荡器</td><td>32 KHz</td><td>±10% ~ ±30%</td><td>极低</td><td>低功耗模式、唤醒定时器、看门狗</td></tr></tbody></table></div>
+<h3 id="12-ft-测试关注点">1.2 FT 测试关注点<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-ft-测试关注点" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>在 FT 阶段，时钟测试主要关注以下几个方面：</p>
+<ol>
+<li><strong>频率精度 (Frequency Accuracy)</strong>：时钟频率是否在规格要求范围内</li>
+<li><strong>占空比 (Duty Cycle)</strong>：时钟高电平与低电平时间的比例，通常要求 45% ~ 55%</li>
+<li><strong>抖动 (Jitter)</strong>：时钟周期的短期随机波动，影响时序裕量</li>
+<li><strong>温度/电压稳定性</strong>：时钟频率随温度和电源电压的漂移程度</li>
+<li><strong>启动特性</strong>：振荡器启动时间、稳定时间</li>
+</ol>
+<hr/>
+<h2 id="二1024khz-时钟测试">二、1024KHz 时钟测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二1024khz-时钟测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-原理-principle">2.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="211-rc-振荡器基本架构">2.1.1 RC 振荡器基本架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#211-rc-振荡器基本架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>1024KHz（1.024 MHz）时钟通常由片上 <strong>RC 振荡器 (Resistor-Capacitor Oscillator)</strong> 产生。其基本原理是利用 RC 网络的充放电时间常数决定振荡频率。典型架构为 <strong>比较器 + RC 网络</strong> 的多谐振荡器：</p>
+<pre><code>                    ┌─────────────┐
+VDD ──┬─── R ──────┤ 比较器 (+)   │
+       │            │             │
+       │     ┌──────┤ 比较器 (-)───┼───┐
+       │     │      └─────────────┘   │
+       │     │              │         │
+       │     C             ┌┴┐        │
+       │     │            GND         │
+       │     │          (参考电压)     │
+       │     │                        │
+       └─────┴────────────────────────┘
+</code></pre>
+<p><strong>工作原理</strong>：</p>
+<ol>
+<li>电流源通过电阻 R 对电容 C 充电，电容电压 Vc 呈指数上升</li>
+<li>当 Vc 达到比较器阈值电压 Vref 时，比较器翻转</li>
+<li>翻转后放电通路开启，电容快速放电至低阈值</li>
+<li>电容再次充电，重复以上过程，在输出端产生方波时钟信号</li>
+</ol>
+<p><strong>频率公式</strong>：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.8627em;vertical-align:-1.0176em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.3925em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span class="mbin mtight">⋅</span><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span><span class="mbin mtight">⋅</span><span class="mord mathnormal mtight" style="margin-right:0.07153em;">C</span><span class="mbin mtight">⋅</span><span class="mop mtight"><span class="mtight">l</span><span class="mtight">n</span></span><span class="minner mtight"><span class="mopen sizing reset-size3 size6 mtight delimcenter" style="top:0.075em;"><span class="delimsizing size1 mtight"><span class="mtight">(</span></span></span><span class="mord mtight"><span class="mopen nulldelimiter sizing reset-size3 size6"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0534em;"><span style="top:-2.656em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3448em;margin-left:-0.2222em;margin-right:0.1em;"><span class="pstrut" style="height:2.6833em;"></span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">DD</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3385em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3448em;margin-left:-0.2222em;margin-right:0.1em;"><span class="pstrut" style="height:2.6833em;"></span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.08125em;">H</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3385em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.2255em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line mtight" style="border-bottom-width:0.049em;"></span></span><span style="top:-3.5653em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3448em;margin-left:-0.2222em;margin-right:0.1em;"><span class="pstrut" style="height:2.6833em;"></span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">DD</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3385em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3448em;margin-left:-0.2222em;margin-right:0.1em;"><span class="pstrut" style="height:2.6833em;"></span><span class="mord mtight"><span class="mord mathnormal mtight">L</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3385em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5858em;"><span></span></span></span></span></span><span class="mclose nulldelimiter sizing reset-size3 size6"></span></span><span class="mclose sizing reset-size3 size6 mtight delimcenter" style="top:0.075em;"><span class="delimsizing size1 mtight"><span class="mtight">)</span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.0176em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>简化情况下（假设比较器阈值对称）：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1901em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2.2</span><span class="mbin mtight">⋅</span><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span><span class="mbin mtight">⋅</span><span class="mord mathnormal mtight" style="margin-right:0.07153em;">C</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><strong>R</strong>：片上多晶硅电阻 (Poly Resistor)，sheet resistance 随工艺角变化约 ±20%</li>
+<li><strong>C</strong>：片上 MIM 电容或 MOS 电容，单位电容密度随工艺角变化约 ±10%</li>
+<li><strong>Vref</strong>：比较器参考电压，通常由 Bandgap 产生</li>
+</ul>
+<h4 id="212-频率偏差来源">2.1.2 频率偏差来源<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#212-频率偏差来源" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>未修调的 RC 振荡器频率偏差主要来自：</p>
+<ol>
+<li><strong>电阻工艺偏差</strong>：Poly 电阻 sheet resistance 随工艺角变化 ±15% ~ ±25%</li>
+<li><strong>电容工艺偏差</strong>：MOS 电容单位电容密度变化 ±5% ~ ±15%</li>
+<li><strong>比较器延迟</strong>：比较器的传播延迟随 PVT 变化，引入额外频率误差</li>
+<li><strong>温度漂移</strong>：电阻和电容的温度系数 (TCR, TCC) 导致频率随温度变化</li>
+<li><strong>电源电压敏感度</strong>：比较器阈值和充放电电流随 VDD 变化</li>
+</ol>
+<p><strong>修调机制</strong>：在 CP 阶段通过 Trim Code 调整 RC 网络的有效 R 或 C 值，将频率校准到目标值。典型修调范围为 ±20%，步长 ~2%。</p>
+<h4 id="213-为何选择-1024khz">2.1.3 为何选择 1024KHz<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#213-为何选择-1024khz" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>1024K = 2^20 / 1024</strong>：便于数字电路分频得到精确的定时</li>
+<li>可用于生成开关电源的开关频率（或经 PLL 倍频/分频）</li>
+<li>在数字逻辑中提供 1μs 级的时间分辨率（1 周期 ≈ 0.977 μs）</li>
+</ul>
+<h3 id="22-测试方法-test-method">2.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="221-频率测量方法">2.2.1 频率测量方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#221-频率测量方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：通过测试管脚直接测量</strong></p>
+<p>如果芯片将 1024KHz 时钟输出到专用测试管脚（或通过 MUX 复用到 GPIO），可直接用频率计测量：</p>
+<pre><code>DUT 时钟输出 ──→ 测试板通道 ──→ 频率计 (Frequency Counter) / TMU
+</code></pre>
+<p><strong>方法二：通过芯片内部 MUX 输出</strong></p>
+<p>许多 PMIC 设计有 <strong>测试 MUX (Test Mux)</strong>，通过 I2C/SPI 配置寄存器选择将内部时钟信号路由到测试管脚：</p>
+<pre><code>寄存器配置 (0xXX) → 选择 CLK_1024K → MUX → Test Pin → 频率计
+</code></pre>
+<p><strong>方法三：ATE 数字通道捕获</strong></p>
+<p>使用 ATE 数字通道板卡捕获时钟信号，通过 ATE 的 TMU (Time Measurement Unit) 或 FC (Frequency Counter) 板卡测量频率：</p>
+<ul>
+<li>TMU 测量单个周期：精度高，但受噪声影响</li>
+<li>FC 测量多个周期取平均：精度高，抗噪声能力强</li>
+</ul>
+<h4 id="222-占空比测量">2.2.2 占空比测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#222-占空比测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>占空比通过测量高电平时间 (Th) 和低电平时间 (Tl) 计算：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Duty Cycle (%)</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3451em;vertical-align:-0.4509em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8942em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">h</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span><span class="mbin mtight">+</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4159em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">h</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4509em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">100%</span></span></span></span></p>
+<p>ATE 实现方式：</p>
+<ul>
+<li>使用 TMU 分别测量上升沿到下降沿的时间 (Th) 和下降沿到上升沿的时间 (Tl)</li>
+<li>或使用数字通道的 time set 功能进行采样</li>
+</ul>
+<h3 id="23-测试条件-test-conditions">2.3 测试条件 (Test Conditions)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-测试条件-test-conditions" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>电源电压 VDD</td><td>VDD_min (如 2.7V)</td><td>VDD_typ (如 3.7V)</td><td>VDD_max (如 5.5V)</td><td>V</td></tr><tr><td>环境温度</td><td>T_cold (-40°C / 0°C)</td><td>25°C</td><td>T_hot (85°C / 125°C)</td><td>°C</td></tr><tr><td>测试负载</td><td>—</td><td>15 pF (测试板寄生)</td><td>—</td><td>pF</td></tr></tbody></table></div>
+<h3 id="24-判定标准-criteria">2.4 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#24-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>条件</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>频率精度 (已修调)</td><td>25°C, VDD_typ</td><td>1008</td><td>1024</td><td>1040</td><td>KHz</td></tr><tr><td>频率精度 (已修调)</td><td>全温度/全电压</td><td>990</td><td>1024</td><td>1058</td><td>KHz</td></tr><tr><td>频率误差 (未修调)</td><td>25°C, VDD_typ</td><td>—</td><td>—</td><td>±5%</td><td>—</td></tr><tr><td>占空比</td><td>所有条件</td><td>45</td><td>50</td><td>55</td><td>%</td></tr></tbody></table></div>
+<blockquote>
+<p><strong>注意</strong>：1024KHz 通常是 CP 阶段的重点修调项（Trim Target）。FT 阶段主要验证修调后的频率是否仍在规格范围内。若 FT 发现频率超差，可能指示封装应力导致修调值偏移，或者芯片存在物理损伤。</p>
+</blockquote>
+<h3 id="25-测试流程">2.5 测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#25-测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>1. 配置寄存器使能 1024KHz 振荡器
+2. 等待振荡器稳定（典型等待时间 100μs ~ 1ms）
+3. 配置测试 MUX，将 CLK_1024K 路由到测试管脚
+4. 使用频率计/TMU 测量频率
+5. 使用 TMU 测量占空比
+6. 与上下限比较，判断 Pass/Fail
+7. 若失败，记录失败 bin 码并标记
+</code></pre>
+<hr/>
+<h2 id="三384mhz-时钟测试">三、38.4MHz 时钟测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三384mhz-时钟测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-原理-principle">3.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="311-晶体振荡器架构">3.1.1 晶体振荡器架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#311-晶体振荡器架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>38.4MHz 高频时钟通常由 <strong>晶体振荡器 (Crystal Oscillator, XOSC)</strong> 产生。与 RC 振荡器不同，晶体振荡器利用石英晶体的压电效应实现极高的频率稳定性。</p>
+<p><strong>典型 Pierce 振荡器架构</strong>：</p>
+<pre><code>                    ┌──────────────┐
+                    │   Inverter   │
+                    │   (AMP)      │
+                    │              │
+                    │   IN    OUT  │
+                    └──┬──────────┘
+                       │          │
+                    ┌──┴──┐    ┌──┴──┐
+                    │ C1  │    │ C2  │
+                    │ 18pF│    │ 18pF│
+                    └──┬──┘    └──┬──┘
+                       │          │
+                       └──────────┘
+                           Crystal
+                          (38.4MHz)
+                            │
+                           GND
+</code></pre>
+<p><strong>核心组件</strong>：</p>
+<ol>
+<li><strong>石英晶体 (Quartz Crystal)</strong>：38.4MHz 基频 (Fundamental) 或 3 次泛音 (3rd Overtone) 模式
+<ul>
+<li>等效为一个 RLC 串联谐振回路并联一个寄生电容</li>
+<li>极高的 Q 值 (>10,000)，频率稳定性远优于 RC 振荡器</li>
+<li>温度稳定性典型值 ±10 ~ ±50 ppm（取决于晶体切割方式和等级）</li>
+</ul>
+</li>
+<li><strong>反相放大器 (Inverting Amplifier)</strong>：提供增益以维持振荡</li>
+<li><strong>负载电容 (Load Capacitors C1, C2)</strong>：决定振荡频率的精确值</li>
+<li><strong>反馈电阻 Rf</strong>：使放大器偏置在放大区</li>
+<li><strong>限流电阻 Rs</strong>：限制驱动功率，保护晶体</li>
+</ol>
+<h4 id="312-频率稳定性">3.1.2 频率稳定性<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#312-频率稳定性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>晶体振荡器的频率精度主要取决于：</p>
+<ul>
+<li><strong>晶体的切割角精度</strong>：AT-cut 晶体在 -20°C ~ +70°C 范围内典型温漂 ±20 ppm</li>
+<li><strong>负载电容匹配精度</strong>：外部电容 C1/C2 的精度直接影响振荡频率</li>
+<li><strong>老化效应 (Aging)</strong>：晶体老化典型值 ±3 ~ ±5 ppm/年</li>
+<li><strong>电路板寄生电容</strong>：PCB 走线寄生电容会改变有效负载电容</li>
+</ul>
+<h4 id="313-启动与稳定">3.1.3 启动与稳定<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#313-启动与稳定" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>晶体振荡器启动过程：</p>
+<pre><code>启动阶段:
+1. 加电 → 放大器增益 → 热噪声被放大
+2. 晶体滤波 → 仅在谐振频率附近有正反馈
+3. 振幅指数增长 → 进入非线性区 → 振幅稳定
+
+稳定时间: 典型值 1ms ~ 10ms (取决于晶体 Q 值和放大器驱动能力)
+</code></pre>
+<h3 id="32-测试方法-test-method">3.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="321-频率测量">3.2.1 频率测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#321-频率测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：外部晶体法</strong></p>
+<p>在 FT 测试板上安装 38.4MHz 晶体或使用晶体振荡器模块作为时钟源：</p>
+<ol>
+<li>将外部晶体连接到 DUT 的 XO_IN / XO_OUT 管脚</li>
+<li>使能芯片内部振荡器电路</li>
+<li>测量 XO_OUT 管脚的输出频率（使用频率计或示波器）</li>
+</ol>
+<pre><code>外部晶体 ──→ DUT XO_IN ──→ 内部 XOSC ──→ XO_OUT ──→ 频率计
+</code></pre>
+<p><strong>方法二：内部时钟输出法</strong></p>
+<p>如果芯片内部有 PLL 或时钟分频器，可将 38.4MHz 时钟经分频后输出到测试管脚：</p>
+<pre><code>XOSC → 38.4MHz → 分频 (÷38) → ~1MHz → MUX → Test Pin → 频率计
+</code></pre>
+<p>分频测量可降低对 ATE 数字通道带宽的要求。</p>
+<p><strong>方法三：PLL 锁定检测法</strong></p>
+<p>通过 PLL 锁定指示位 (Lock Detect) 间接判断时钟是否正常。但此方法无法测量精确频率值。</p>
+<h4 id="322-抖动测量">3.2.2 抖动测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#322-抖动测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>抖动 (Jitter) 是时钟信号在时间轴上的短期波动：</p>
+<p><strong>周期抖动 (Period Jitter)</strong>：实际周期与理想周期的偏差</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.09618em;">J</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0962em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">er</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span></span></span></span></p>
+<p><strong>周期间抖动 (Cycle-to-Cycle Jitter)</strong>：相邻两个周期的差值</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.09618em;">J</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0962em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">cc</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span></span></span></span></p>
+<p><strong>ATE 测量方法</strong>：</p>
+<ul>
+<li>使用高速采样板卡（如 1GS/s 以上 Digitizer）捕获时钟波形</li>
+<li>或多个周期重复测量，统计 TIE (Time Interval Error)</li>
+<li>使用 ATE 的专用抖动分析模块</li>
+</ul>
+<h3 id="33-测试条件">3.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>数值</th></tr></thead><tbody><tr><td>电源电压</td><td>VDD_min / typ / max</td><td>2.7V / 3.7V / 5.5V</td></tr><tr><td>温度</td><td>常温 / 高温 / 低温</td><td>25°C / 85°C / -40°C</td></tr><tr><td>外部晶体负载电容</td><td>按规格书</td><td>18 pF ±5%</td></tr><tr><td>晶体等效串联电阻 (ESR)</td><td>按晶体规格</td><td>&lt; 50 Ω</td></tr></tbody></table></div>
+<h3 id="34-判定标准">3.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>条件</th><th>规格</th><th>单位</th></tr></thead><tbody><tr><td>频率精度（晶体模式）</td><td>25°C</td><td>±50</td><td>ppm</td></tr><tr><td>频率精度（晶体模式）</td><td>全温度</td><td>±100</td><td>ppm</td></tr><tr><td>频率精度（内部振荡器模式）</td><td>25°C</td><td>±1</td><td>%</td></tr><tr><td>周期抖动 (RMS)</td><td>所有条件</td><td>&lt; 50</td><td>ps</td></tr><tr><td>周期抖动 (Peak-to-Peak)</td><td>所有条件</td><td>&lt; 300</td><td>ps</td></tr><tr><td>周期间抖动 (RMS)</td><td>所有条件</td><td>&lt; 30</td><td>ps</td></tr><tr><td>振荡器启动时间</td><td>VDD_typ, 25°C</td><td>&lt; 5</td><td>ms</td></tr></tbody></table></div>
+<blockquote>
+<p><strong>关键区别</strong>：晶体振荡器（带外部晶体）的频率精度可达 ppm 级，远高于 RC 振荡器的 % 级。若芯片使用内部 LC 振荡器替代外部晶体，则精度介于 RC 和晶体之间，典型 ±0.5% ~ ±1%。</p>
+</blockquote>
+<h3 id="35-测试注意事项">3.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#35-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>PCB 布局</strong>：38.4MHz 为高频信号，测试板走线需控制阻抗，避免信号反射</li>
+<li><strong>寄生电容</strong>：测试板探针和走线的寄生电容会改变振荡频率，需在测板设计时做补偿</li>
+<li><strong>晶体选择</strong>：FT 用晶体需选择与芯片设计匹配的负载电容和 ESR</li>
+<li><strong>EMI 考虑</strong>：高频时钟信号可能辐射电磁干扰，测试板需做好屏蔽</li>
+</ol>
+<hr/>
+<h2 id="四32khz-rtc-时钟测试">四、32KHz RTC 时钟测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四32khz-rtc-时钟测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-原理-principle">4.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="411-为什么是-32768khz">4.1.1 为什么是 32.768KHz<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#411-为什么是-32768khz" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>32.768KHz = 2^15 Hz，这个数字的意义在于：</p>
+<ul>
+<li>经过 15 级二进制分频器 (二分频 15 次) 可精确得到 1Hz（1 秒定时）</li>
+<li>32.768KHz ÷ 2^15 = 1 Hz</li>
+<li>这使得 RTC (Real-Time Clock) 可以最小硬件开销实现精确的秒计时</li>
+</ul>
+<h4 id="412-两种实现方式">4.1.2 两种实现方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#412-两种实现方式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方式一：RC 振荡器实现</strong></p>
+<ul>
+<li>使用片上 RC 网络产生 ~32KHz 时钟</li>
+<li><strong>优点</strong>：无需外部元件，成本低，功耗极低（典型 &lt; 1μA）</li>
+<li><strong>缺点</strong>：频率精度差，典型 ±5% ~ ±30%</li>
+<li><strong>应用场景</strong>：对时间精度要求不高的场合（如唤醒定时器、看门狗）</li>
+</ul>
+<p><strong>方式二：晶体振荡器实现 (32.768KHz 音叉晶体)</strong></p>
+<ul>
+<li>使用外接 32.768KHz 音叉晶体 (Tuning Fork Crystal)</li>
+<li><strong>优点</strong>：极高的频率精度，典型 ±5 ~ ±100 ppm</li>
+<li><strong>缺点</strong>：需要外部晶体和负载电容，增加 BOM 成本和面积</li>
+<li><strong>应用场景</strong>：需要精确计时的场合（RTC 日历时钟、闹钟）</li>
+</ul>
+<h4 id="413-音叉晶体特性">4.1.3 音叉晶体特性<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#413-音叉晶体特性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>32.768KHz 音叉晶体与高频 AT-cut 晶体不同：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>特性</th><th>音叉晶体 (Tuning Fork)</th><th>AT-cut 晶体</th></tr></thead><tbody><tr><td>典型频率</td><td>32.768 KHz</td><td>数 MHz ~ 数百 MHz</td></tr><tr><td>切割方式</td><td>X+2° ~ X+5°</td><td>AT-cut</td></tr><tr><td>温度特性</td><td>抛物线型，25°C 附近最平坦</td><td>S 形曲线</td></tr><tr><td>温度系数</td><td>-0.04 ppm/°C² (二次)</td><td>-0.3 ppm/°C (线性)</td></tr><tr><td>典型精度</td><td>±20 ppm @ 25°C</td><td>±10 ~ ±50 ppm</td></tr><tr><td>等效串联电阻 (ESR)</td><td>30 ~ 70 KΩ</td><td>10 ~ 100 Ω</td></tr><tr><td>Q 值</td><td>~50,000</td><td>> 100,000</td></tr></tbody></table></div>
+<p><strong>温度特性曲线</strong>：</p>
+<p>音叉晶体的频率随温度呈抛物线变化：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.4133em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4461em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">Δ</span><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><strong>B</strong> ≈ -0.04 ppm/°C²</li>
+<li><strong>T₀</strong> = 25°C (拐点温度)</li>
+<li>在 -40°C ~ +85°C 范围内，最大频率偏差约 -160 ppm</li>
+</ul>
+<h3 id="42-测试方法-test-method">4.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="421-频率测量">4.2.1 频率测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#421-频率测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>与 1024KHz 测量方法类似，32KHz 时钟可通过以下方式测量：</p>
+<ol>
+<li><strong>直接管脚输出</strong>：将 32KHz 时钟通过测试 MUX 输出到测试管脚</li>
+<li><strong>分频后输出</strong>：将 32KHz 经分频后输出（如 ÷32 → 1KHz），降低对 ATE 测量能力的要求</li>
+<li><strong>RTC 计数器验证</strong>：通过 I2C 读取 RTC 计数器值，在经过固定时间后再次读取，计算实际经过时间与理论时间的偏差</li>
+</ol>
+<p><strong>RTC 计数器验证方法</strong>：</p>
+<pre><code>1. 初始化 RTC 计数器为 0
+2. 使能 32KHz 时钟
+3. 等待精确的 ATE 定时（如 1 秒）
+4. 读取 RTC 计数器值，应为 32768 ± 误差
+5. 计算实际频率：f = counter_value / elapsed_time
+</code></pre>
+<p>这种方法不需要将时钟输出到管脚，适用于测试管脚受限的情况。</p>
+<h4 id="422-功耗测量">4.2.2 功耗测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#422-功耗测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>32KHz 时钟通常用于低功耗模式，FT 需要测量其工作电流：</p>
+<ul>
+<li><strong>RC 模式</strong>：典型 &lt; 1μA</li>
+<li><strong>晶体模式</strong>：典型 1 ~ 5μA（包括振荡器驱动电流）</li>
+</ul>
+<h3 id="43-测试条件">4.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>RC 模式</th><th>晶体模式</th><th>单位</th></tr></thead><tbody><tr><td>VDD_RTC</td><td>最小值</td><td>1.8</td><td>1.8</td><td>V</td></tr><tr><td>VDD_RTC</td><td>典型值</td><td>3.0</td><td>3.0</td><td>V</td></tr><tr><td>VDD_RTC</td><td>最大值</td><td>5.5</td><td>5.5</td><td>V</td></tr><tr><td>温度</td><td>范围</td><td>-40 ~ +85</td><td>-40 ~ +85</td><td>°C</td></tr></tbody></table></div>
+<h3 id="44-判定标准">4.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>模式</th><th>条件</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>频率</td><td>RC</td><td>25°C, 已修调</td><td>31.0</td><td>32.768</td><td>34.5</td><td>KHz</td></tr><tr><td>频率</td><td>RC</td><td>全温度</td><td>29.0</td><td>32.768</td><td>36.5</td><td>KHz</td></tr><tr><td>频率</td><td>晶体</td><td>25°C</td><td>32767.3</td><td>32768</td><td>32768.7</td><td>Hz</td></tr><tr><td>频率</td><td>晶体</td><td>全温度</td><td>32762</td><td>32768</td><td>32774</td><td>Hz</td></tr><tr><td>频率误差</td><td>RC (未修调)</td><td>25°C</td><td>-30</td><td>—</td><td>+30</td><td>%</td></tr><tr><td>频率误差</td><td>晶体</td><td>25°C</td><td>-20</td><td>—</td><td>+20</td><td>ppm</td></tr><tr><td>工作电流</td><td>RC</td><td>无负载</td><td>—</td><td>0.5</td><td>2</td><td>μA</td></tr><tr><td>工作电流</td><td>晶体</td><td>无负载</td><td>—</td><td>2</td><td>5</td><td>μA</td></tr></tbody></table></div>
+<h3 id="45-测试注意事项">4.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#45-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>低功耗测量</strong>：32KHz 工作电流极低，需注意测试板漏电流对测量结果的影响</li>
+<li><strong>晶体起振</strong>：音叉晶体起振时间较长（典型 0.5 ~ 2 秒），测试需预留足够等待时间</li>
+<li><strong>负载电容匹配</strong>：晶体模式需选用与芯片内部电容匹配的外部负载电容</li>
+<li><strong>修调处理</strong>：32K RC 模式通常在 CP 阶段进行修调，FT 仅做验证</li>
+</ol>
+<hr/>
+<h2 id="五其他时钟测试">五、其他时钟测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五其他时钟测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-pll-时钟生成测试">5.1 PLL 时钟生成测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-pll-时钟生成测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="511-原理">5.1.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#511-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PLL (Phase-Locked Loop) 用于将低频参考时钟倍频到高频，为高速模块提供时钟：</p>
+<pre><code>参考时钟 ──→ 鉴频鉴相器(PFD) ──→ 环路滤波器(LF) ──→ VCO ──→ 输出时钟
+                  ↑                                        │
+                  └──── 分频器 (÷N) ←──────────────────────┘
+</code></pre>
+<p><strong>关键参数</strong>：</p>
+<ul>
+<li><strong>倍频比 N</strong>：输出频率 = 参考频率 × N</li>
+<li><strong>锁定时间 (Lock Time)</strong>：从使能到频率稳定的时间</li>
+<li><strong>锁定范围 (Lock Range)</strong>：PLL 能锁定和跟踪的输入频率范围</li>
+<li><strong>相位噪声 (Phase Noise)</strong>：PLL 输出的短期频率稳定度</li>
+</ul>
+<h4 id="512-测试方法">5.1.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#512-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>PLL 锁定检测</strong>：读取 Lock Detect 寄存器位</li>
+<li><strong>频率测量</strong>：将 PLL 输出通过分频器后测量</li>
+<li><strong>锁定时间测量</strong>：使能 PLL，监控频率变化，测量达到稳定所需时间</li>
+</ol>
+<h4 id="513-判定标准">5.1.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#513-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>典型值</th><th>单位</th></tr></thead><tbody><tr><td>锁定时间</td><td>&lt; 100</td><td>μs</td></tr><tr><td>锁定范围</td><td>±5 ~ ±10</td><td>%</td></tr><tr><td>输出频率精度</td><td>±100 ~ ±500</td><td>ppm</td></tr><tr><td>RMS 抖动</td><td>&lt; 10</td><td>ps</td></tr></tbody></table></div>
+<h3 id="52-时钟分频精度测试">5.2 时钟分频精度测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-时钟分频精度测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="521-原理">5.2.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#521-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>芯片内部常通过分频器从主时钟产生多个派生时钟。分频精度的误差源包括：</p>
+<ul>
+<li><strong>分频器本身的整数比误差</strong>（理论上无误差，整数分频）</li>
+<li><strong>主时钟的频率误差</strong>直接影响派生时钟</li>
+<li><strong>异步时钟域同步</strong>可能引入 ±1 周期的同步不确定性</li>
+</ul>
+<h4 id="522-测试方法">5.2.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#522-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>测量主时钟频率 f_main</li>
+<li>测量分频后时钟频率 f_div</li>
+<li>计算分频比：N = f_main / f_div</li>
+<li>验证 N 是否等于预期分频比</li>
+</ol>
+<h3 id="53-时钟展频测试-spread-spectrum">5.3 时钟展频测试 (Spread Spectrum)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-时钟展频测试-spread-spectrum" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="531-原理">5.3.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#531-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>展频时钟 (SSC, Spread Spectrum Clocking) 通过周期性调制时钟频率，将能量分散到更宽的频带上，降低 EMI (电磁干扰) 峰值：</p>
+<pre><code>原始时钟：能量集中在单一频率 → 高 EMI 峰值
+展频时钟：能量分布在 f_center ± Δf 范围内 → EMI 峰值降低 3~12 dB
+</code></pre>
+<p><strong>展频参数</strong>：</p>
+<ul>
+<li><strong>调制率 (Modulation Rate)</strong>：频率调制的周期，典型 30 ~ 60 KHz</li>
+<li><strong>展频幅度 (Spread Amount)</strong>：频率变化范围，典型 ±0.5% ~ ±2%</li>
+<li><strong>调制波形</strong>：通常为三角波 (Triangular)，也有 Hersey 波</li>
+</ul>
+<h4 id="532-测试方法">5.3.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#532-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>使用频谱分析仪测量时钟频谱</li>
+<li>测量展频后的 -3dB 带宽</li>
+<li>计算 EMI 峰值降低量</li>
+<li>验证调制波形和频率</li>
+</ol>
+<h3 id="54-时钟抖动测试-jitter-test">5.4 时钟抖动测试 (Jitter Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-时钟抖动测试-jitter-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="541-抖动类型">5.4.1 抖动类型<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#541-抖动类型" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>抖动类型</th><th>定义</th><th>典型值</th><th>对系统的影响</th></tr></thead><tbody><tr><td>周期抖动 (Period Jitter)</td><td>实际周期与理想周期的偏差</td><td>数十 ~ 数百 ps</td><td>影响建立/保持时间裕量</td></tr><tr><td>周期间抖动 (Cycle-to-Cycle Jitter)</td><td>相邻周期之差</td><td>数十 ~ 数百 ps</td><td>影响高速接口时序</td></tr><tr><td>TIE (Time Interval Error)</td><td>实际沿位置与理想沿位置的偏差</td><td>数百 ps ~ ns</td><td>影响同步通信</td></tr><tr><td>确定性抖动 (DJ)</td><td>由串扰、SSN 等确定因素引起</td><td>取决于电路设计</td><td>可预测，可消除</td></tr><tr><td>随机抖动 (RJ)</td><td>由热噪声等随机因素引起</td><td>RMS 值</td><td>高斯分布，不可消除</td></tr></tbody></table></div>
+<h4 id="542-测量方法">5.4.2 测量方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#542-测量方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>ATE 抖动测量方案</strong>：</p>
+<ol>
+<li>
+<p><strong>长周期采样法</strong>：</p>
+<ul>
+<li>使用高速 Digitizer 连续采集 M 个时钟周期</li>
+<li>计算每个周期的宽度</li>
+<li>统计周期均值和标准差</li>
+</ul>
+</li>
+<li>
+<p><strong>时间间隔测量法</strong>：</p>
+<ul>
+<li>TMU 重复测量 N 个周期的时间</li>
+<li>计算平均周期，与单周期测量值比较</li>
+</ul>
+</li>
+<li>
+<p><strong>眼图法 (ATE 数字通道)</strong>：</p>
+<ul>
+<li>使用 ATE 数字通道进行 shmoo 扫描</li>
+<li>生成眼图，从眼图张开度判断抖动</li>
+</ul>
+</li>
+</ol>
+<h4 id="543-判定标准">5.4.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#543-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>时钟源</th><th>周期抖动 (RMS)</th><th>周期抖动 (Pk-Pk)</th><th>测量条件</th></tr></thead><tbody><tr><td>1024K RC</td><td>&lt; 0.1% of period</td><td>&lt; 0.5% of period</td><td>VDD_typ, 25°C</td></tr><tr><td>38.4M XOSC</td><td>&lt; 50 ps</td><td>&lt; 300 ps</td><td>VDD_typ, 25°C</td></tr><tr><td>32K RC</td><td>&lt; 1% of period</td><td>&lt; 5% of period</td><td>VDD_typ, 25°C</td></tr><tr><td>32K 晶体</td><td>&lt; 1 μs</td><td>&lt; 5 μs</td><td>VDD_typ, 25°C</td></tr></tbody></table></div>
+<hr/>
+<h2 id="六测试仪器与配置">六、测试仪器与配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六测试仪器与配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-频率测量仪器">6.1 频率测量仪器<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-频率测量仪器" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>仪器/板卡</th><th>频率范围</th><th>精度</th><th>适用测试项</th></tr></thead><tbody><tr><td>ATE TMU (Time Measurement Unit)</td><td>DC ~ 200 MHz</td><td>±100 ps</td><td>所有时钟频率/占空比</td></tr><tr><td>ATE 频率计板卡 (FC)</td><td>1 Hz ~ 500 MHz</td><td>±1 ppm</td><td>高精度频率测量</td></tr><tr><td>高速 Digitizer (1GS/s+)</td><td>DC ~ 500 MHz</td><td>8~12 bit</td><td>波形捕获、抖动分析</td></tr><tr><td>频谱分析仪</td><td>9 KHz ~ 数 GHz</td><td>±0.5 dB</td><td>展频测量、谐波分析</td></tr><tr><td>示波器 (高精度)</td><td>DC ~ 1 GHz</td><td>12 bit</td><td>调试、抖动分析</td></tr></tbody></table></div>
+<h3 id="62-测试板配置要点">6.2 测试板配置要点<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-测试板配置要点" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>考虑因素</th><th>建议</th></tr></thead><tbody><tr><td>高频信号走线</td><td>50Ω 阻抗控制微带线/共面波导</td></tr><tr><td>晶体放置</td><td>紧邻 DUT 管脚，走线 &lt; 5mm</td></tr><tr><td>测试点接入</td><td>使用同轴连接器 (SMA/SMP) 引入外部晶体</td></tr><tr><td>滤波去耦</td><td>XO 电源管脚需 π 型滤波 + 低 ESR 电容</td></tr><tr><td>屏蔽</td><td>高频时钟区域加屏蔽罩，防止 EMI 串扰</td></tr></tbody></table></div>
+<hr/>
+<h2 id="七总结">七、总结<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七总结" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>PMIC 时钟与振荡器 FT 测试是确保芯片正常工作的关键环节：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>时钟源</th><th>测试重点</th><th>主要挑战</th></tr></thead><tbody><tr><td>1024K RC Osc</td><td>修调后频率精度、占空比</td><td>工艺偏差、温度漂移</td></tr><tr><td>38.4M XOSC</td><td>ppm 级频率精度、抖动</td><td>高频测量精度、寄生效应</td></tr><tr><td>32K RTC</td><td>频率精度、低功耗电流</td><td>超低功耗测量、晶体起振</td></tr><tr><td>PLL</td><td>锁定时间、相位噪声</td><td>高速测量、精确计时</td></tr><tr><td>展频时钟</td><td>EMI 降低量、调制参数</td><td>频谱测量、时间-频率域转换</td></tr></tbody></table></div>
+<p><strong>核心经验</strong>：</p>
+<ol>
+<li><strong>修调验证</strong>：1024K RC 和 32K RC 通常在 CP 修调，FT 需验证修调效果</li>
+<li><strong>温度影响</strong>：RC 振荡器频率随温度变化显著，需全温度范围覆盖</li>
+<li><strong>寄生补偿</strong>：高频晶体测试需考虑测试板寄生电容，必要时做 de-embedding</li>
+<li><strong>低功耗精度</strong>：32K 晶体测试需平衡功耗和精度要求</li>
+<li><strong>测试时间优化</strong>：时钟稳定等待时间是 FT 测试时间的主要消耗之一，需优化等待策略</li>
+</ol>
+<hr/>
+<blockquote>
+<p><strong>参考资料</strong>：</p>
+<ul>
+<li>芯片数据手册 (Datasheet) 时钟部分</li>
+<li>FT 测试程序规格文档</li>
+<li>晶体振荡器设计指南 (Crystal Oscillator Design Guide)</li>
+<li>JEDEC JESD65B - 抖动定义与测量标准</li>
+</ul>
+<p><strong>相关文档</strong>：</p>
+<ul>
+<li>[[PMIC/PMIC知识库/FT测试知识库/<em>index</em>|FT 测试知识库索引]]</li>
+<li><a href="../../../PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调" class="internal alias" data-slug="PMIC/PMIC知识库/Trim测试知识库/02_BuckBoost变换器修调">Buck-Boost 变换器修调</a>（开关电源时钟相关）</li>
+</ul>
+<p>最后更新: 2026-07-24</p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-84" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#时钟测试--pmic-时钟与振荡器-ft-测试" data-for="时钟测试--pmic-时钟与振荡器-ft-测试">时钟测试 — PMIC 时钟与振荡器 FT 测试</a></li><li class="depth-1"><a href="#目录" data-for="目录">目录</a></li><li class="depth-1"><a href="#一概述" data-for="一概述">一、概述</a></li><li class="depth-2"><a href="#11-pmic-中的时钟源类型" data-for="11-pmic-中的时钟源类型">1.1 PMIC 中的时钟源类型</a></li><li class="depth-2"><a href="#12-ft-测试关注点" data-for="12-ft-测试关注点">1.2 FT 测试关注点</a></li><li class="depth-1"><a href="#二1024khz-时钟测试" data-for="二1024khz-时钟测试">二、1024KHz 时钟测试</a></li><li class="depth-2"><a href="#21-原理-principle" data-for="21-原理-principle">2.1 原理 (Principle)</a></li><li class="depth-2"><a href="#22-测试方法-test-method" data-for="22-测试方法-test-method">2.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#23-测试条件-test-conditions" data-for="23-测试条件-test-conditions">2.3 测试条件 (Test Conditions)</a></li><li class="depth-2"><a href="#24-判定标准-criteria" data-for="24-判定标准-criteria">2.4 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#25-测试流程" data-for="25-测试流程">2.5 测试流程</a></li><li class="depth-1"><a href="#三384mhz-时钟测试" data-for="三384mhz-时钟测试">三、38.4MHz 时钟测试</a></li><li class="depth-2"><a href="#31-原理-principle" data-for="31-原理-principle">3.1 原理 (Principle)</a></li><li class="depth-2"><a href="#32-测试方法-test-method" data-for="32-测试方法-test-method">3.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#33-测试条件" data-for="33-测试条件">3.3 测试条件</a></li><li class="depth-2"><a href="#34-判定标准" data-for="34-判定标准">3.4 判定标准</a></li><li class="depth-2"><a href="#35-测试注意事项" data-for="35-测试注意事项">3.5 测试注意事项</a></li><li class="depth-1"><a href="#四32khz-rtc-时钟测试" data-for="四32khz-rtc-时钟测试">四、32KHz RTC 时钟测试</a></li><li class="depth-2"><a href="#41-原理-principle" data-for="41-原理-principle">4.1 原理 (Principle)</a></li><li class="depth-2"><a href="#42-测试方法-test-method" data-for="42-测试方法-test-method">4.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#43-测试条件" data-for="43-测试条件">4.3 测试条件</a></li><li class="depth-2"><a href="#44-判定标准" data-for="44-判定标准">4.4 判定标准</a></li><li class="depth-2"><a href="#45-测试注意事项" data-for="45-测试注意事项">4.5 测试注意事项</a></li><li class="depth-1"><a href="#五其他时钟测试" data-for="五其他时钟测试">五、其他时钟测试</a></li><li class="depth-2"><a href="#51-pll-时钟生成测试" data-for="51-pll-时钟生成测试">5.1 PLL 时钟生成测试</a></li><li class="depth-2"><a href="#52-时钟分频精度测试" data-for="52-时钟分频精度测试">5.2 时钟分频精度测试</a></li><li class="depth-2"><a href="#53-时钟展频测试-spread-spectrum" data-for="53-时钟展频测试-spread-spectrum">5.3 时钟展频测试 (Spread Spectrum)</a></li><li class="depth-2"><a href="#54-时钟抖动测试-jitter-test" data-for="54-时钟抖动测试-jitter-test">5.4 时钟抖动测试 (Jitter Test)</a></li><li class="depth-1"><a href="#六测试仪器与配置" data-for="六测试仪器与配置">六、测试仪器与配置</a></li><li class="depth-2"><a href="#61-频率测量仪器" data-for="61-频率测量仪器">6.1 频率测量仪器</a></li><li class="depth-2"><a href="#62-测试板配置要点" data-for="62-测试板配置要点">6.2 测试板配置要点</a></li><li class="depth-1"><a href="#七总结" data-for="七总结">七、总结</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试" class="internal">BuckBoost测试 — PMIC 升降压变换器 FT 测试</a></li><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

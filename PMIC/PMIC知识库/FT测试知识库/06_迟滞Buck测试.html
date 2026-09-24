@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试"/><meta name="twitter:description" content="PMIC 迟滞型降压变换器（Hysteretic Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准"/><meta property="og:description" content="PMIC 迟滞型降压变换器（Hysteretic Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准"/><meta property="og:image:alt" content="PMIC 迟滞型降压变换器（Hysteretic Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 迟滞型降压变换器（Hysteretic Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-226"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-226" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试</a></div></nav><h1 class="article-title">迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>31分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/PMIC" class="internal tag-link">PMIC</a></li><li><a href="../../../tags/FT" class="internal tag-link">FT</a></li><li><a href="../../../tags/Final-Test" class="internal tag-link">Final-Test</a></li><li><a href="../../../tags/Hysteretic-Buck" class="internal tag-link">Hysteretic-Buck</a></li><li><a href="../../../tags/DMD" class="internal tag-link">DMD</a></li><li><a href="../../../tags/OVP" class="internal tag-link">OVP</a></li><li><a href="../../../tags/SCP" class="internal tag-link">SCP</a></li><li><a href="../../../tags/DCM" class="internal tag-link">DCM</a></li></ul></div></div><article class="popover-hint"><h1 id="迟滞buck测试--pmic-迟滞型降压变换器-ft-测试">迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#迟滞buck测试--pmic-迟滞型降压变换器-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p>本文档覆盖迟滞型降压变换器（Hysteretic Buck Converter）在 FT（Final Test）阶段的所有测试项，包括原理说明、测试方法、条件配置与判定标准。</p>
+</blockquote>
+<hr/>
+<h2 id="一迟滞buck变换器概述">一、迟滞Buck变换器概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一迟滞buck变换器概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-迟滞控制基本原理">1.1 迟滞控制基本原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-迟滞控制基本原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck变换器采用<strong>基于比较器的控制方式</strong>，而非传统的误差放大器（EA）加补偿网络。其核心控制环路如下：</p>
+<ul>
+<li><strong>电压反馈</strong>：输出电压 VOUT 通过反馈分压电阻网络产生反馈电压 VFB</li>
+<li><strong>纹波注入（Ripple Injection）</strong>：由于迟滞比较器需要一定的纹波才能稳定工作，在 VFB 上叠加一个注入纹波信号（通常来自 LX 节点通过 RC 网络耦合）</li>
+<li><strong>迟滞比较器</strong>：比较 VFB + 注入纹波与内部参考电压 VREF。当 VFB 低于下限阈值时，开启上管（HS-FET）；当 VFB 高于上限阈值时，关闭上管</li>
+<li><strong>天然稳定性</strong>：无需外部 RC 补偿网络，迟滞比较器本身提供稳定的滞环控制</li>
+</ul>
+<pre><code>VREF ----|+\
+         |  >-----> HS-FET Gate Drive
+VFB+RI --|-/
+</code></pre>
+<p><strong>迟滞Buck的关键特征：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>特征</th><th>描述</th></tr></thead><tbody><tr><td>控制方式</td><td>比较器直接控制，无误差放大器</td></tr><tr><td>开关频率</td><td>变频工作（Variable Frequency），随 VIN、VOUT、负载变化</td></tr><tr><td>瞬态响应</td><td>极快，比较器直接响应 VOUT 变化</td></tr><tr><td>稳定性</td><td>天然稳定，无需外部补偿</td></tr><tr><td>输出纹波</td><td>固有存在（迟滞比较器工作需要），通常较大</td></tr><tr><td>轻载效率</td><td>高（自然进入 DCM，无开关损耗浪费）</td></tr></tbody></table></div>
+<h3 id="12-ft-测试项总览">1.2 FT 测试项总览<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-ft-测试项总览" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>编号</th><th>测试项</th><th>关键参数</th></tr></thead><tbody><tr><td>1</td><td>静态电流/效率/DMD测试</td><td>IQ, Efficiency, DCM-CCM transition</td></tr><tr><td>2</td><td>Buck Ramp 反向调压及中断</td><td>DVS ramp reverse, interrupt response</td></tr><tr><td>3</td><td>缓起时间测试</td><td>Soft-start time (10%-90%)</td></tr><tr><td>4</td><td>下拉电阻测试</td><td>Output discharge resistance</td></tr><tr><td>5</td><td>OVP 测试</td><td>Over-voltage protection threshold</td></tr><tr><td>6</td><td>SCP 测试</td><td>Short-circuit current limit</td></tr><tr><td>7</td><td>输出电压精度/纹波测试</td><td>DC accuracy, ripple Vpp</td></tr><tr><td>8</td><td>LX 频率测试</td><td>Switching frequency at specified load</td></tr><tr><td>9</td><td>DCM 检测</td><td>Discontinuous conduction detection</td></tr><tr><td>10</td><td>RampDown 异常筛选</td><td>Ramp-down undershoot, glitch screening</td></tr></tbody></table></div>
+<hr/>
+<h2 id="二静态电流效率dmd测试">二、静态电流/效率/DMD测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二静态电流效率dmd测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-原理">2.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="211-迟滞buck的效率特性">2.1.1 迟滞Buck的效率特性<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#211-迟滞buck的效率特性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>迟滞Buck的效率由以下损耗分量决定：</p>
+<ul>
+<li><strong>导通损耗（Conduction Loss）</strong>：Pcond = ILOAD² × (Rds_on_HS × D + Rds_on_LS × (1-D))</li>
+<li><strong>开关损耗（Switching Loss）</strong>：Psw = fsw × (Qgate_HS + Qgate_LS) × VDRV</li>
+<li><strong>静态损耗（Quiescent Loss）</strong>：PQ = VIN × IQ</li>
+<li><strong>电感损耗（Inductor Loss）</strong>：Pind = ILOAD² × DCR（直流铜损）+ 磁芯损耗</li>
+</ul>
+<p>效率计算公式：</p>
+<pre><code>η = POUT / PIN = (VOUT × IOUT) / (VIN × IIN)
+</code></pre>
+<h4 id="212-dmd-原理">2.1.2 DMD 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#212-dmd-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>DMD（Duty Mode Detection）</strong> 是迟滞Buck中用于检测 DCM（断续导通模式）与 CCM（连续导通模式）之间切换点的电路模块。</p>
+<ul>
+<li>轻载时，迟滞Buck自然进入 DCM：电感电流在开关周期结束前下降到零，下管关闭后 LX 节点出现振铃</li>
+<li>重载时，迟滞Buck进入 CCM：电感电流始终大于零，LX 持续开关无断续</li>
+<li>DMD 通过检测下管电流（或 LX 节点电压）来判断电流过零点，从而确定工作模式</li>
+</ul>
+<p><strong>DMD Trim 的重要性：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>修调方向</th><th>影响</th></tr></thead><tbody><tr><td>DMD 点过高</td><td>过早进入 CCM，轻载效率下降</td></tr><tr><td>DMD 点过低</td><td>过晚进入 CCM，重载时纹波增大且可能引起音频噪声</td></tr><tr><td>最佳点</td><td>在轻载效率与输出纹波之间取得最优权衡</td></tr></tbody></table></div>
+<h3 id="22-测试方法">2.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="221-静态电流iq测试">2.2.1 静态电流（IQ）测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#221-静态电流iq测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>DUT 状态</td><td>输出使能，空载（IOUT = 0mA）</td></tr><tr><td>VIN</td><td>标称值（如 3.7V）</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>测量节点</td><td>VIN 输入电流</td></tr><tr><td>测量仪器</td><td>SMU 或 高精度 DMM（串入电流测量路径）</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出，空载运行</li>
+<li>等待输出稳定（软启动完成后）</li>
+<li>测量 VIN 输入电流 IIN</li>
+<li>记录 IQ = IIN（在空载时，输出电流 = 0，所有输入电流视为静态电流）</li>
+</ol>
+<h4 id="222-效率测试">2.2.2 效率测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#222-效率测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值（如 3.7V）</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>IOUT 扫描范围</td><td>如 1mA, 10mA, 50mA, 100mA, 200mA, 500mA, 1A</td></tr><tr><td>测量量</td><td>VIN, IIN, VOUT, IOUT</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>设定负载电流 IOUT</li>
+<li>待 DUT 稳定后，同时测量 VIN, IIN, VOUT, IOUT</li>
+<li>计算 PIN = VIN × IIN，POUT = VOUT × IOUT</li>
+<li>计算 η = POUT / PIN × 100%</li>
+<li>逐点扫描负载电流，绘制效率曲线</li>
+</ol>
+<p><strong>判定标准示例：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>负载条件</th><th>效率下限</th></tr></thead><tbody><tr><td>轻载（1mA）</td><td>> 70%</td></tr><tr><td>中载（100mA）</td><td>> 85%</td></tr><tr><td>满载（1A）</td><td>> 80%</td></tr></tbody></table></div>
+<h4 id="223-dmd-测试">2.2.3 DMD 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#223-dmd-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载扫描</td><td>从轻载（1mA）逐渐增大，或从重载逐渐减小</td></tr><tr><td>检测方法</td><td>LX 波形观察 / 内部 DMD 标志位</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>设置 VIN 和 VOUT</li>
+<li>将负载从轻载开始，逐步增加负载电流</li>
+<li>在每个负载点，观察 LX 波形：
+<ul>
+<li>DCM：LX 波形在关断期间出现振铃（ring），开关频率较低</li>
+<li>CCM：LX 持续开关，无振铃间隙</li>
+</ul>
+</li>
+<li>记录 DCM→CCM 的翻转电流值</li>
+<li>验证翻转点是否在目标值 ± 允差内（如 50mA ± 10mA）</li>
+</ol>
+<pre><code>LX 波形示意：
+
+DCM（轻载）:
+HS on   LS on   Ringing         HS on
+__      __                     __
+  |____|  |________________|    |____|
+       振铃 → 指示电感电流到零
+
+CCM（重载）:
+HS on   LS on   HS on   LS on
+__      __      __      __
+  |____|  |____|  |____|  |____|
+       连续开关，无振铃
+</code></pre>
+<h3 id="23-测试注意事项">2.3 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>效率测试建议使用 4-Wire Kelvin 连接，消除接触电阻和线阻的影响</li>
+<li>DMD 翻转点可能存在迟滞（DCM→CCM 与 CCM→DCM 阈值不同），需明确测试方向</li>
+<li>大电流测试时需注意 PCB 走线载流能力和散热条件</li>
+<li>IQ 测试时 PMIC 可能处于非开关状态（空载时的低功耗模式），需确认测试条件符合规格定义</li>
+</ul>
+<hr/>
+<h2 id="三buck-ramp-过程反向调压及中断">三、Buck Ramp 过程反向调压及中断<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三buck-ramp-过程反向调压及中断" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-原理">3.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck支持 <strong>DVS（Dynamic Voltage Scaling，动态电压调节）</strong>：通过寄存器或硬件引脚改变目标输出电压。</p>
+<p>Ramp 过程反向调压及中断测试验证以下场景：</p>
+<ul>
+<li><strong>正向 ramp</strong>：VOUT 从低向高调节</li>
+<li><strong>反向 ramp</strong>：VOUT 从高向低调节</li>
+<li><strong>ramp 中断</strong>：在 ramp 过程中突然改变目标电压</li>
+<li><strong>ramp 反向</strong>：在 ramp 过程中反向调节（如升压中突然改为降压）</li>
+</ul>
+<p>迟滞Buck在这些场景下的关键行为：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>场景</th><th>预期行为</th><th>风险</th></tr></thead><tbody><tr><td>正向 ramp</td><td>VOUT 线性上升至新目标</td><td>过冲（overshoot）</td></tr><tr><td>反向 ramp</td><td>VOUT 线性下降至新目标</td><td>下冲（undershoot）</td></tr><tr><td>ramp 中断后继续</td><td>平滑过渡到新目标</td><td>电压突变</td></tr><tr><td>ramp 反向</td><td>VOUT 反向追踪新目标</td><td>电压凹陷或尖峰</td></tr></tbody></table></div>
+<h3 id="32-测试方法">3.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT 起始值</td><td>VOUT_LOW（如 0.6V）</td></tr><tr><td>VOUT 目标值</td><td>VOUT_HIGH（如 1.2V）</td></tr><tr><td>Ramp 速率</td><td>如 10mV/us</td></tr><tr><td>负载条件</td><td>空载 + 轻载（如 10mA）</td></tr><tr><td>测量仪器</td><td>高速数字化仪 / 示波器</td></tr></tbody></table></div>
+<p>测试步骤（正向 ramp 中断为例）：</p>
+<ol>
+<li>设置 Buck 输出为 VOUT_LOW</li>
+<li>发起 ramp 命令，目标为 VOUT_HIGH</li>
+<li>在 ramp 进行到约 50% 时，写入新的目标电压（高于或低于当前值）</li>
+<li>使用数字化仪连续采样 VOUT</li>
+<li>分析 VOUT 波形：
+<ul>
+<li>检查是否有异常的过冲/下冲</li>
+<li>检查 ramp 斜率是否连续</li>
+<li>检查是否平滑过渡到最终目标</li>
+</ul>
+</li>
+<li>验证 VOUT 最终建立值在精度范围内</li>
+</ol>
+<p>典型判定标准：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>限值</th></tr></thead><tbody><tr><td>Ramp 过程过冲</td><td>&lt; 50mV</td></tr><tr><td>Ramp 过程中下冲</td><td>&lt; 50mV</td></tr><tr><td>最终电压精度</td><td>±2%</td></tr><tr><td>Ramp 速率偏差</td><td>±20%</td></tr></tbody></table></div>
+<h3 id="33-测试注意事项">3.3 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>数字化仪的采样率需足够高（建议 > 10MS/s）以捕获瞬态细节</li>
+<li>需覆盖空载和带载两种条件，因为负载会影响迟滞Buck的响应速度</li>
+<li>Ramp 中断测试对时序要求严格，需精确控制寄存器写入时机</li>
+</ul>
+<hr/>
+<h2 id="四缓起时间测试">四、缓起时间测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四缓起时间测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-原理">4.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>软启动（Soft-Start）</strong> 用于限制 Buck 变换器启动时的涌入电流（Inrush Current），防止：</p>
+<ul>
+<li>输出电压过冲</li>
+<li>输入电压跌落</li>
+<li>电感饱和</li>
+<li>输出电容充电电流过大触发过流保护</li>
+</ul>
+<p>迟滞Buck的内部软启动电路工作时，内部参考电压 VREF 从 0 逐渐上升至目标值，使 VOUT 跟随上升，从而限制了占空比和峰值电流。</p>
+<h3 id="42-测试方法">4.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载</td><td>空载</td></tr><tr><td>测量节点</td><td>VOUT</td></tr><tr><td>测量仪器</td><td>数字化仪 / 示波器</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>确保 VOUT 已放电至接近 0V</li>
+<li>发送使能命令启动 Buck</li>
+<li>用数字化仪捕获 VOUT 从 0V 上升至目标值的完整波形</li>
+<li>测量 10% VOUT 到 90% VOUT 的时间间隔</li>
+<li>记录软启动时间 Tss</li>
+</ol>
+<pre><code>VOUT
+  |
+  |              ____目标 VOUT (100%)
+  |            /
+  |          /  ← 90% VOUT
+  |        /
+  |      /  ← 10% VOUT
+  |    /
+  |  /
+  |_________________________________ t
+      |←   Tss (软启动时间)  →|
+</code></pre>
+<h3 id="43-判定标准">4.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>单位</th></tr></thead><tbody><tr><td>软启动时间</td><td>100 ~ 500</td><td>us</td></tr><tr><td>启动过冲</td><td>&lt; 3% VOUT</td><td>—</td></tr><tr><td>单调性</td><td>必须单调上升</td><td>—</td></tr></tbody></table></div>
+<h3 id="44-测试注意事项">4.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>启动前务必确认 VOUT 已完全放电（否则 Tss 测量不准确）</li>
+<li>有些设计在输出预偏置（Pre-bias）情况下软启动行为不同，需单独测试</li>
+<li>需在多个温度点测试（高温下软启动时间可能增大）</li>
+</ul>
+<hr/>
+<h2 id="五下拉电阻测试">五、下拉电阻测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五下拉电阻测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-原理">5.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>输出下拉电阻（Output Discharge Resistor）</strong> 是在 Buck 关闭时，将输出电容上的残余电荷快速泄放的路径。其作用是：</p>
+<ul>
+<li>确保下次启动时 VOUT 从 0V 开始</li>
+<li>防止输出端在断电后仍保持高电平，避免对负载产生危害</li>
+<li>在快速开关机序列中保证输出完全放电</li>
+</ul>
+<p>下拉电阻通常是一个连接在 VOUT 与 GND 之间的 MOSFET 开关串联一个小电阻，在 Buck 被禁用时自动导通。</p>
+<h3 id="52-测试方法">5.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>Buck 状态</td><td>禁用（Disabled）</td></tr><tr><td>VOUT 施加电压</td><td>如 1.0V</td></tr><tr><td>测量</td><td>流出 VOUT 的电流</td></tr><tr><td>测量仪器</td><td>SMU（Force Voltage, Measure Current）</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>禁用 Buck 输出（确保下拉开关已导通）</li>
+<li>在 VOUT 引脚施加测试电压 Vforce</li>
+<li>测量从 VOUT 流出的电流 Imeas</li>
+<li>计算下拉电阻：Rpd = Vforce / Imeas</li>
+</ol>
+<h3 id="53-判定标准">5.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>单位</th></tr></thead><tbody><tr><td>下拉电阻</td><td>50 ~ 500</td><td>Ω</td></tr><tr><td>允差</td><td>±20%</td><td>—</td></tr></tbody></table></div>
+<h3 id="54-测试注意事项">5.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>施加的测试电压不应高于 Buck 的额定输出电压，否则可能损坏内部电路</li>
+<li>需确保 Buck 确实处于禁用状态（下拉开关应导通）</li>
+<li>若下拉电阻过大（开路），可能导致关机后 VOUT 残留电压</li>
+</ul>
+<hr/>
+<h2 id="六ovp-测试">六、OVP 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六ovp-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-原理">6.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>过压保护（OVP, Over-Voltage Protection）</strong> 用于检测 VOUT 是否超过安全阈值。迟滞Buck的 OVP 通过一个独立的比较器实现：</p>
+<ul>
+<li>OVP 比较器监测 VOUT（或 VFB）电压</li>
+<li>当 VOUT 超过 OVP 阈值时，触发保护动作</li>
+<li>保护动作可以是：<strong>锁存关断（Latch-Off）</strong> 或 <strong>自动恢复（Auto-Recovery / Hiccup）</strong></li>
+</ul>
+<p>迟滞Buck的 OVP 触发原因可能包括：</p>
+<ul>
+<li>反馈电阻开路（FB float）</li>
+<li>上管短路</li>
+<li>输入电压突变</li>
+</ul>
+<h3 id="62-测试方法">6.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>Buck 状态</td><td>使能，空载或轻载</td></tr><tr><td>测试方法</td><td>强制 VOUT 超过阈值</td></tr><tr><td>OVP 阈值</td><td>如 VOUT_TARGET × 120%</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出至目标电压</li>
+<li>通过外部 SMU 向 VOUT 强制施加电压，逐步升高直至超过 OVP 阈值</li>
+<li>监测以下信号：
+<ul>
+<li>VOUT 波形（是否出现关断或 hiccup 行为）</li>
+<li>保护标志位（如 OVP_INT, FAULT 等寄存器状态）</li>
+</ul>
+</li>
+<li>记录 OVP 触发阈值（VOUT 首次触发保护时的电压值）</li>
+<li>若为 latch-off 型：确认关断后需要重新使能才能恢复</li>
+<li>若为 auto-recovery 型：确认 VOUT 恢复正常后自动恢复输出</li>
+</ol>
+<h3 id="63-判定标准">6.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>单位</th></tr></thead><tbody><tr><td>OVP 触发阈值</td><td>VOUT_TARGET × 115% ~ 130%</td><td>—</td></tr><tr><td>响应时间</td><td>&lt; 10</td><td>us</td></tr></tbody></table></div>
+<h3 id="64-测试注意事项">6.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#64-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>OVP 测试可能损坏 DUT，需设置电流钳位限制（如 100mA）</li>
+<li>若 OVP 为 latch-off 类型，每次触发保护后需要复位才能继续测试</li>
+</ul>
+<hr/>
+<h2 id="七scp-测试">七、SCP 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七scp-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-原理">7.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>短路保护（SCP, Short Circuit Protection）</strong> 在 VOUT 被短路到 GND 时保护变换器和负载。迟滞Buck的 SCP 通常采用 <strong>打嗝模式（Hiccup Mode）</strong>：</p>
+<ul>
+<li>当检测到过流或短路时，变换器关闭输出</li>
+<li>等待一段冷却时间后，尝试重新启动</li>
+<li>若短路仍在，再次触发保护，进入循环打嗝</li>
+<li>直到短路解除，变换器恢复正常输出</li>
+</ul>
+<p><strong>Hiccup Mode 示意图：</strong></p>
+<pre><code>VOUT
+  |      ___                   ___
+  |     |   |                 |   |
+  |     |   |                 |   |
+  |_____|   |_________________|   |____
+       关断   尝试重启   关断   尝试重启
+          ↑ 短路      ↑ 短路     ↑ 短路解除 → 正常输出
+</code></pre>
+<p>Hiccup 模式的优点：</p>
+<ul>
+<li>短路期间平均电流小，降低热损耗</li>
+<li>不会损坏变换器或负载</li>
+<li>自动恢复，无需外部干预</li>
+</ul>
+<h3 id="72-测试方法">7.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>Buck 状态</td><td>使能，正常输出</td></tr><tr><td>短路条件</td><td>VOUT 短接到 GND（通过开关管或继电器）</td></tr><tr><td>测量</td><td>VOUT 波形、VIN 电流</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出至目标电压，带额定负载</li>
+<li>将 VOUT 短路到 GND</li>
+<li>观察 VOUT 波形：
+<ul>
+<li>记录 VOUT 跌落速度</li>
+<li>观察是否进入 hiccup 模式</li>
+<li>记录 hiccup 周期（关断时间 + 尝试重启时间）</li>
+</ul>
+</li>
+<li>测量短路时的峰值电流（可通过 VIN 电流或输出电流推算）</li>
+<li>解除短路（打开短路开关）</li>
+<li>观察 DUT 是否能自动恢复正常输出</li>
+<li>重复多次，验证保护的一致性</li>
+</ol>
+<h3 id="73-判定标准">7.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th></tr></thead><tbody><tr><td>短路峰值电流</td><td>&lt; OCP 阈值 × 110%</td></tr><tr><td>Hiccup 关断时间</td><td>1 ~ 10 ms</td></tr><tr><td>Hiccup 尝试重启时间</td><td>100 ~ 500 us</td></tr><tr><td>短路解除后恢复</td><td>自动恢复至目标电压</td></tr></tbody></table></div>
+<h3 id="74-测试注意事项">7.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#74-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>使用低阻抗短路开关（如 MOSFET 开关或继电器）</li>
+<li>测试时间不宜过长，避免 DUT 过热</li>
+<li>注意 PCB 短路路径的载流能力</li>
+<li>对于 latch-off 类型 SCP，解除短路后需重新使能</li>
+</ul>
+<hr/>
+<h2 id="八输出电压精度与纹波测试">八、输出电压精度与纹波测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#八输出电压精度与纹波测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="81-原理">8.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#81-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="811-迟滞buck的固有纹波">8.1.1 迟滞Buck的固有纹波<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#811-迟滞buck的固有纹波" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>迟滞Buck与其他拓扑的关键区别之一是其固有的输出纹波特性：</p>
+<ul>
+<li>迟滞比较器需要一定的纹波幅度才能正常工作</li>
+<li>如果没有纹波注入（Ripple Injection），迟滞比较器在低 ESR 输出电容下可能无法稳定触发</li>
+<li>因此，迟滞Buck的纹波是<strong>功能性要求</strong>（而非纯寄生效应）</li>
+</ul>
+<h4 id="812-纹波注入技术ripple-injection">8.1.2 纹波注入技术（Ripple Injection）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#812-纹波注入技术ripple-injection" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>为在低 ESR 陶瓷输出电容下正常工作，迟滞Buck引入了<strong>纹波注入</strong>：</p>
+<ul>
+<li>从 LX 节点通过 RC 网络（Rinj + Cinj）耦合一个与电感电流纹波成比例的电压信号</li>
+<li>该信号叠加到 VFB 上，提供足够的纹波幅度驱动迟滞比较器</li>
+<li>注入的纹波代表电感电流信息（包含 DC 偏移和 AC 纹波）</li>
+</ul>
+<pre><code>VOUT ----[Rinj]----+---- VFB （到比较器）
+                   |
+                  Cinj
+                   |
+                  GND
+
+LX ----[可选路径]----+ （另一种注入方式）
+</code></pre>
+<h4 id="813-不同负载下的纹波特性">8.1.3 不同负载下的纹波特性<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#813-不同负载下的纹波特性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>负载条件</th><th>模式</th><th>纹波特性</th></tr></thead><tbody><tr><td>轻载</td><td>DCM</td><td>纹波较大（电感电流到零后 LX 振铃耦合）</td></tr><tr><td>中载</td><td>临界 DCM/CCM</td><td>纹波中等</td></tr><tr><td>重载</td><td>CCM</td><td>纹波最小（连续导通，电感电流纹波稳定）</td></tr></tbody></table></div>
+<h3 id="82-测试方法">8.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#82-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载</td><td>空载、轻载、中载、满载</td></tr><tr><td>测量</td><td>DC 平均值 + AC 纹波 Vpp</td></tr><tr><td>测量仪器</td><td>DMM（DC 精度）+ 示波器/数字化仪（AC 纹波）</td></tr></tbody></table></div>
+<p>测试步骤（DC 精度）：</p>
+<ol>
+<li>使能 Buck 输出至目标 VOUT</li>
+<li>带载至指定负载电流</li>
+<li>使用 DMM 测量 VOUT 的 DC 平均值（建议多次采样取平均）</li>
+<li>计算精度误差：Error = (VOUT_MEAS - VOUT_TARGET) / VOUT_TARGET × 100%</li>
+</ol>
+<p>测试步骤（AC 纹波）：</p>
+<ol>
+<li>使能 Buck 输出至目标 VOUT</li>
+<li>带载至指定负载电流</li>
+<li>使用示波器/数字化仪在 AC 耦合模式下测量 VOUT 纹波</li>
+<li>记录峰峰值 Vpp</li>
+<li>如需频谱分析，测量主导纹波频率</li>
+</ol>
+<h3 id="83-判定标准">8.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#83-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>典型限值</th></tr></thead><tbody><tr><td>DC 精度</td><td>所有负载</td><td>±2%</td></tr><tr><td>纹波 Vpp</td><td>轻载（DCM）</td><td>&lt; 30 mV</td></tr><tr><td>纹波 Vpp</td><td>重载（CCM）</td><td>&lt; 15 mV</td></tr></tbody></table></div>
+<h3 id="84-测试注意事项">8.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#84-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>DC 精度测量建议使用 4-Wire Kelvin 连接到 DUT 的远端 sense 点</li>
+<li>AC 纹波测量需使用短接地弹簧（短地线），避免噪声耦合</li>
+<li>示波器带宽建议限制在 20MHz，避免高频噪声干扰纹波读数</li>
+<li>测量纹波时示波器设置为 AC 耦合，20mV/div，20MHz 带宽限制</li>
+</ul>
+<hr/>
+<h2 id="九lx-频率测试">九、LX 频率测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#九lx-频率测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="91-原理">9.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#91-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck的一个重要特征是其<strong>开关频率随工况变化</strong>：</p>
+<ul>
+<li>开关频率 fsw = f(VIN, VOUT, ILOAD, 迟滞窗口，TON/OFF 时间)</li>
+<li>轻载时频率降低（DCM 模式，开关周期之间有空闲时间）</li>
+<li>重载时频率升高（CCM 模式，连续开关）</li>
+<li>高 VIN 时频率变化更大</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>影响因素</th><th>对频率的影响</th></tr></thead><tbody><tr><td>VIN 升高</td><td>频率升高（TON 时间一定，VIN 升高电流上升更快）</td></tr><tr><td>ILOAD 增大</td><td>频率升高（CCM 下需要更多开关周期传输能量）</td></tr><tr><td>VOUT 升高</td><td>频率降低（TON 时间不变，VOUT 高导致电流纹波小，周期长）</td></tr><tr><td>迟滞窗口增大</td><td>频率降低（纹波需更大幅度才能翻转）</td></tr></tbody></table></div>
+<h3 id="92-测试方法">9.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#92-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值和边值（如 Min, Typ, Max）</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载</td><td>指定负载电流（如轻载和重载）</td></tr><tr><td>测量节点</td><td>LX 引脚</td></tr><tr><td>测量仪器</td><td>频率计 / 示波器</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出至目标 VOUT</li>
+<li>设置指定负载电流</li>
+<li>用示波器探头连接 LX 引脚</li>
+<li>测量一个完整开关周期的频率（或占空比）</li>
+<li>对于 DCM 模式，需测量开关频率（振荡频率）和脉冲频率（包络频率）</li>
+</ol>
+<h3 id="93-判定标准">9.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#93-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>典型范围</th></tr></thead><tbody><tr><td>最小频率</td><td>轻载 DCM</td><td>> 100 kHz</td></tr><tr><td>典型频率</td><td>中载</td><td>1 ~ 3 MHz</td></tr><tr><td>最大频率</td><td>重载 CCM</td><td>&lt; 6 MHz</td></tr></tbody></table></div>
+<h3 id="94-测试注意事项">9.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#94-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>LX 引脚电压摆幅大（0V ~ VIN），使用示波器探头时需确保探头耐压足够</li>
+<li>探头应使用短接地弹簧以减小测试回路电感</li>
+<li>迟滞Buck频率存在一定随机性，建议多次测量取平均</li>
+</ul>
+<hr/>
+<h2 id="十dcm-检测">十、DCM 检测<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十dcm-检测" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="101-原理">10.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#101-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>DCM（Discontinuous Conduction Mode，断续导通模式）</strong> 检测是迟滞Buck在轻载下高效运行的关键：</p>
+<ul>
+<li>在轻载条件下，迟滞Buck的上管导通时间很短（仅为传递足够的能量维持 VOUT）</li>
+<li>当电感电流下降到零时，下管关断，LX 节点变为高阻态</li>
+<li>此时 LX 节点与输出电感、寄生电容形成谐振回路，产生<strong>振铃（Ringing）</strong></li>
+</ul>
+<p><strong>DCM 检测的两种方法：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>方法</th><th>原理</th><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td>零电流检测（ZCD）</td><td>通过检测下管 Vds 判断电感电流过零</td><td>精确，可精确控制 DCM 深度</td><td>需修调下管 Rds(on)</td></tr><tr><td>LX 振铃检测</td><td>检测 LX 节点的振铃来判断 DCM</td><td>无需额外比较器</td><td>阈值需精确设置</td></tr></tbody></table></div>
+<p>迟滞Buck通过 DCM 检测可以实现：</p>
+<ul>
+<li><strong>零电流关断（Zero-Current Switching）</strong>：减少下管关断损耗</li>
+<li><strong>轻载效率优化</strong>：避免负向电感电流导致的能量回馈</li>
+<li><strong>模式平滑切换</strong>：在 DCM 和 CCM 之间平滑过渡</li>
+</ul>
+<h3 id="102-测试方法">10.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#102-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载</td><td>轻载（如 1mA, 5mA, 10mA）</td></tr><tr><td>测量节点</td><td>LX 引脚</td></tr><tr><td>测量仪器</td><td>示波器</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出至目标 VOUT</li>
+<li>设置负载为轻载（确保预期工作在 DCM）</li>
+<li>观察 LX 波形：
+<ul>
+<li>确认在开关周期中存在高阻振铃阶段</li>
+<li>振铃频率 ≈ 1 / (2π√(L × Cparasitic) )</li>
+</ul>
+</li>
+<li>逐步增大负载，观察 DCM→CCM 的过渡</li>
+<li>记录在哪个负载电流下 DCM 消失（进入 CCM）</li>
+<li>与设计预期值比较</li>
+</ol>
+<p>DCM 下的 LX 波形特征：</p>
+<pre><code>LX 节点电压（DCM 轻载）:
+
+VIN ────┐
+        |   ← HS FET 导通，电感充电
+   GND ─┼──┐
+        |  |  ← LS FET 导通，电感续流
+        |  |   振铃 ← 电感电流到零，LX 高阻
+  -VIN ─┘  └──┬──┬──┬──┬──┬────
+              ↓  ↓  ↓  ↓  ↓
+            振铃频率 = 1/(2π√(L×C))
+</code></pre>
+<h3 id="103-判定标准">10.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#103-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>典型限值</th></tr></thead><tbody><tr><td>DCM 存在性</td><td>轻载（&lt; DMD 阈值）</td><td>必须检测到 DCM</td></tr><tr><td>振铃幅度</td><td>DCM 期间</td><td>&lt; 1Vp</td></tr><tr><td>模式切换</td><td>负载增大至 DMD 阈值</td><td>平滑切换至 CCM</td></tr></tbody></table></div>
+<h3 id="104-测试注意事项">10.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#104-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>示波器探头寄生电容可能影响振铃频率，需使用低电容探头</li>
+<li>DCM 检测与 DMD 修调密切相关，测试前需确认 DMD trim 已正确烧录</li>
+<li>在极轻载下（如 100uA），迟滞Buck可能进入跳跃模式（Skip Mode），需区分与正常 DCM 的区别</li>
+</ul>
+<hr/>
+<h2 id="十一rampdown-过程输出异常筛选测试">十一、RampDown 过程输出异常筛选测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十一rampdown-过程输出异常筛选测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="111-原理">11.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#111-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>迟滞Buck的 <strong>RampDown（输出电压斜坡下降）</strong> 过程在 DVS 向下调节时发生。对于 CPU/GPU 核心供电轨：</p>
+<ul>
+<li>输出电压需从高电压（如 1.2V）下降至低电压（如 0.6V）</li>
+<li>控制电路通过降低内部参考电压，使 VOUT 跟随下降</li>
+<li>迟滞Buck通过下管导通来释放输出电容上的储能</li>
+</ul>
+<p><strong>可能出现的异常情况：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>异常类型</th><th>描述</th><th>风险</th></tr></thead><tbody><tr><td>下冲（Undershoot）</td><td>VOUT 低于目标值，甚至出现负电压</td><td>可能导致负载逻辑错误</td></tr><tr><td>非单调（Non-Monotonic）</td><td>VOUT 下降过程中出现上升台阶</td><td>违反 DVS 单调性要求</td></tr><tr><td>过度振铃</td><td>VOUT 下降后在稳定点附近振荡</td><td>稳定时间长</td></tr><tr><td>下降过快</td><td>ramp 速率超出规格</td><td>可能引起 EMI 或负过冲</td></tr></tbody></table></div>
+<h3 id="112-测试方法">11.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#112-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT 起始值</td><td>VOUT_HIGH（如 1.2V）</td></tr><tr><td>VOUT 目标值</td><td>VOUT_LOW（如 0.6V）</td></tr><tr><td>Ramp 速率</td><td>规格值（如 10mV/us）</td></tr><tr><td>负载条件</td><td>空载 + 满载</td></tr><tr><td>测量仪器</td><td>高速数字化仪</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>设置 Buck 输出为 VOUT_HIGH</li>
+<li>发起 ramp-down 命令（目标为 VOUT_LOW）</li>
+<li>使用高速数字化仪连续采样 VOUT 波形（采样率 > 10MS/s）</li>
+<li>分析波形：
+<ul>
+<li><strong>下冲检测</strong>：测量 VOUT 是否跌落到低于目标值超过规定值</li>
+<li><strong>非单调检测</strong>：检查 VOUT 是否出现局部上升（微分 dVOUT/dt 极性翻转）</li>
+<li><strong>振铃检测</strong>：测量达到稳定后的纹波幅度</li>
+<li><strong>斜率检测</strong>：测量 ramp-down 的平均斜率</li>
+</ul>
+</li>
+<li>记录异常事件的数量和幅度</li>
+</ol>
+<p><strong>异常检测算法示例：</strong></p>
+<pre><code>下冲检测：
+  ∀ t, VOUT(t) ≥ VOUT_TARGET - VUNDERSHOOT_MAX
+
+非单调检测：
+  ∀ t, dVOUT/dt ≤ 0 （在 ramp-down 期间）
+
+振铃检测：
+  在 ramp 完成后，VOUT 在 ±VRINGING_MAX 以内稳定
+</code></pre>
+<h3 id="113-判定标准">11.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#113-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>限值</th></tr></thead><tbody><tr><td>Ramp-down 下冲</td><td>&lt; VOUT_TARGET - 50mV</td></tr><tr><td>Ramp-down 非单调</td><td>不允许（零容忍）</td></tr><tr><td>稳定后振铃 Vpp</td><td>&lt; 5mV @ 稳定后 10us</td></tr><tr><td>Ramp 斜率偏差</td><td>±25%</td></tr><tr><td>单调性</td><td>强制单调下降</td></tr></tbody></table></div>
+<h3 id="114-测试注意事项">11.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#114-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>数字化仪的采样率必须足够高以捕获快速瞬态（建议 > 20MS/s）</li>
+<li>建议使用高分辨率数字化仪（16-bit 以上）以检测微小异常</li>
+<li>需在多个负载条件下测试（空载时 ramp-down 可能更快，满载时可能稳定）</li>
+<li>RampDown 异常可能导致负载（CPU/GPU）逻辑错误，属于严重质量缺陷，需零容忍</li>
+</ul>
+<hr/>
+<h2 id="十二测试条件汇总">十二、测试条件汇总<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十二测试条件汇总" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="121-典型测试条件矩阵">12.1 典型测试条件矩阵<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#121-典型测试条件矩阵" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>VIN</th><th>VOUT</th><th>ILOAD</th><th>温度</th><th>测量仪器</th></tr></thead><tbody><tr><td>静态电流 IQ</td><td>Typ</td><td>Target</td><td>0mA</td><td>25°C</td><td>SMU</td></tr><tr><td>效率</td><td>Typ</td><td>Target</td><td>Sweep</td><td>25°C</td><td>DMM + SMU</td></tr><tr><td>DMD</td><td>Typ</td><td>Target</td><td>Sweep</td><td>25°C</td><td>Scope</td></tr><tr><td>Ramp 中断</td><td>Typ</td><td>Target</td><td>0/轻载</td><td>25°C</td><td>Digitizer</td></tr><tr><td>缓起时间</td><td>Typ</td><td>Target</td><td>0mA</td><td>25/85°C</td><td>Digitizer</td></tr><tr><td>下拉电阻</td><td>0V (Dis)</td><td>Force 1V</td><td>—</td><td>25°C</td><td>SMU</td></tr><tr><td>OVP</td><td>Typ</td><td>Target+</td><td>轻载</td><td>25°C</td><td>SMU + Scope</td></tr><tr><td>SCP</td><td>Typ</td><td>Target</td><td>Short</td><td>25°C</td><td>SMU + Scope</td></tr><tr><td>输出精度/纹波</td><td>Typ/Min/Max</td><td>Target</td><td>Multi</td><td>25/85°C</td><td>DMM + Scope</td></tr><tr><td>LX 频率</td><td>Typ/Min/Max</td><td>Target</td><td>Multi</td><td>25°C</td><td>Freq Counter</td></tr><tr><td>DCM 检测</td><td>Typ</td><td>Target</td><td>轻载</td><td>25°C</td><td>Scope</td></tr><tr><td>RampDown 异常</td><td>Typ</td><td>High→Low</td><td>0/满载</td><td>25°C</td><td>Digitizer</td></tr></tbody></table></div>
+<h3 id="122-通用仪器的连接与配置">12.2 通用仪器的连接与配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#122-通用仪器的连接与配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>仪器</th><th>配置</th><th>用途</th></tr></thead><tbody><tr><td>SMU</td><td>Force VIN, Measure IIN</td><td>供电及静态电流测量</td></tr><tr><td>E-Load</td><td>CC mode, Sweep</td><td>输出负载</td></tr><tr><td>DMM</td><td>4-Wire, DCV</td><td>VOUT 精度测量</td></tr><tr><td>Digitizer</td><td>10MS/s+, 16-bit</td><td>VOUT 动态波形</td></tr><tr><td>Scope</td><td>AC coupled, 20MHz BW limit</td><td>纹波测量、LX 波形</td></tr></tbody></table></div>
+<hr/>
+<h2 id="十三常见失效模式与排查">十三、常见失效模式与排查<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十三常见失效模式与排查" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>失效现象</th><th>可能原因</th><th>排查方法</th></tr></thead><tbody><tr><td>IQ 过高</td><td>内部电路漏电、trim 异常</td><td>检查 DUT 是否正常开关</td></tr><tr><td>效率偏低</td><td>Rds(on) 偏大、TON 异常</td><td>检查 trim code</td></tr><tr><td>DMD 点偏移</td><td>DMD 比较器失调</td><td>检查 DMD trim</td></tr><tr><td>OVP 误触发</td><td>反馈电阻开路、纹波过大</td><td>检查 VFB 电压波形</td></tr><tr><td>SCP 不恢复</td><td>Latch-off 型未复位</td><td>确认复位时序</td></tr><tr><td>输出电压偏低</td><td>反馈电阻偏大、VREF 偏低</td><td>检查 VREF 和 trim</td></tr><tr><td>纹波过大</td><td>纹波注入过大、输出电容偏小</td><td>检查注入网络 RC</td></tr><tr><td>Ramp-down 下冲过大</td><td>负载电流过大、ramp 速率过快</td><td>检查负载和 ramp 设置</td></tr><tr><td>LX 频率异常</td><td>TON/T OFF trim 异常</td><td>检查 RC TON trim</td></tr></tbody></table></div>
+<hr/>
+<h2 id="十四参考与关联文档">十四、参考与关联文档<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十四参考与关联文档" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>文档</th><th>关联说明</th></tr></thead><tbody><tr><td><a href="../../.././FT" class="internal alias" data-slug="FT">FT.md — FT 测试总览</a></td><td>FT 测试项的完整清单与结构</td></tr><tr><td><a href="../../.././Trim" class="internal alias" data-slug="Trim">Trim.md — 修调总览</a></td><td>迟滞Buck 各修调项的说明</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调" class="internal alias" data-slug="PMIC/PMIC知识库/Trim测试知识库/04_迟滞Buck变换器修调">迟滞Buck变换器修调</a></td><td>迟滞Buck CP 修调原理与流程</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试" class="internal alias" data-slug="PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试">BuckBoost 测试</a></td><td>Buck-Boost 同类测试项的对比参考</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试" class="internal alias" data-slug="PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试">电压模Buck测试</a></td><td>电压模Buck 测试（多相）的对照参考</td></tr></tbody></table></div>
+<hr/>
+<blockquote>
+<p><strong>版本历史</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>日期</th><th>版本</th><th>变更内容</th></tr></thead><tbody><tr><td>2026-07-24</td><td>V1.0</td><td>初始版本，覆盖迟滞Buck 全部 FT 测试项</td></tr></tbody></table></div>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-86" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#迟滞buck测试--pmic-迟滞型降压变换器-ft-测试" data-for="迟滞buck测试--pmic-迟滞型降压变换器-ft-测试">迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试</a></li><li class="depth-1"><a href="#一迟滞buck变换器概述" data-for="一迟滞buck变换器概述">一、迟滞Buck变换器概述</a></li><li class="depth-2"><a href="#11-迟滞控制基本原理" data-for="11-迟滞控制基本原理">1.1 迟滞控制基本原理</a></li><li class="depth-2"><a href="#12-ft-测试项总览" data-for="12-ft-测试项总览">1.2 FT 测试项总览</a></li><li class="depth-1"><a href="#二静态电流效率dmd测试" data-for="二静态电流效率dmd测试">二、静态电流/效率/DMD测试</a></li><li class="depth-2"><a href="#21-原理" data-for="21-原理">2.1 原理</a></li><li class="depth-2"><a href="#22-测试方法" data-for="22-测试方法">2.2 测试方法</a></li><li class="depth-2"><a href="#23-测试注意事项" data-for="23-测试注意事项">2.3 测试注意事项</a></li><li class="depth-1"><a href="#三buck-ramp-过程反向调压及中断" data-for="三buck-ramp-过程反向调压及中断">三、Buck Ramp 过程反向调压及中断</a></li><li class="depth-2"><a href="#31-原理" data-for="31-原理">3.1 原理</a></li><li class="depth-2"><a href="#32-测试方法" data-for="32-测试方法">3.2 测试方法</a></li><li class="depth-2"><a href="#33-测试注意事项" data-for="33-测试注意事项">3.3 测试注意事项</a></li><li class="depth-1"><a href="#四缓起时间测试" data-for="四缓起时间测试">四、缓起时间测试</a></li><li class="depth-2"><a href="#41-原理" data-for="41-原理">4.1 原理</a></li><li class="depth-2"><a href="#42-测试方法" data-for="42-测试方法">4.2 测试方法</a></li><li class="depth-2"><a href="#43-判定标准" data-for="43-判定标准">4.3 判定标准</a></li><li class="depth-2"><a href="#44-测试注意事项" data-for="44-测试注意事项">4.4 测试注意事项</a></li><li class="depth-1"><a href="#五下拉电阻测试" data-for="五下拉电阻测试">五、下拉电阻测试</a></li><li class="depth-2"><a href="#51-原理" data-for="51-原理">5.1 原理</a></li><li class="depth-2"><a href="#52-测试方法" data-for="52-测试方法">5.2 测试方法</a></li><li class="depth-2"><a href="#53-判定标准" data-for="53-判定标准">5.3 判定标准</a></li><li class="depth-2"><a href="#54-测试注意事项" data-for="54-测试注意事项">5.4 测试注意事项</a></li><li class="depth-1"><a href="#六ovp-测试" data-for="六ovp-测试">六、OVP 测试</a></li><li class="depth-2"><a href="#61-原理" data-for="61-原理">6.1 原理</a></li><li class="depth-2"><a href="#62-测试方法" data-for="62-测试方法">6.2 测试方法</a></li><li class="depth-2"><a href="#63-判定标准" data-for="63-判定标准">6.3 判定标准</a></li><li class="depth-2"><a href="#64-测试注意事项" data-for="64-测试注意事项">6.4 测试注意事项</a></li><li class="depth-1"><a href="#七scp-测试" data-for="七scp-测试">七、SCP 测试</a></li><li class="depth-2"><a href="#71-原理" data-for="71-原理">7.1 原理</a></li><li class="depth-2"><a href="#72-测试方法" data-for="72-测试方法">7.2 测试方法</a></li><li class="depth-2"><a href="#73-判定标准" data-for="73-判定标准">7.3 判定标准</a></li><li class="depth-2"><a href="#74-测试注意事项" data-for="74-测试注意事项">7.4 测试注意事项</a></li><li class="depth-1"><a href="#八输出电压精度与纹波测试" data-for="八输出电压精度与纹波测试">八、输出电压精度与纹波测试</a></li><li class="depth-2"><a href="#81-原理" data-for="81-原理">8.1 原理</a></li><li class="depth-2"><a href="#82-测试方法" data-for="82-测试方法">8.2 测试方法</a></li><li class="depth-2"><a href="#83-判定标准" data-for="83-判定标准">8.3 判定标准</a></li><li class="depth-2"><a href="#84-测试注意事项" data-for="84-测试注意事项">8.4 测试注意事项</a></li><li class="depth-1"><a href="#九lx-频率测试" data-for="九lx-频率测试">九、LX 频率测试</a></li><li class="depth-2"><a href="#91-原理" data-for="91-原理">9.1 原理</a></li><li class="depth-2"><a href="#92-测试方法" data-for="92-测试方法">9.2 测试方法</a></li><li class="depth-2"><a href="#93-判定标准" data-for="93-判定标准">9.3 判定标准</a></li><li class="depth-2"><a href="#94-测试注意事项" data-for="94-测试注意事项">9.4 测试注意事项</a></li><li class="depth-1"><a href="#十dcm-检测" data-for="十dcm-检测">十、DCM 检测</a></li><li class="depth-2"><a href="#101-原理" data-for="101-原理">10.1 原理</a></li><li class="depth-2"><a href="#102-测试方法" data-for="102-测试方法">10.2 测试方法</a></li><li class="depth-2"><a href="#103-判定标准" data-for="103-判定标准">10.3 判定标准</a></li><li class="depth-2"><a href="#104-测试注意事项" data-for="104-测试注意事项">10.4 测试注意事项</a></li><li class="depth-1"><a href="#十一rampdown-过程输出异常筛选测试" data-for="十一rampdown-过程输出异常筛选测试">十一、RampDown 过程输出异常筛选测试</a></li><li class="depth-2"><a href="#111-原理" data-for="111-原理">11.1 原理</a></li><li class="depth-2"><a href="#112-测试方法" data-for="112-测试方法">11.2 测试方法</a></li><li class="depth-2"><a href="#113-判定标准" data-for="113-判定标准">11.3 判定标准</a></li><li class="depth-2"><a href="#114-测试注意事项" data-for="114-测试注意事项">11.4 测试注意事项</a></li><li class="depth-1"><a href="#十二测试条件汇总" data-for="十二测试条件汇总">十二、测试条件汇总</a></li><li class="depth-2"><a href="#121-典型测试条件矩阵" data-for="121-典型测试条件矩阵">12.1 典型测试条件矩阵</a></li><li class="depth-2"><a href="#122-通用仪器的连接与配置" data-for="122-通用仪器的连接与配置">12.2 通用仪器的连接与配置</a></li><li class="depth-1"><a href="#十三常见失效模式与排查" data-for="十三常见失效模式与排查">十三、常见失效模式与排查</a></li><li class="depth-1"><a href="#十四参考与关联文档" data-for="十四参考与关联文档">十四、参考与关联文档</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试" class="internal">电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）</a></li><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

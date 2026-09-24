@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>多相Buck变换器修调</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="多相Buck变换器修调"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="多相Buck变换器修调"/><meta name="twitter:description" content="多相Buck变换器修调 (Multiphase Voltage-Mode Buck Trim/Calibration) 一、多相Buck变换器概述 (Multiphase Buck Overview) 1.1 什么是多相Buck 多相Buck变换器是将多个相同的Buck功率级（phase）并联运行，各相之间以固定的相位差交替开关，共同向负载输出电流的一种DC-DC变换器拓扑。多相Buck广泛用于CPU/GPU供电、PMIC中大电流输出 rails 等需要高效率、高电流密度、快速瞬态响应的场景。 基本原理 (Basic Principle)： 多相Buck的每一相都是一个标准的电压模式控制Buc..."/><meta property="og:description" content="多相Buck变换器修调 (Multiphase Voltage-Mode Buck Trim/Calibration) 一、多相Buck变换器概述 (Multiphase Buck Overview) 1.1 什么是多相Buck 多相Buck变换器是将多个相同的Buck功率级（phase）并联运行，各相之间以固定的相位差交替开关，共同向负载输出电流的一种DC-DC变换器拓扑。多相Buck广泛用于CPU/GPU供电、PMIC中大电流输出 rails 等需要高效率、高电流密度、快速瞬态响应的场景。 基本原理 (Basic Principle)： 多相Buck的每一相都是一个标准的电压模式控制Buc..."/><meta property="og:image:alt" content="多相Buck变换器修调 (Multiphase Voltage-Mode Buck Trim/Calibration) 一、多相Buck变换器概述 (Multiphase Buck Overview) 1.1 什么是多相Buck 多相Buck变换器是将多个相同的Buck功率级（phase）并联运行，各相之间以固定的相位差交替开关，共同向负载输出电流的一种DC-DC变换器拓扑。多相Buck广泛用于CPU/GPU供电、PMIC中大电流输出 rails 等需要高效率、高电流密度、快速瞬态响应的场景。 基本原理 (Basic Principle)： 多相Buck的每一相都是一个标准的电压模式控制Buc..."/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="多相Buck变换器修调 (Multiphase Voltage-Mode Buck Trim/Calibration) 一、多相Buck变换器概述 (Multiphase Buck Overview) 1.1 什么是多相Buck 多相Buck变换器是将多个相同的Buck功率级（phase）并联运行，各相之间以固定的相位差交替开关，共同向负载输出电流的一种DC-DC变换器拓扑。多相Buck广泛用于CPU/GPU供电、PMIC中大电流输出 rails 等需要高效率、高电流密度、快速瞬态响应的场景。 基本原理 (Basic Principle)： 多相Buck的每一相都是一个标准的电压模式控制Buc..."/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-247"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-247" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/Trim测试知识库/">Trim测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>多相Buck变换器修调</a></div></nav><h1 class="article-title">多相Buck变换器修调</h1><p show-comma="true" class="content-meta"><time datetime="2026-09-24T09:20:17.000Z">2026年9月24日</time><span>42分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/PMIC" class="internal tag-link">PMIC</a></li><li><a href="../../../tags/Buck" class="internal tag-link">Buck</a></li><li><a href="../../../tags/Multiphase" class="internal tag-link">Multiphase</a></li><li><a href="../../../tags/Trim" class="internal tag-link">Trim</a></li><li><a href="../../../tags/Calibration" class="internal tag-link">Calibration</a></li></ul></div></div><article class="popover-hint"><h1 id="多相buck变换器修调-multiphase-voltage-mode-buck-trimcalibration">多相Buck变换器修调 (Multiphase Voltage-Mode Buck Trim/Calibration)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#多相buck变换器修调-multiphase-voltage-mode-buck-trimcalibration" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<hr/>
+<h2 id="一多相buck变换器概述-multiphase-buck-overview">一、多相Buck变换器概述 (Multiphase Buck Overview)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一多相buck变换器概述-multiphase-buck-overview" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-什么是多相buck">1.1 什么是多相Buck<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-什么是多相buck" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>多相Buck变换器是将多个相同的Buck功率级（phase）并联运行，各相之间以固定的相位差交替开关，共同向负载输出电流的一种DC-DC变换器拓扑。多相Buck广泛用于CPU/GPU供电、PMIC中大电流输出 rails 等需要高效率、高电流密度、快速瞬态响应的场景。</p>
+<p><strong>基本原理 (Basic Principle)：</strong></p>
+<p>多相Buck的每一相都是一个标准的电压模式控制Buck（voltage-mode buck），包括功率管（HS-FET / LS-FET）、输出电感（Lx）、PWM比较器、误差放大器（EA）、斜坡发生器（ramp generator）等。各相的PWM时钟相位错开 360°/N（N为相数），实现交错运行（interleaving）。</p>
+<h3 id="12-多相buck的核心优势">1.2 多相Buck的核心优势<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-多相buck的核心优势" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>优势</th><th>解释</th></tr></thead><tbody><tr><td><strong>相间交错 (Phase Interleaving)</strong></td><td>各相PWM时钟错开，输入/输出电流纹波相互抵消，等效开关频率为 N × f_sw</td></tr><tr><td><strong>输出纹波减小 (Reduced Ripple)</strong></td><td>纹波抵消效应使输出电容上的电压纹波大幅降低，可用更少输出电容</td></tr><tr><td><strong>更好的瞬态响应 (Better Transient Response)</strong></td><td>等效开关频率提高，环路带宽可以设计得更高，对负载阶跃的响应更快</td></tr><tr><td><strong>均流运行 (Current Sharing)</strong></td><td>每相承担部分负载电流，热分布均匀，可靠性高</td></tr><tr><td><strong>更高的总输出电流 (Higher Total Output Current)</strong></td><td>N相并联，总输出电流为单相的N倍，突破单相功率管和电感的电流极限</td></tr><tr><td><strong>效率优化 (Efficiency Optimization)</strong></td><td>轻载时可关闭部分相（phase shedding），降低开关损耗</td></tr></tbody></table></div>
+<h3 id="13-电压模式控制与电流模式控制的区别">1.3 电压模式控制与电流模式控制的区别<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#13-电压模式控制与电流模式控制的区别" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>多相Buck可采用电压模式控制（voltage-mode control）或电流模式控制（current-mode control）。本文聚焦于<strong>电压模式控制（Voltage-Mode PWM Control）</strong>，其特点为：</p>
+<ul>
+<li>EA输出直接与斜坡信号（ramp）比较产生PWM，无需电流环</li>
+<li>对噪声更敏感，但环路设计简单</li>
+<li>需要精确的斜坡发生器（ramp generator）和PWM比较器偏移修调</li>
+</ul>
+<hr/>
+<h2 id="二修调项总览-trim-item-overview">二、修调项总览 (Trim Item Overview)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二修调项总览-trim-item-overview" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>多相电压模Buck的修调确保各相参数一致、输出精度高、保护功能准确。主要修调项包括：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>编号</th><th>修调项</th><th>英文名称</th><th>核心目的</th></tr></thead><tbody><tr><td>1</td><td>时钟频率测试</td><td>Clock Frequency Test</td><td>确保相间相位关系准确</td></tr><tr><td>2</td><td>PWM比较器修调</td><td>PWM Comparator Trim</td><td>消除比较器失调，保证PWM占空比精度</td></tr><tr><td>3</td><td>Ramp Buffer修调</td><td>Ramp Buffer Trim</td><td>校准斜坡信号的DC电平和幅度</td></tr><tr><td>4</td><td>三角波电阻修调</td><td>Triangle Wave Resistor Trim</td><td>补偿ramp发生器工艺偏差</td></tr><tr><td>5</td><td>EA钳位范围修调</td><td>EA Clamp Trim</td><td>限制峰值电感电流，防止饱和</td></tr><tr><td>6</td><td>Current Sense修调</td><td>Current Sense Trim</td><td>开路校准offset，闭环校准增益</td></tr><tr><td>7</td><td>状态切换OCP修调</td><td>State-Transition OCP Trim</td><td>模式切换时防止OCP误触发</td></tr><tr><td>8</td><td>POCP修调</td><td>Peak OCP Trim</td><td>峰值电流限流阈值校准</td></tr><tr><td>9</td><td>NOCP修调</td><td>Negative OCP Trim</td><td>反向电流限流阈值校准</td></tr><tr><td>10</td><td>负DMD修调</td><td>Negative DMD / Zero-Cross Trim</td><td>DCM模式下零电流检测</td></tr><tr><td>11</td><td>均流修调</td><td>Current Share Trim</td><td>校准各相电流检测偏移，实现均衡</td></tr><tr><td>12</td><td>输出电压精度修调</td><td>Output Voltage Accuracy Trim</td><td>保证VOUT在目标精度范围内</td></tr></tbody></table></div>
+<hr/>
+<h2 id="三详细修调项">三、详细修调项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三详细修调项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<hr/>
+<h3 id="1-测试多相buck的clock时钟频率-phase-clock-frequency-test">1. 测试多相Buck的Clock时钟频率 (Phase Clock Frequency Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-测试多相buck的clock时钟频率-phase-clock-frequency-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>多相Buck的时钟系统由一个主振荡器（通常为锁相环PLL或内部RC振荡器）产生。主时钟经分频/移相后生成各相PWM的触发信号：</p>
+<ul>
+<li><strong>PLL方案</strong>：通过锁相环将内部时钟同步到外部参考时钟（如32kHz、38.4MHz晶振），频率精度高，相移精确</li>
+<li><strong>内部RC振荡器方案</strong>：依靠片上RC充放电产生时钟，无需外部时钟输入，但频率精度受工艺、电压、温度（PVT）影响大</li>
+</ul>
+<p>时钟频率的精度直接影响：</p>
+<ul>
+<li>各相之间的相位关系（决定纹波抵消效果）</li>
+<li>开关频率是否在目标范围内（影响EMI和效率）</li>
+<li>与外部系统的同步能力</li>
+</ul>
+<h4 id="测试方法-test-method">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>配置Buck进入开关状态</strong>：设置目标输出电压，使能Buck，接适当负载使CCM工作</li>
+<li><strong>选择测试节点</strong>：
+<ul>
+<li>直接测量CLK输出pin（如有专门时钟输出）</li>
+<li>测量任意一相的LX开关节点（switching node），获取该相开关频率</li>
+<li>通过内部测试多路复用器（test mux）将时钟信号路由到GPIO/TEST pin</li>
+</ul>
+</li>
+<li><strong>频率测量</strong>：
+<ul>
+<li>使用频率计（frequency counter）或示波器测量频率</li>
+<li>对于多相系统，依次测量各相LX频率，确认均为 N × f_sw</li>
+</ul>
+</li>
+<li><strong>判断标准</strong>：频率误差应在目标值 ±X% 以内（通常要求 &lt; ±5%）</li>
+</ol>
+<h4 id="注意事项-considerations">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>负载太轻可能进入DCM（ discontinuous conduction mode），此时LX频率偏低或呈脉冲串（burst），应加载保证CCM运行</li>
+<li>如果使用PLL外同步，需要先确认PLL已锁定（lock），通常需要检查lock flag</li>
+<li>测试环境噪声（特别是探头的地环路）可能耦合到LX测量结果中，需使用差分探头或短地弹簧</li>
+<li>如果设计支持展频（spread spectrum / frequency hopping），测试时应禁用该功能</li>
+</ul>
+<hr/>
+<h3 id="2-修调多相电压模buck-pwm比较器noreco-pwm-comparator-trim">2. 修调多相电压模Buck PWM比较器（NOR/ECO） (PWM Comparator Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-修调多相电压模buck-pwm比较器noreco-pwm-comparator-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-1">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>电压模式Buck的PWM调制过程：误差放大器（EA）的输出电压 V_EA 与斜坡信号 V_RAMP 送入PWM比较器进行比较。当 V_RAMP > V_EA 时，比较器翻转，关断HS-FET。</p>
+<p>PWM比较器的<strong>输入失调电压（input offset voltage, V_os）</strong> 会直接改变PWM的翻转点，导致占空比偏离理论值，进而造成：</p>
+<ul>
+<li>输出电压偏离目标</li>
+<li>各相之间占空比不一致（加剧电流不平衡）</li>
+<li>不同模式（Normal / Eco）下输出跳变</li>
+</ul>
+<p>由于Normal模式和Eco模式下比较器的偏置电流（bias current）和速度要求不同，通常需要分别修调（separate trim codes）。</p>
+<h4 id="测试方法-test-method-1">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>断开EA与PWM比较器的连接</strong>：通过测试模式（test mode）或模拟多路开关断开EA输出，改用外部已知电压源（或片上DAC）直接驱动PWM比较器输入端</li>
+<li><strong>Normal模式修调</strong>：
+<ul>
+<li>设置比较器进入Normal模式（高偏置电流）</li>
+<li>设置 V_RAMP 为固定斜坡信号</li>
+<li>从外部向比较器输入端施加电压 V_IN</li>
+<li>扫描 V_IN，检测PWM输出翻转时的 V_IN 值</li>
+<li>翻转点与理论值之差即为 offset，调整trim code使offset归零</li>
+</ul>
+</li>
+<li><strong>Eco模式修调</strong>：
+<ul>
+<li>切换比较器进入Eco模式（低偏置电流，轻载优化）</li>
+<li>重复上述扫描过程</li>
+<li>修调到独立的eco trim code</li>
+</ul>
+</li>
+</ol>
+<h4 id="注意事项-considerations-1">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>Normal和Eco模式的trim code相互独立，需分别存储和加载</li>
+<li>修调时用的斜坡信号幅度和斜率应与实际工作条件一致，否则修调结果会有偏差</li>
+<li>比较器输入端的寄生电容可能引起测量延迟，扫描时应降低步长、增加稳定时间（settling time）</li>
+<li>如果PWM比较器带有迟滞（hysteresis），需要从两个方向扫描（上升沿和下降沿），取平均值消除迟滞影响</li>
+</ul>
+<hr/>
+<h3 id="3-修调多相电压模buck-ramp-buffernoreco-ramp-buffer-trim">3. 修调多相电压模Buck Ramp Buffer（NOR/ECO） (Ramp Buffer Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-修调多相电压模buck-ramp-buffernoreco-ramp-buffer-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-2">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Ramp buffer是电压模式Buck中的关键模拟模块。它产生一个周期性线性上升的斜坡电压 V_RAMP，与EA输出比较生成PWM信号。</p>
+<p><strong>斜坡信号的要求：</strong></p>
+<ul>
+<li><strong>DC电平</strong>（ramp DC level）：决定占空比为零时的PWM输出状态</li>
+<li><strong>幅度</strong>（ramp amplitude / peak-to-peak）：决定PWM调制增益，影响环路稳定性</li>
+<li><strong>线性度</strong>（linearity）：非线性会导致环路增益变化</li>
+</ul>
+<p>为了兼顾效率和精度，通常设计两种模式：</p>
+<ul>
+<li><strong>Normal模式</strong>：高偏置电流，斜坡精度高，用于重载</li>
+<li><strong>Eco模式</strong>：低偏置电流，斜坡精度略低但功耗低，用于轻载</li>
+</ul>
+<p>Ramp buffer内的运算放大器存在输入失调（input offset），该失调会叠加到斜坡信号的DC电平上，需要修调移除。</p>
+<h4 id="测试方法-test-method-2">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>测试模式配置</strong>：将ramp buffer输出通过测试mux路由到测试pin（或通过内部ADC采样）</li>
+<li><strong>DC电平测量</strong>：
+<ul>
+<li>冻结斜坡信号（强制ramp buffer输出为恒定DC电平，不进行充放电）</li>
+<li>测量输出端电压，与设计目标值比较</li>
+<li>Normal模式和Eco模式分别测量</li>
+</ul>
+</li>
+<li><strong>幅度测量</strong>：
+<ul>
+<li>使能斜坡运行（ramp running），测量V_RAMP的峰值和谷值</li>
+<li>峰峰值 = V_peak - V_valley</li>
+<li>与设计目标比较</li>
+</ul>
+</li>
+<li><strong>修调</strong>：调整ramp buffer的offset trim code，使DC电平和幅度误差最小化
+<ul>
+<li>通常先修DC电平（offset），再检查幅度（如果幅度也受offset影响）</li>
+</ul>
+</li>
+</ol>
+<h4 id="注意事项-considerations-2">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>Normal和Eco模式有独立的trim code，不能混用</li>
+<li>测量斜坡幅度时需要足够带宽的示波器或ADC（斜坡上升时间很短）</li>
+<li>注意探头的负载效应——高阻抗探头是必须的（>10MΩ || &lt;10pF）</li>
+<li>如果无法直接测量斜坡信号（没有测试mux），可以通过PWM占空比间接推算——但这会混入PWM比较器的offset，需要先完成PWM比较器修调</li>
+</ul>
+<hr/>
+<h3 id="4-修调多相电压模buck三角波电阻-triangle-wave-resistor-trim">4. 修调多相电压模Buck三角波电阻 (Triangle Wave Resistor Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-修调多相电压模buck三角波电阻-triangle-wave-resistor-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-3">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>电压模式Buck的斜坡发生器通常采用<strong>恒定电流给电容器充电</strong>的方式产生三角波/锯齿波：</p>
+<ul>
+<li>充电电流 I_charge = V_REF / R_trim</li>
+<li>斜坡幅度 V_ramp_pp = I_charge × T_charge / C_ramp</li>
+</ul>
+<p>其中 R_trim 是一个可修调的片上电阻（trimmed resistor）。制造工艺中电阻的绝对精度较差（可能偏差 ±20%~±30%），而电容器的绝对精度也有限，导致斜坡幅度在不同芯片间差异大。</p>
+<p>通过修调 R_trim 的阻值（即调整 trim code 改变并联/串联电阻网络的总阻值），可以校准斜坡幅度到目标值。</p>
+<h4 id="测试方法-test-method-3">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>使能斜坡发生器</strong>：启动Buck的斜坡模块，但不一定需要PWM开关（具体取决于芯片设计）</li>
+<li><strong>测量斜坡幅度</strong>：
+<ul>
+<li>使用示波器或片上ADC直接测量V_RAMP信号的峰峰值</li>
+<li>或者通过测试mux将V_RAMP路由到ATExxx pin</li>
+</ul>
+</li>
+<li><strong>调整trim code</strong>：
+<ul>
+<li>测量当前V_ramp_pp</li>
+<li>计算目标值与测量值的比值</li>
+<li>确定R_trim的修调方向（增大阻值 → 减小充电电流 → 减小幅度）</li>
+<li>写入trim code，重新验证</li>
+</ul>
+</li>
+<li><strong>多次迭代</strong>步进调整直到幅度在目标值 ±X% 以内</li>
+</ol>
+<h4 id="注意事项-considerations-3">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>如果斜坡幅度和DC电平都受同一组修调影响，需协调修调顺序（通常先修幅度再修DC level，或反之——取决于电路架构）</li>
+<li>温度对修调结果有影响：修调通常在常温（25°C）进行，但芯片在实际工作温度下斜坡幅度会漂移。需要考虑温度系数补偿或在热态下验证</li>
+<li>修调电阻的step size决定了修调分辨率，步长太大可能导致无法收敛到目标值</li>
+<li>一些设计中斜坡电阻修调与振荡器频率修调共用同一电阻网络，需要考虑耦合影响</li>
+</ul>
+<hr/>
+<h3 id="5-修调多相电压模buck-ea的钳位范围ea-clamp-error-amplifier-clamp-trim">5. 修调多相电压模Buck EA的钳位范围（EA CLAMP） (Error Amplifier Clamp Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-修调多相电压模buck-ea的钳位范围ea-clamp-error-amplifier-clamp-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-4">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>误差放大器（EA）的输出电压 V_EA 直接送入PWM比较器，控制PWM占空比。如果V_EA过高或过低，PWM占空比将达到极限值（接近0%或100%），此时<strong>峰值电感电流可能失控</strong>，导致电感饱和或输出过冲。</p>
+<p>为防止这种情况，EA输出端设计有钳位电路（clamp circuit）：</p>
+<ul>
+<li><strong>High Clamp（上限钳位）</strong>：限制V_EA的最大值 → 限制最大占空比 → 限制峰值电感电流</li>
+<li><strong>Low Clamp（下限钳位）</strong>：限制V_EA的最小值 → 限制最小占空比 → 防止负电流过大</li>
+</ul>
+<p>钳位电压的精度受工艺偏差影响，需要修调来保证限流点的一致性。</p>
+<h4 id="测试方法-test-method-4">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>High Clamp（上钳位）修调</strong>：
+<ul>
+<li>强制EA正向饱和（例如，设置 V_OUT 远低于 V_REF，或直接通过测试模式强制 EA 输入差模电压）</li>
+<li>测量 EA 输出端电压 V_EA</li>
+<li>此时 V_EA 应被钳位在 V_CLAMP_HIGH 附近</li>
+<li>读取当前值，与目标比较，修调 high clamp trim code</li>
+</ul>
+</li>
+<li><strong>Low Clamp（下钳位）修调</strong>：
+<ul>
+<li>强制EA反向饱和（设置 V_OUT 远高于 V_REF）</li>
+<li>测量 V_EA，被钳位在 V_CLAMP_LOW 附近</li>
+<li>修调 low clamp trim code</li>
+</ul>
+</li>
+<li><strong>非侵入式方法</strong>（如果不能直接访问EA输出）：
+<ul>
+<li>逐步增加负载电流，监测PWM占空比或LX波形</li>
+<li>当占空比不再随负载增加而变化时，EA已进入钳位</li>
+<li>此时占空比对应的EA电压可以间接推算</li>
+</ul>
+</li>
+</ol>
+<h4 id="注意事项-considerations-4">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>High clamp 和 low clamp 可能有独立的 trim code，也可能共享——需查看数据手册</li>
+<li>钳位点的修调需要配合OCP/POCP的修调结果，确保EA钳位在OCP触发之前（或之后——取决于保护策略）</li>
+<li>修调时EA的输出负载（即PWM比较器的输入电容）会影响钳位电压的建立时间，需确保settling time足够</li>
+<li>High clamp修调不当可能导致：上钳位太低 → 负载能力不足；上钳位太高 → 失去限流保护作用</li>
+</ul>
+<hr/>
+<h3 id="6-修调多相电压模buck-current-sense-current-sense-trim">6. 修调多相电压模Buck Current Sense (Current Sense Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6-修调多相电压模buck-current-sense-current-sense-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="6a-current-sense开环修调-open-loop-current-sense-trim">6a. Current Sense开环修调 (Open-Loop Current Sense Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6a-current-sense开环修调-open-loop-current-sense-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<h5 id="原理-principle-5">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<p>Current Sense放大器监测每个功率相的电流（通常通过检测LS-FET的R_DS(on)压降或串联sense电阻的电压），生成一个与相电流成比例的电压 V_CS。</p>
+<p>开环修调（offset calibration）的目标是<strong>消除sense放大器的输入失调电压</strong>，使零电流时 V_CS = 0。</p>
+<h5 id="测试方法-test-method-5">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<ol>
+<li><strong>确保零电流条件</strong>：
+<ul>
+<li>Buck disable 或高阻态（Hi-Z）</li>
+<li>或者强制电感电流为零（通过特殊的test mode）</li>
+</ul>
+</li>
+<li><strong>测量Current Sense输出</strong>：
+<ul>
+<li>读取 V_CS（或通过测试mux）</li>
+<li>理想情况应为0V（或设计指定的零电流参考电压）</li>
+</ul>
+</li>
+<li><strong>修调偏移</strong>：
+<ul>
+<li>逐档调整offset trim code</li>
+<li>使 V_CS 尽可能接近目标零电流值</li>
+</ul>
+</li>
+</ol>
+<h5 id="注意事项-considerations-5">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<ul>
+<li>必须在电感电流确实为零时进行，否则会错误地把真实电流当作offset修掉</li>
+<li>如果芯片不支持强制电感电流为零，可以测量某一已知低电流点后通过外推计算offset</li>
+<li>如果CS放大器有PGA增益设置（programmable gain），每个增益档位可能需要独立的offset trim</li>
+</ul>
+<hr/>
+<h4 id="6b-current-sense闭环修调-closed-loop-current-sense-trim">6b. Current Sense闭环修调 (Closed-Loop Current Sense Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6b-current-sense闭环修调-closed-loop-current-sense-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<h5 id="原理-principle-6">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-6" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<p>闭环修调校准电流检测通路的总增益（total gain），使 V_CS 与真实电感电流的比值精确等于设计值。开环修调移除了offset，但gain误差仍然存在。</p>
+<p>增益误差来源于：</p>
+<ul>
+<li>Sense电阻/R_DS(on)的工艺偏差</li>
+<li>CS放大器的增益误差</li>
+<li>后续ADC/比较器的参考电压误差</li>
+</ul>
+<p>闭环修调需要一个已知的参考电流源（通常是一个外部精密负载或片上已知电流源）。</p>
+<h5 id="测试方法-test-method-6">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-6" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<ol>
+<li><strong>注入已知电流</strong>：
+<ul>
+<li>给Buck接上精密电子负载，强制输出一个已知电流 I_REF（例如 1A）</li>
+<li>或利用芯片内部的校准电流源注入CS通路</li>
+</ul>
+</li>
+<li><strong>测量CS输出</strong>：
+<ul>
+<li>读取 V_CS 值</li>
+<li>计算：gain_error = V_CS_measured / (R_sense × I_REF)</li>
+</ul>
+</li>
+<li><strong>修调增益</strong>：
+<ul>
+<li>调整gain trim code（可能改变反馈电阻网络或电流源）</li>
+<li>使 V_CS = 设计增益 × I_REF</li>
+</ul>
+</li>
+<li><strong>多电流点验证</strong>：分别在低电流、中电流、高电流下验证线性度</li>
+</ol>
+<h5 id="注意事项-considerations-6">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-6" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<ul>
+<li>闭环修调应在开环修调（offset trim）完成后进行，否则结果相互干扰</li>
+<li>如果使用外部负载，需要确保负载电流的精度高于修调精度要求（至少高3~5倍）</li>
+<li>大电流下电感铜损和功率管自热效应会改变感测路径的电阻，影响修调准确性——建议使用脉冲电流（pulsed current）避免自热</li>
+<li>多相Buck中每相各有独立的CS放大器，需逐相独立修调</li>
+</ul>
+<hr/>
+<h3 id="7-vbuck状态切换ocp修调电流小ocp-trim-pocp_sw点修调-state-transition-ocp-trim">7. Vbuck状态切换OCP修调电流（小OCP Trim）+ POCP_SW点修调 (State-Transition OCP Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#7-vbuck状态切换ocp修调电流小ocp-trim-pocp_sw点修调-state-transition-ocp-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-7">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-7" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>多相Buck在不同工作模式间切换时（例如 Eco mode → CCM mode），电感电流可能出现<strong>瞬态尖峰（current spike）</strong>。这是因为：</p>
+<ul>
+<li>模式切换瞬间，各相PWM时序重新同步</li>
+<li>EA输出突然变化导致占空比跳变</li>
+<li>环路尚未稳定</li>
+</ul>
+<p>如果OCP（过流保护）阈值在切换过程中保持不变，这些瞬态尖峰可能触发OCP误保护，导致系统异常关机。</p>
+<p>因此，在模式切换瞬间，芯片会临时抬高OCP阈值（或禁用OCP），等环路稳定后再恢复到正常阈值。这个<strong>切换期间的OCP阈值</strong>需要修调，既要足够高避免误触发，又不能太高失去保护作用。</p>
+<p>POCP_SW（switching point）是状态切换时OCP行为的开关点，需要配合小OCP trim一起修调。</p>
+<h4 id="测试方法-test-method-7">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-7" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>触发模式切换</strong>：
+<ul>
+<li>设置Buck在轻载条件下运行于Eco模式（或PFM模式）</li>
+<li>突然增加负载（load step），强制切换到CCM模式</li>
+</ul>
+</li>
+<li><strong>监测OCP Flag</strong>：
+<ul>
+<li>读取OCP中断/标志位</li>
+<li>如果OCP flag在切换瞬间被置位（但实际电流并未达到静态OCP阈值），说明需要修调</li>
+</ul>
+</li>
+<li><strong>小OCP修调（state-switch OCP trim）</strong>：
+<ul>
+<li>调整切换期间使用的临时OCP阈值trim code</li>
+<li>重复load step试验，直到切换不再误触发OCP</li>
+</ul>
+</li>
+<li><strong>POCP_SW点修调</strong>：
+<ul>
+<li>POCP_SW决定切换时是否启用临时OCP阈值</li>
+<li>修调该开关点以确保在正确的负载水平下启用/禁用临时OCP</li>
+</ul>
+</li>
+</ol>
+<h4 id="注意事项-considerations-7">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-7" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>需要一定数量的重复测试以确保统计可靠性（误触发可能是概率性的）</li>
+<li>Load step的斜率（di/dt）会影响瞬态尖峰的幅度，测试条件应覆盖最差情况（worst-case）</li>
+<li>小OCP trim值不能设置得过高，否则在模式切换期间发生的真实过流会无法被检测</li>
+<li>不同模式之间的切换（Eco→CCM, CCM→Eco, 相数切换）可能需要各自独立的修调</li>
+</ul>
+<hr/>
+<h3 id="8-buck-pocp修调-peak-over-current-protection-trim">8. Buck POCP修调 (Peak Over-Current Protection Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#8-buck-pocp修调-peak-over-current-protection-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-8">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-8" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>POCP（Peak Over-Current Protection）检测每个开关周期内<strong>电感电流的峰值</strong>。当峰值电流超过设定的阈值时，POCP比较器立即关断HS-FET，防止电流继续上升。</p>
+<p>POCP的精度直接影响：</p>
+<ul>
+<li>最大输出电流能力（set too low → 负载能力受限）</li>
+<li>电感/功率管的安全裕量（set too high → 可能损坏器件）</li>
+</ul>
+<p>POCP阈值由电流检测通路的增益和比较器的参考电压决定，两者都有工艺偏差，因此需要修调。</p>
+<h4 id="测试方法-test-method-8">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-8" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>准备测试条件</strong>：
+<ul>
+<li>Buck使能，输出接电子负载</li>
+<li>禁用其他保护（如过热保护、NOCP等），防止干扰</li>
+</ul>
+</li>
+<li><strong>逐步增加负载</strong>：
+<ul>
+<li>线性或步进增大负载电流</li>
+<li>监测POCP标志（flag）或LX波形（HS-FET提前关断的特征）</li>
+</ul>
+</li>
+<li><strong>检测触发点</strong>：
+<ul>
+<li>当POCP触发时，记录此时的输出电流 I_TRIP</li>
+<li>可以通过LX节点的脉冲宽度变窄（pulse skipping）来识别POCP动作</li>
+</ul>
+</li>
+<li><strong>修调</strong>：
+<ul>
+<li>比较 I_TRIP 与目标阈值</li>
+<li>调整POCP trim code，使触发电流收敛到目标值</li>
+</ul>
+</li>
+<li><strong>多温度点验证</strong>（如果需要）：在hot和cold条件下重复测试</li>
+</ol>
+<h4 id="注意事项-considerations-8">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-8" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>POCP的触发延迟（propagation delay）会导致实际触发电流高于理论值——修调时应考虑这一”over-shoot”并预留余量</li>
+<li>如果电流检测使用R_DS(on)感测，温度对R_DS(on)的影响很大（~0.4%/°C），POCP阈值在高温下会显著降低。修调可能在常温下标定，但需在高温下验证</li>
+<li>多相Buck中各相POCP需要分别修调，因为每相有独立的sense通路和比较器</li>
+<li>一些设计支持POCP软件可编程（通过I²C写阈值），硬件trim则设定trim code的默认值</li>
+</ul>
+<hr/>
+<h3 id="9-buck-nocp修调-negative-over-current-protection-trim">9. Buck NOCP修调 (Negative Over-Current Protection Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#9-buck-nocp修调-negative-over-current-protection-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-9">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-9" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>NOCP（Negative Over-Current Protection）也称为<strong>反向过流保护</strong>或<strong>负电流限流</strong>。在同步Buck中，当LS-FET导通时，电感电流可能反向（从输出流向地），特别是在轻载DCM模式或输出短路的瞬态过程中。</p>
+<p>过大的反向电流会：</p>
+<ul>
+<li>增加功耗，降低轻载效率</li>
+<li>在输出短路时造成大的反向电流应力</li>
+<li>可能导致电感饱和或输出电压异常</li>
+</ul>
+<p>NOCP比较器监测电感电流的反向值，当反向电流超过 NOCP 阈值时，提前关断LS-FET，进入DCM模式。</p>
+<h4 id="测试方法-test-method-9">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-9" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>准备测试条件</strong>：
+<ul>
+<li>Buck使能输出，但负载为电流源（主动从输出抽电流或推电流，使电流反向）</li>
+<li>或使用低负载电阻使输出电压低于目标值（导致反向电流）</li>
+</ul>
+</li>
+<li><strong>强制反向电流</strong>：
+<ul>
+<li>使用有源负载（active load）或另一个电源作为电流源，将电流从输出端拉向Buck的LX节点，使电感电流反向</li>
+<li>逐步增加反向电流</li>
+</ul>
+</li>
+<li><strong>检测NOCP触发</strong>：
+<ul>
+<li>监测NOCP标志</li>
+<li>或监测LS-FET的栅极驱动信号（NOCP触发时LS-FET提前关断）</li>
+<li>记录触发时的反向电流值 I_NOCP_TRIP</li>
+</ul>
+</li>
+<li><strong>修调</strong>：
+<ul>
+<li>调整NOCP trim code，使触发阈值达到目标值</li>
+</ul>
+</li>
+</ol>
+<h4 id="注意事项-considerations-9">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-9" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>NOCP通常在DCM模式下才启用（CCM模式下不会触发，因为反向电流是正常现象），测试前需要确认NOCP使能条件</li>
+<li>反向电流的检测精度受sense路径offset和增益误差影响——NOCP修调通常在前述current sense修调完成之后进行</li>
+<li>注意测试安全：强制大反向电流可能导致输出电容反向充电或芯片损坏，建议从零逐步增加并设置硬电流上限</li>
+<li>对多相Buck，NOCP可能在每相独立检测，也可能总电流检测——需要了解架构</li>
+</ul>
+<hr/>
+<h3 id="10-电压模buck负dmd修调-negative-dmd--zero-cross-trim">10. 电压模Buck负DMD修调 (Negative DMD / Zero-Cross Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#10-电压模buck负dmd修调-negative-dmd--zero-cross-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-10">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-10" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>DMD（Diode Emulation Mode / 二极管仿真模式）是Buck在轻载时进入的一种工作模式，通过检测电感电流过零点（zero-cross），在电流反向之前关断LS-FET，使Buck工作在DCM（断续导通模式），以提高轻载效率。</p>
+<p><strong>负DMD修调</strong>的目标是校准<strong>零电流检测比较器（zero-cross comparator, ZCD）</strong> 的偏移电压。ZCD比较器监测LX节点电压（或通过sense放大器监测电流），在电感电流下降至接近0A时给出关断LS-FET的信号。</p>
+<p>如果ZCD偏移为正值：LS-FET关断过早，输出电流能力略降，但效率略高。
+如果ZCD偏移为负值：LS-FET关断过晚，部分反向电流流过（负电流），损耗增加，效率降低。</p>
+<p>因此需要精确修调ZCD的比较器偏移，使DCM切换点尽可能接近真正的零电流。</p>
+<h4 id="测试方法-test-method-10">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-10" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>设置轻载条件</strong>：
+<ul>
+<li>Buck使能，输出接极小负载（例如几mA到几十mA）</li>
+<li>确保Buck工作在DCM模式</li>
+</ul>
+</li>
+<li><strong>监测LX波形</strong>：
+<ul>
+<li>使用示波器测量LX节点对GND波形</li>
+<li>在DCM下，LX在LS-FET关断后会呈现振荡（ringing），直到下一个周期开始</li>
+</ul>
+</li>
+<li><strong>检测DCM进入点</strong>：
+<ul>
+<li>减小负载直至电流刚好进入DCM → 可以通过LX波形的死区时间判断</li>
+<li>记录进入DCM时的负载电流 I_DCM_ENTRY</li>
+<li>此电流值与理论值之差反映了ZCD比较器偏移</li>
+</ul>
+</li>
+<li><strong>修调</strong>：
+<ul>
+<li>调整负DMD trim code（即ZCD offset trim）</li>
+<li>使 I_DCM_ENTRY 接近理论零电流点</li>
+</ul>
+</li>
+<li><strong>效率验证</strong>：在多个轻载点测量效率，确认DCM效率最优</li>
+</ol>
+<h4 id="注意事项-considerations-10">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-10" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>负DMD修调不当时，如果ZCD触发太晚（负偏移），反向电流会使空载时输出电容充电，导致输出电压升高（输出电压”boosting”），可能触发OVP</li>
+<li>一些PMIC将负DMD和NOCP的修调共享同一通路，需协调修调顺序</li>
+<li>测量LX振荡时需要使用短地弹簧探头（ground spring），减少地环路引入的噪声</li>
+<li>对多相Buck，轻载时可能关闭部分相，负DMD修调对工作的各相分别进行</li>
+</ul>
+<hr/>
+<h3 id="11-多相buck均流修调-current-sharing-trim">11. 多相Buck均流修调 (Current Sharing Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-多相buck均流修调-current-sharing-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-11">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-11" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>均流（current sharing / current balance）是多相Buck的核心要求之一。理想情况下，N相并联的Buck每一相承担 I_OUT / N 的电流。但实际上，由于以下因素各相电流会不平衡：</p>
+<ol>
+<li><strong>各相Sense放大器偏移不同</strong>：电流检测结果不同，导致均流环路（active current sharing loop）的调节基线与实际电流不匹配</li>
+<li><strong>PWM比较器偏移差异</strong>：各相占空比存在微小差异</li>
+<li><strong>功率级参数差异</strong>：各相电感DCR、功率管R_DS(on)不一致</li>
+<li><strong>PCB布局差异</strong>：寄生电阻/电感不同</li>
+</ol>
+<p>多相Buck通常有<strong>主动均流环路</strong>（active current sharing loop），该环路比较各相电流检测值，生成矫正信号调整各相PWM占空比。</p>
+<p>均流修调的核心是修掉各相电流检测的<strong>offset失配</strong>，使均流环路在零电流或已知电流下达到平衡。</p>
+<h4 id="测试方法-test-method-11">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-11" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>准备测试条件</strong>：
+<ul>
+<li>Buck使能，所有相均工作，输出接中等负载（例如额定电流的50%）</li>
+</ul>
+</li>
+<li><strong>逐相测量电流</strong>：
+<ul>
+<li>通过测试mux依次读取各相的电流检测值 V_CS[i]（i = 1..N）</li>
+<li>或者测量各相的电感电流（使用电流探头）</li>
+</ul>
+</li>
+<li><strong>计算偏差</strong>：
+<ul>
+<li>平均电流 I_AVG = (Σ I_phase[i]) / N</li>
+<li>各相偏差 ΔI[i] = I_phase[i] - I_AVG</li>
+</ul>
+</li>
+<li><strong>修调</strong>：
+<ul>
+<li>调整各相的current sense offset trim code</li>
+<li>将 ΔI[i] 减小到最小</li>
+<li>通常以某一相为”master”，调整其他相的offset与之匹配</li>
+</ul>
+</li>
+<li><strong>多负载点验证</strong>：分别在轻载、半载、满载下验证均流效果</li>
+</ol>
+<h4 id="注意事项-considerations-11">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-11" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>均流修调的质量最终要通过各相电流差异来评价——通常要求各相电流差异 &lt; 10%~20% 额定电流</li>
+<li>如果使用R_DS(on)感测，各相的温度差异会导致感测结果差异，均流度随温度变化可能劣化</li>
+<li>均流修调只能在current sense开环和闭环修调（第6项）全部完成之后进行，否则sense读数是错误的，修调也无意义</li>
+<li>修调后需要验证瞬态过程中的均流度——一些offset只有在特定工作点才显著</li>
+<li>如果芯片支持相数可编程（例如 1/2/3/4 相配置），各相数组合下都需要验证均流</li>
+</ul>
+<hr/>
+<h3 id="12-多相buck输出电压精度修调-output-voltage-accuracy-trim">12. 多相Buck输出电压精度修调 (Output Voltage Accuracy Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-多相buck输出电压精度修调-output-voltage-accuracy-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="原理-principle-12">原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principle-12" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck的输出电压精度是PMIC最关键的性能指标之一。对于多相Buck，VOUT的精度取决于：</p>
+<ol>
+<li><strong>反馈电阻分压比（Feedback resistor divider）</strong>：VOUT经R1/R2分压后送入EA的负输入端，与V_REF比较。R1/R2的比值精度直接影响VOUT</li>
+<li><strong>内部参考电压V_REF的精度</strong>（通常来自前面修调好的带隙基准VBG）</li>
+<li><strong>EA本身的输入失调电压</strong></li>
+<li><strong>负载调整率（load regulation）和线性调整率（line regulation）的残余误差</strong></li>
+</ol>
+<p>输出电压精度修调通常通过以下方式之一或组合进行：</p>
+<ul>
+<li><strong>修调反馈电阻</strong>：修调分压器R1或R2的电阻trim code</li>
+<li><strong>修调参考DAC</strong>：调整V_REF的DAC code</li>
+<li><strong>修调电压定位（load line/Vdroop）</strong>：校准输出阻抗</li>
+</ul>
+<p>修调通常在<strong>标称负载</strong>下进行（如额定电流的50%），以保证最佳精度。</p>
+<h4 id="测试方法-test-method-12">测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-method-12" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>准备测试条件</strong>：
+<ul>
+<li>Buck使能，输出设为目标电压 V_TARGET</li>
+<li>接标称负载（例如 50% I_RATED）</li>
+<li>保证输入电压在标称值</li>
+</ul>
+</li>
+<li><strong>测量VOUT</strong>：
+<ul>
+<li>使用精密万用表（DMM）在输出电容两端（sense point）测量VOUT</li>
+<li>四线开尔文连接（Kelvin sensing）消除线阻影响</li>
+</ul>
+</li>
+<li><strong>计算误差</strong>：
+<ul>
+<li>Error = VOUT_measured - V_TARGET</li>
+<li>以百分比表示</li>
+</ul>
+</li>
+<li><strong>修调</strong>：
+<ul>
+<li>根据误差方向和大小确定trim code调整量</li>
+<li>如果使用电阻分压器修调：增大R2（相对于R1）→ VOUT升高</li>
+<li>如果使用V_REF DAC修调：增加DAC code → VREF升高 → VOUT升高</li>
+</ul>
+</li>
+<li><strong>重新验证</strong>：写入trim code后再次测量VOUT，确认在目标精度范围内</li>
+</ol>
+<h4 id="注意事项-considerations-12">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-12" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>修调后需在全负载范围内验证（空载到满载），确保负载调整率（load regulation）也满足要求</li>
+<li>不同输出电压档位（如 0.6V, 0.8V, 1.0V, 1.2V 等）可能需要各自独立的trim code</li>
+<li>在多相Buck中，如果输出电压由<strong>主从架构</strong>控制（master-slave），只需要修调master相的反馈通路</li>
+<li>温度对输出电压有影响——V_REF的温漂和电阻的温漂都会导致VOUT变化。trim后需要在高温和低温下回测</li>
+<li>一些PMIC支持<strong>动态电压调节（Dynamic Voltage Scaling, DVS）</strong>，修调应保证整个电压范围内的精度，而非仅一个静态点</li>
+</ul>
+<hr/>
+<h2 id="四修调流程建议-recommended-trim-flow">四、修调流程建议 (Recommended Trim Flow)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四修调流程建议-recommended-trim-flow" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>多相Buck的修调各项之间存在依赖关系，推荐的修调顺序如下：</p>
+<pre><code>Phase 1: 基础修调 (Fundamental Trims)
+  1. 时钟频率测试 / 三角波电阻修调 ─────────── (依赖: 无)
+  2. PWM比较器修调 (NOR/ECO) ───────────────── (依赖: 三角波幅度稳定)
+  3. Ramp Buffer修调 (NOR/ECO) ──────────────── (依赖: 无)
+
+Phase 2: 检测通路修调 (Sense Path Trims)
+  4. Current Sense开环修调 (Offset) ────────── (依赖: 无)
+  5. Current Sense闭环修调 (Gain) ──────────── (依赖: 开环修调完成)
+  6. EA Clamp修调 ──────────────────────────── (依赖: PWM比较器修调完成)
+
+Phase 3: 保护功能修调 (Protection Trims)
+  7. POCP修调 ──────────────────────────────── (依赖: CS修调完成)
+  8. NOCP修调 ──────────────────────────────── (依赖: CS修调完成)
+  9. 状态切换OCP / POCP_SW修调 ─────────────── (依赖: POCP修调完成)
+  10. 负DMD修调 ────────────────────────────── (依赖: 无独立依赖)
+
+Phase 4: 系统修调 (System Trims)
+  11. 均流修调 ─────────────────────────────── (依赖: CS开环+闭环修调完成)
+  12. 输出电压精度修调 ─────────────────────── (依赖: 均流修调完成)
+</code></pre>
+<hr/>
+<h2 id="五常见问题与调试指南-common-issues--debugging-guide">五、常见问题与调试指南 (Common Issues &amp; Debugging Guide)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五常见问题与调试指南-common-issues--debugging-guide" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-修调后输出电压仍偏大偏小">5.1 修调后输出电压仍偏大/偏小<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-修调后输出电压仍偏大偏小" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>确认基准电压V_REF已单独修调</strong>：输出电压精度修调是基于V_REF的，如果V_REF本身偏差大，调反馈无济于事</li>
+<li><strong>检查负载条件</strong>：负载电流偏差导致IR drop差异，建议在相同负载电流下验证</li>
+<li><strong>检查遥测点位置</strong>：板级sense点和芯片内部sense点之间的路径电阻（bond wire、PCB走线）会造成误差</li>
+</ul>
+<h3 id="52-均流修调后各相电流仍然不平衡">5.2 均流修调后各相电流仍然不平衡<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-均流修调后各相电流仍然不平衡" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>确认各相PWM比较器偏移已修调</strong>：各相PWM占空比差异是均流误差的源头之一</li>
+<li><strong>检查电感DCR差异</strong>：如果PCB上各相电感布局不对称，DCR差异可能导致电流测量和真实电流的不匹配</li>
+<li><strong>温度梯度</strong>：如果某一相靠近热源，其温度高于其他相，R_DS(on)增大 → 感测到的电流偏大 → 均流环路降低该相电流 → 实际电流偏小</li>
+</ul>
+<h3 id="53-ocp触发过早或过晚">5.3 OCP触发过早或过晚<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-ocp触发过早或过晚" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>先确认current sense修调正确</strong>：OCP阈值依赖于电流检测的精度</li>
+<li><strong>考虑传播延迟</strong>：OCP比较器+逻辑的延迟导致实际触发电流高于阈值，需留出延迟余量</li>
+<li><strong>温度敏感性</strong>：高温下R_DS(on)增大，POCP阈值降低，属于正常物理特性但需要通过修调补偿</li>
+</ul>
+<h3 id="54-dcm进入点不正确或轻载效率差">5.4 DCM进入点不正确或轻载效率差<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-dcm进入点不正确或轻载效率差" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>检查负DMD/ZCD修调</strong>：偏移朝向正方向 → LS-FET关断过早 → 效率略降但安全</li>
+<li><strong>偏移朝向负方向</strong> → 反向电流增加 → 可能在空载时导致输出过压</li>
+<li><strong>确认负载条件</strong>：如果负载电流远低于DCM深度，可能进入burst模式而非纯DCM</li>
+</ul>
+<hr/>
+<h2 id="六术语表-glossary">六、术语表 (Glossary)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六术语表-glossary" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>术语</th><th>英文</th><th>说明</th></tr></thead><tbody><tr><td>多相Buck</td><td>Multiphase Buck</td><td>多个Buck单元并联运行，各相相位交错</td></tr><tr><td>电压模式控制</td><td>Voltage-Mode Control</td><td>PWM通过EA输出与斜坡信号比较产生</td></tr><tr><td>均流</td><td>Current Sharing</td><td>各相电流平衡分配</td></tr><tr><td>PWM比较器</td><td>PWM Comparator</td><td>比较EA输出与斜坡信号产生PWM脉冲</td></tr><tr><td>Ramp Buffer</td><td>Ramp Buffer</td><td>产生斜坡信号的缓冲器</td></tr><tr><td>EA</td><td>Error Amplifier</td><td>误差放大器，放大V_REF与V_FB之差</td></tr><tr><td>EA Clamp</td><td>EA Clamp</td><td>EA输出电压的上下限钳位</td></tr><tr><td>Current Sense</td><td>Current Sense</td><td>电流检测放大器</td></tr><tr><td>POCP</td><td>Peak Over-Current Protection</td><td>峰值过流保护</td></tr><tr><td>NOCP</td><td>Negative Over-Current Protection</td><td>负向过流保护</td></tr><tr><td>DMD</td><td>Diode Emulation Mode</td><td>二极管仿真模式，即DCM</td></tr><tr><td>ZCD</td><td>Zero-Cross Detection</td><td>零电流检测</td></tr><tr><td>CCM</td><td>Continuous Conduction Mode</td><td>连续导通模式</td></tr><tr><td>DCM</td><td>Discontinuous Conduction Mode</td><td>断续导通模式</td></tr><tr><td>PLL</td><td>Phase-Locked Loop</td><td>锁相环，用于精确时钟同步</td></tr><tr><td>DVS</td><td>Dynamic Voltage Scaling</td><td>动态电压调节</td></tr><tr><td>Load Line</td><td>Load Line / Vdroop</td><td>输出电压随负载线性下降的特性</td></tr><tr><td>Trim Code</td><td>Trim Code</td><td>修调寄存器数值，N位二进制码</td></tr><tr><td>Test Mux</td><td>Test Multiplexer</td><td>测试多路复用器，将内部信号路由到测试pin</td></tr></tbody></table></div>
+<hr/>
+<h2 id="七参考文献-references">七、参考文献 (References)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七参考文献-references" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ol>
+<li>R. W. Erickson and D. Maksimovic, <em>Fundamentals of Power Electronics</em>, 3rd ed., Springer, 2020.</li>
+<li>M. T. Zhang, “Multiphase Buck Converters for Voltage Regulators,” <em>IEEE Trans. Power Electron.</em>, 2005.</li>
+<li>Intersil Application Note AN1324: <em>Multiphase Buck Converter Design Guidelines</em>.</li>
+<li>TI Application Report SLVA882: <em>Understanding Multiphase Buck Converters</em>.</li>
+<li>各PMIC芯片Datasheet及ATE测试规范（Confidential）。</li>
+</ol></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-96" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#多相buck变换器修调-multiphase-voltage-mode-buck-trimcalibration" data-for="多相buck变换器修调-multiphase-voltage-mode-buck-trimcalibration">多相Buck变换器修调 (Multiphase Voltage-Mode Buck Trim/Calibration)</a></li><li class="depth-1"><a href="#一多相buck变换器概述-multiphase-buck-overview" data-for="一多相buck变换器概述-multiphase-buck-overview">一、多相Buck变换器概述 (Multiphase Buck Overview)</a></li><li class="depth-2"><a href="#11-什么是多相buck" data-for="11-什么是多相buck">1.1 什么是多相Buck</a></li><li class="depth-2"><a href="#12-多相buck的核心优势" data-for="12-多相buck的核心优势">1.2 多相Buck的核心优势</a></li><li class="depth-2"><a href="#13-电压模式控制与电流模式控制的区别" data-for="13-电压模式控制与电流模式控制的区别">1.3 电压模式控制与电流模式控制的区别</a></li><li class="depth-1"><a href="#二修调项总览-trim-item-overview" data-for="二修调项总览-trim-item-overview">二、修调项总览 (Trim Item Overview)</a></li><li class="depth-1"><a href="#三详细修调项" data-for="三详细修调项">三、详细修调项</a></li><li class="depth-2"><a href="#1-测试多相buck的clock时钟频率-phase-clock-frequency-test" data-for="1-测试多相buck的clock时钟频率-phase-clock-frequency-test">1. 测试多相Buck的Clock时钟频率 (Phase Clock Frequency Test)</a></li><li class="depth-2"><a href="#2-修调多相电压模buck-pwm比较器noreco-pwm-comparator-trim" data-for="2-修调多相电压模buck-pwm比较器noreco-pwm-comparator-trim">2. 修调多相电压模Buck PWM比较器（NOR/ECO） (PWM Comparator Trim)</a></li><li class="depth-2"><a href="#3-修调多相电压模buck-ramp-buffernoreco-ramp-buffer-trim" data-for="3-修调多相电压模buck-ramp-buffernoreco-ramp-buffer-trim">3. 修调多相电压模Buck Ramp Buffer（NOR/ECO） (Ramp Buffer Trim)</a></li><li class="depth-2"><a href="#4-修调多相电压模buck三角波电阻-triangle-wave-resistor-trim" data-for="4-修调多相电压模buck三角波电阻-triangle-wave-resistor-trim">4. 修调多相电压模Buck三角波电阻 (Triangle Wave Resistor Trim)</a></li><li class="depth-2"><a href="#5-修调多相电压模buck-ea的钳位范围ea-clamp-error-amplifier-clamp-trim" data-for="5-修调多相电压模buck-ea的钳位范围ea-clamp-error-amplifier-clamp-trim">5. 修调多相电压模Buck EA的钳位范围（EA CLAMP） (Error Amplifier Clamp Trim)</a></li><li class="depth-2"><a href="#6-修调多相电压模buck-current-sense-current-sense-trim" data-for="6-修调多相电压模buck-current-sense-current-sense-trim">6. 修调多相电压模Buck Current Sense (Current Sense Trim)</a></li><li class="depth-2"><a href="#7-vbuck状态切换ocp修调电流小ocp-trim-pocp_sw点修调-state-transition-ocp-trim" data-for="7-vbuck状态切换ocp修调电流小ocp-trim-pocp_sw点修调-state-transition-ocp-trim">7. Vbuck状态切换OCP修调电流（小OCP Trim）+ POCP_SW点修调 (State-Transition OCP Trim)</a></li><li class="depth-2"><a href="#8-buck-pocp修调-peak-over-current-protection-trim" data-for="8-buck-pocp修调-peak-over-current-protection-trim">8. Buck POCP修调 (Peak Over-Current Protection Trim)</a></li><li class="depth-2"><a href="#9-buck-nocp修调-negative-over-current-protection-trim" data-for="9-buck-nocp修调-negative-over-current-protection-trim">9. Buck NOCP修调 (Negative Over-Current Protection Trim)</a></li><li class="depth-2"><a href="#10-电压模buck负dmd修调-negative-dmd--zero-cross-trim" data-for="10-电压模buck负dmd修调-negative-dmd--zero-cross-trim">10. 电压模Buck负DMD修调 (Negative DMD / Zero-Cross Trim)</a></li><li class="depth-2"><a href="#11-多相buck均流修调-current-sharing-trim" data-for="11-多相buck均流修调-current-sharing-trim">11. 多相Buck均流修调 (Current Sharing Trim)</a></li><li class="depth-2"><a href="#12-多相buck输出电压精度修调-output-voltage-accuracy-trim" data-for="12-多相buck输出电压精度修调-output-voltage-accuracy-trim">12. 多相Buck输出电压精度修调 (Output Voltage Accuracy Trim)</a></li><li class="depth-1"><a href="#四修调流程建议-recommended-trim-flow" data-for="四修调流程建议-recommended-trim-flow">四、修调流程建议 (Recommended Trim Flow)</a></li><li class="depth-1"><a href="#五常见问题与调试指南-common-issues--debugging-guide" data-for="五常见问题与调试指南-common-issues--debugging-guide">五、常见问题与调试指南 (Common Issues &amp; Debugging Guide)</a></li><li class="depth-2"><a href="#51-修调后输出电压仍偏大偏小" data-for="51-修调后输出电压仍偏大偏小">5.1 修调后输出电压仍偏大/偏小</a></li><li class="depth-2"><a href="#52-均流修调后各相电流仍然不平衡" data-for="52-均流修调后各相电流仍然不平衡">5.2 均流修调后各相电流仍然不平衡</a></li><li class="depth-2"><a href="#53-ocp触发过早或过晚" data-for="53-ocp触发过早或过晚">5.3 OCP触发过早或过晚</a></li><li class="depth-2"><a href="#54-dcm进入点不正确或轻载效率差" data-for="54-dcm进入点不正确或轻载效率差">5.4 DCM进入点不正确或轻载效率差</a></li><li class="depth-1"><a href="#六术语表-glossary" data-for="六术语表-glossary">六、术语表 (Glossary)</a></li><li class="depth-1"><a href="#七参考文献-references" data-for="七参考文献-references">七、参考文献 (References)</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试" class="internal">电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

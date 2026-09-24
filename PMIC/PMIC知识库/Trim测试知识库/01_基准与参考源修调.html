@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>基准与参考源修调 (Reference &amp; Benchmark Trim Items)</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="基准与参考源修调 (Reference &amp; Benchmark Trim Items)"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="基准与参考源修调 (Reference &amp; Benchmark Trim Items)"/><meta name="twitter:description" content="PMIC参考电压、基准电流、振荡器等核心参考源的修调原理、测试方法与注意事项"/><meta property="og:description" content="PMIC参考电压、基准电流、振荡器等核心参考源的修调原理、测试方法与注意事项"/><meta property="og:image:alt" content="PMIC参考电压、基准电流、振荡器等核心参考源的修调原理、测试方法与注意事项"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC参考电压、基准电流、振荡器等核心参考源的修调原理、测试方法与注意事项"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-238"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-238" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/Trim测试知识库/">Trim测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>基准与参考源修调 (Reference &amp; Benchmark Trim Items)</a></div></nav><h1 class="article-title">基准与参考源修调 (Reference &amp; Benchmark Trim Items)</h1><p show-comma="true" class="content-meta"><time datetime="2026-09-24T09:20:17.000Z">2026年9月24日</time><span>38分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/PMIC" class="internal tag-link">PMIC</a></li><li><a href="../../../tags/trim" class="internal tag-link">trim</a></li><li><a href="../../../tags/VREF" class="internal tag-link">VREF</a></li><li><a href="../../../tags/VBG" class="internal tag-link">VBG</a></li><li><a href="../../../tags/IREF" class="internal tag-link">IREF</a></li><li><a href="../../../tags/LDO" class="internal tag-link">LDO</a></li><li><a href="../../../tags/RC-oscillator" class="internal tag-link">RC-oscillator</a></li><li><a href="../../../tags/bandgap" class="internal tag-link">bandgap</a></li></ul></div></div><article class="popover-hint"><h1 id="基准与参考源修调">基准与参考源修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#基准与参考源修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<h2 id="概述">概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>基准与参考源（Reference &amp; Benchmark）是 PMIC 中所有模块工作的基石。Bandgap 产生与温度无关的基准电压 VBG（~1.2V），VBG 经缓冲分压产生 VREF1P0（1.0V）和 VREF 等参考电压；IREF 产生偏置电流供给 LDO、Buck、BUCKBOOST、ADC 等模块的 bias 电路；RC 振荡器为数字控制逻辑和开关电源提供时钟。由于芯片制造过程中的工艺偏差（Process variation），这些参考源的绝对精度会偏离设计值，必须在 CP（Chip Probing）或 FT（Final Test）阶段通过修调（Trim）电路将其校准到目标规格内。</p>
+<p>本文档详细阐述以下六项基准修调项的原理、测试方法与注意事项：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>序号</th><th>修调项</th><th>英文简称</th><th>典型目标</th></tr></thead><tbody><tr><td>1</td><td>VREF1P0 电压修调</td><td>VREF1P0 Trim</td><td>1.000 V +/- 1~2%</td></tr><tr><td>2</td><td>LDO 输出电压修调</td><td>LDO VOUT Trim</td><td>按 SPEC 要求</td></tr><tr><td>3</td><td>RC1024K_TOP 晶振修调</td><td>RC OSC Trim</td><td>1024 kHz +/- 1~2%</td></tr><tr><td>4</td><td>VBG 基准电压修调</td><td>VBG Trim</td><td>1.200 V +/- 0.5~1%</td></tr><tr><td>5</td><td>VREF 输出电压精度修调</td><td>VREF Accuracy Trim</td><td>按 SPEC 要求</td></tr><tr><td>6</td><td>IREF 基准电流修调</td><td>IREF Trim</td><td>1<del>10 uA +/- 2</del>5%</td></tr></tbody></table></div>
+<hr/>
+<h2 id="1-vref1p0-电压修调">1. VREF1P0 电压修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-vref1p0-电压修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-principles">原理 (Principles)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principles" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="电路架构">电路架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#电路架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>VREF1P0 通常由 Bandgap 产生的 VBG（~1.2V）经过电阻分压和 Buffer 缓冲后得到 1.0V 输出。典型架构如下：</p>
+<pre><code>VBG (1.2V) --> Resistor Divider --> Buffer (OPA) --> VREF1P0 Output
+                     |
+              Trim Code Control
+</code></pre>
+<ul>
+<li><strong>电阻分压网络</strong>：将 VBG 分压到 1.0V 附近，分压比 R2/(R1+R2) = 1.0/1.2。</li>
+<li><strong>缓冲器（Buffer）</strong>：通常为轨到轨（Rail-to-Rail）运放，提供驱动能力并隔离负载对分压网络的影响。</li>
+<li><strong>修调机制</strong>：在分压电阻串上并联/串联可开关的修调电阻（Trim Resistor Bank），通过 Trim Code 改变分压比，从而微调 VREF1P0 电压。</li>
+</ul>
+<h4 id="为什么需要修调">为什么需要修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#为什么需要修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>VBG 本身的工艺偏差</strong>：Bandgap 输出的 VBG 存在约 +/-3~5% 的绝对偏差。</li>
+<li><strong>电阻绝对精度偏差</strong>：片上电阻（poly resistor / diffusion resistor）的 sheet resistance 随工艺角变化可达 +/-20%。</li>
+<li><strong>运放失调电压</strong>（Offset）：Buffer 运放的输入失调电压 Vos 会直接叠加在输出上。</li>
+<li><strong>温度系数</strong>（Tempco）：虽然分压比在理论上与温度无关，但电阻的温度系数不匹配会引入温漂。</li>
+</ol>
+<p>综合以上因素，若不修调，VREF1P0 的绝对精度可能偏差 +/-5~10%，典型应用要求 1% 或更高精度。</p>
+<h4 id="修调电路工作原理">修调电路工作原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调电路工作原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>VREF1P0 常用的修调方式有：</p>
+<ol>
+<li>
+<p><strong>电阻串分压式修调 (Resistor Ladder Trim)</strong></p>
+<pre><code>VBG ---- Rfix ---- Rtrim ---- Rtrim ---- GND
+                     |  |  |
+                   S0  S1  S2  (Trim Bits)
+</code></pre>
+<p>每个修调位控制一个 MOS 开关，接通或短路对应的修调电阻。增大串联电阻使输出降低，减小串联电阻使输出升高。</p>
+<ul>
+<li>优点：实现简单，功耗低</li>
+<li>缺点：开关导通电阻（Ron）会引入非线性，需使用大尺寸开关</li>
+</ul>
+</li>
+<li>
+<p><strong>电流 DAC 补偿方式 (IDAC Trim)</strong></p>
+<pre><code>VREF1P0 Output ---+
+                  |
+                 Rload
+                  |
+IDAC ---> 注入/抽取电流到输出节点
+</code></pre>
+<p>通过 IDAC 向输出节点注入或从输出节点抽取微小电流，利用输出负载电阻产生电压偏移。</p>
+<ul>
+<li>优点：不需要修改分压电阻网络</li>
+<li>缺点：受温度影响大，需额外基准电流</li>
+</ul>
+</li>
+<li>
+<p><strong>Fuse/EFuse 存储方式</strong></p>
+<p>修调码通常在 CP 测试中确定后写入 OTP (One-Time Programmable) 存储器，常用方案包括：</p>
+<ul>
+<li><strong>Metal Fuse</strong>：大电流熔断金属丝，未熔断为 0，熔断为 1</li>
+<li><strong>Poly Fuse</strong>：多晶硅熔丝，原理类似</li>
+<li><strong>EFuse</strong>：基于电迁移效应的可编程熔丝</li>
+<li><strong>Anti-fuse</strong>：反熔丝结构，编程后导通</li>
+<li><strong>MTP (Multi-Time Programmable)</strong>：多次可编程，常见于较为先进的 PMIC 方案</li>
+</ul>
+</li>
+</ol>
+<h3 id="测试方法-test-methods">测试方法 (Test Methods)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-methods" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="cp-测试修调流程">CP 测试修调流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cp-测试修调流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>1. Power ON: 施加 VDD 与 VBAT（若需要）
+2. Enable: 开启 VREF1P0 LDO/模块
+3. Wait: 等待输出稳定（~100 us~1 ms）
+4. Measure: 用 ATE 高精度 ADC 或 DMM 测量 VREF1P0 引脚电压
+5. Compare: 与目标值比较（如 1.000V +/- 0.5%）
+6. Binary Search: 二分法搜索最佳 Trim Code
+7. Program: 将最佳 Trim Code 写入 OTP
+8. Verify: 再次测量确认修调后电压在目标范围内
+</code></pre>
+<h4 id="测试条件设置">测试条件设置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试条件设置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>备注</th></tr></thead><tbody><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>多温度点修调需考虑</td></tr><tr><td>输入电压 VDD</td><td>标称值的 +/-5~10%</td><td>验证电源抑制比</td></tr><tr><td>负载电流 Iload</td><td>0 / max (如 1mA)</td><td>看带载能力</td></tr><tr><td>测量精度</td><td>+/- 0.1% 级以上</td><td>ATE 需校准</td></tr></tbody></table></div>
+<h4 id="passfail-判据">Pass/Fail 判据<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#passfail-判据" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>Pass</strong>：Trim 后的 VREF1P0 在所有 corner（电压、温度）下都在 SPEC 范围内</li>
+<li><strong>Fail</strong>：最大/最小修调码仍无法将电压调到目标范围内 <span>→</span> 可能为芯片工艺角太极端</li>
+</ul>
+<h4 id="典型-ate-测试代码-pseudocode">典型 ATE 测试代码 (Pseudocode)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#典型-ate-测试代码-pseudocode" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>function trim_vref1p0(vdd, target_voltage, tolerance):
+    power_up(vdd)
+    enable_vref1p0()
+    wait(500 us)
+    
+    code = binary_search(0, max_code, function(c):
+        set_trim_code(c)
+        v = measure_voltage(VREF1P0_PIN)
+        return v - target_voltage
+    )
+    
+    final_v = measure_voltage(VREF1P0_PIN)
+    if abs(final_v - target_voltage) &lt;= tolerance:
+        program_otp(code)
+        return PASS, code
+    else:
+        return FAIL, code
+</code></pre>
+<h3 id="注意事项-considerations">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>接触电阻影响</strong>：Probe 接触电阻和 Socket 接触电阻会在测量中引入额外压降，特别是大电流时。建议使用 Kelvin 四线法（Force/Sense）进行测量。</li>
+<li><strong>温度平衡</strong>：CP 测试中芯片与 chuck 温度需充分平衡（soak time），否则修调结果在后续测试会偏。</li>
+<li><strong>VDD 噪声</strong>：ATE 电源的 ripple 和 noise 会耦合到输出，建议在测量引脚加去耦电容或使用 ATE 的 DC 测量单元。</li>
+<li><strong>Buffer 稳定性</strong>：某些设计在重容性负载下 Buffer 可能振荡，需确认输出电容范围。</li>
+<li><strong>Trim Code Margin</strong>：不要将修调码选在边界值，预留一定的余量以应对温度漂移和老化。</li>
+</ol>
+<hr/>
+<h2 id="2-ldo-输出电压修调">2. LDO 输出电压修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-ldo-输出电压修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-principles-1">原理 (Principles)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principles-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="电路架构-1">电路架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#电路架构-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PMIC 中的 LDO 通常用于为 SoC 的数字域或模拟域提供稳定的低压供电（如 0.6V / 0.8V / 1.0V / 1.5V 等）。LDO 输出电压修调的结构可以视为 VREF1P0 修调的泛化版本：</p>
+<pre><code>VREF ----+----[R1]---- VOUT
+         |             |
+        [Rtrim]       [R2]
+         |             |
+        GND           GND
+</code></pre>
+<ul>
+<li><strong>反馈电阻分压网络</strong>：LDO 的输出电压由反馈电阻 R1 和 R2 的分压比决定：
+[ VOUT = VREF \times (1 + R1/R2) ]</li>
+<li><strong>修调方式</strong>：在 R1 或 R2 上并联/串联修调电阻，改变分压比。</li>
+<li><strong>参考电压</strong>：通常来源于 VREF1P0 或 VBG，或者 LDO 内部自有参考源。</li>
+</ul>
+<h4 id="为什么需要修调-1">为什么需要修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#为什么需要修调-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>参考电压偏差</strong>：VREF 本身已修调但仍存在残余误差 +/-0.5~1%</li>
+<li><strong>反馈电阻绝对精度</strong>：片上电阻的绝对值误差</li>
+<li><strong>电阻匹配误差</strong>：R1 与 R2 的匹配度（Mismatch）影响输出精度</li>
+<li><strong>有限开环增益</strong>：误差放大器（Error Amplifier）的有限增益和失调</li>
+</ol>
+<h4 id="修调电路设计">修调电路设计<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调电路设计" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>LDO 的修调方式与 VREF1P0 类似，但修调范围通常更宽，因为负载和输出设置更灵活：</p>
+<ul>
+<li><strong>双电阻修调 (Dual Resistor Trim)</strong>：上下电阻均设置修调支路，可获得双向调整能力
+<pre><code>R1 = R1_fixed + R1_trim (可增大)
+R2 = R2_fixed + R2_trim (可增大)
+</code></pre>
+</li>
+<li><strong>Current DAC Offset Trim</strong>：在误差放大器输入端注入偏移电流，改变等效输入参考电压</li>
+</ul>
+<h3 id="测试方法-test-methods-1">测试方法 (Test Methods)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-methods-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="cpft-测试修调流程">CP/FT 测试修调流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cpft-测试修调流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>1. Enable LDO at target voltage setting (通过寄存器/I2C)
+2. Apply rated load (e.g., 10mA)
+3. Measure VOUT at output pin (Kelvin connection)
+4. Adjust trim code to bring VOUT to target
+5. Optionally: 在轻载和重载下分别测试（load regulation）
+6. Program OTP (CP) or write register (FT test mode)
+7. Final verification
+</code></pre>
+<h4 id="测试条件和负载">测试条件和负载<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试条件和负载" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项目</th><th>条件</th><th>测量</th></tr></thead><tbody><tr><td>No-load VOUT</td><td>Iload = 0</td><td>VOUT 精度</td></tr><tr><td>Full-load VOUT</td><td>Iload = Imax</td><td>Dropout + 精度</td></tr><tr><td>Load Regulation</td><td>0 <span>→</span> Imax</td><td>VOUT 变化量 (mV)</td></tr><tr><td>Line Regulation</td><td>VDD_min <span>→</span> VDD_max</td><td>VOUT 变化量 (mV/V)</td></tr></tbody></table></div>
+<h4 id="passfail-判据-1">Pass/Fail 判据<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#passfail-判据-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>PASS</strong>: Trim 后 VOUT 在目标电压 +/-2% 以内（典型值，视 SPEC 而定）</li>
+<li><strong>FAIL</strong>: Trim 到极限仍无法达标 <span>→</span> 可能是 R1/R2 mismatch 过大或 VREF 偏差过大</li>
+</ul>
+<h3 id="注意事项-considerations-1">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>负载效应 (Load Effect)</strong>：LDO 的负载调节率（Load Regulation）会将负载变化转化为 VOUT 变化。修调时测试负载应接近实际应用负载。</li>
+<li><strong>Dropout 电压</strong>：如果 VDD 太低导致 LDO 进入 dropout 区域，输出电压随输入变化，修调无效。</li>
+<li><strong>测试模式下的 LDO Enable</strong>：有些 PMIC 的 LDO 在 FT 测试时需要特殊的 test mode 来绕开 POR，需确认 test mode 配置。</li>
+<li><strong>多电压点 LDO</strong>：如 LDO 支持多种输出电压（通过寄存器选择），每个电压点都需要单独修调或至少验证误差是否在全范围内一致。</li>
+<li><strong>动态响应</strong>：修调只能保证 DC 精度，不影响瞬态响应性能（但过大的反馈电阻会劣化瞬态响应）。</li>
+</ol>
+<hr/>
+<h2 id="3-rc1024k_top-晶振修调-rc-振荡器频率修调">3. RC1024K_TOP 晶振修调 (RC 振荡器频率修调)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-rc1024k_top-晶振修调-rc-振荡器频率修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-principles-2">原理 (Principles)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principles-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="rc-振荡器基本原理">RC 振荡器基本原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#rc-振荡器基本原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PMIC 内部的 RC 振荡器（Resistor-Capacitor Oscillator）为数字控制逻辑（如 Buck/Boost 开关管的时序控制、状态机）、Watchdog Timer、通信协议（I2C 时序）等提供时钟信号。常见架构为<strong>比较器 + 电容充放电</strong>结构：</p>
+<pre><code>          +---------------------------+
+          |                           |
+    +-----+----+               +-----+----+
+    |   Iref   |               |  Buffer   |
+    +----------+               +----------+
+          |                          |
+         [R]                        |
+          |        +--[C]--+        |
+    Vref -+--------+  SW   |        |
+                   +-------+        |
+                        |           |
+                   +----+-----+    GND
+                   | Comparator|
+                   +----+-----+
+                        |
+                   +----+-----+
+                   |  Control  |
+                   +----------+
+</code></pre>
+<p><strong>工作原理</strong>：</p>
+<ol>
+<li>恒定电流 Iref 通过电阻 R 产生参考电压 Vref = Iref * R</li>
+<li>电容 C 被另一路恒定电流 Icharge 充电</li>
+<li>当电容电压 Vcap 上升到 Vref 时，比较器翻转</li>
+<li>控制逻辑将电容放电（通过 SW 短路电容）</li>
+<li>电容重新从 0 开始充电，如此循环</li>
+</ol>
+<p><strong>振荡频率</strong>：
+[ f = \frac{Icharge}{C \times Vref} ]</p>
+<p>或者更简单的情况：如果充放电都用同一电流源，则频率由 RC 时间常数决定：
+[ f \approx \frac{1}{2 \times RC} \quad \text{（50% 占空比）} ]</p>
+<h4 id="为什么需要修调-2">为什么需要修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#为什么需要修调-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>
+<p><strong>片上 RC 时间常数随工艺变化很大</strong>：</p>
+<ul>
+<li>多晶硅电阻的 sheet resistance 在不同工艺角变化可达 +/-20~30%</li>
+<li>MIM/MOM 电容的变化约 +/-10~15%</li>
+<li>综合 RC 乘积可变化 +/-30~40%</li>
+</ul>
+</li>
+<li>
+<p><strong>温度与电压影响</strong>：</p>
+<ul>
+<li>电阻温度系数（TCR）：~数百到数千 ppm/°C</li>
+<li>电容温度系数（TCC）：~几十到几百 ppm/°C</li>
+<li>电源电压变化影响电流源精度</li>
+</ul>
+</li>
+<li>
+<p><strong>频率精度要求</strong>：</p>
+<ul>
+<li>开关电源的开关频率需要匹配外部 LC 滤波器设计</li>
+<li>I2C 等通信接口需要时钟在容差范围内</li>
+<li>PMIC 内部多个 Buck/Boost 的相位交错需要精确时钟</li>
+</ul>
+</li>
+</ol>
+<h4 id="修调电路">修调电路<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调电路" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>RC 振荡器的频率修调通常采用以下一种或组合方式：</p>
+<p><strong>1. 电容 Bank 修调 (Capacitor Bank Trim)</strong></p>
+<pre><code>           ---- C_fixed ----+
+           |                 |
+    Node --+---- C_trim0 -+-S0
+           |              |
+           +---- C_trim1 -+-S1
+           |              |
+           +---- C_trim2 -+-S2
+</code></pre>
+<p>通过控制开关 S0/S1/S2 来改变接入的总电容值。增加电容 <span>→</span> 频率降低；减少电容 <span>→</span> 频率升高。</p>
+<ul>
+<li>分辨率：由最小修调电容决定</li>
+<li>范围：由总修调电容与固定电容之比决定</li>
+<li>单位步长：<del>1</del>3%</li>
+</ul>
+<p><strong>2. 电流源修调 (Current Trim)</strong></p>
+<p>改变给电容充电的电流 Icharge 或比较器的参考阈值电流：</p>
+<pre><code>Icharge = Iref + I_trim (通过电流 DAC 调整)
+</code></pre>
+<ul>
+<li>增加电流 <span>→</span> 频率升高</li>
+<li>减小电流 <span>→</span> 频率降低</li>
+</ul>
+<p><strong>3. 电阻串分压修调 (Resistor Divider Trim)</strong></p>
+<p>改变比较器参考电压 Vref = I * R_trim，从而改变翻转阈值。</p>
+<p><strong>4. 温度补偿 (Temperature Compensation)</strong></p>
+<p>一些高精度设计会包含温度补偿电路（如零温度系数电流源、温度传感器 + 查表补偿），在修调基础上进一步稳定频率。</p>
+<h3 id="测试方法-test-methods-2">测试方法 (Test Methods)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-methods-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="cp-测试修调流程-1">CP 测试修调流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cp-测试修调流程-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>1. Power ON PMIC
+2. Enable RC oscillator (通常上电即自动起振)
+3. Measure frequency using ATE counter/timer
+   - 方案 A: 直接测量 CLK 输出 pin（如有引出）
+   - 方案 B: 通过 I2C 读内部计数器值
+   - 方案 C: 通过 ADC 测量经 RC 时钟控制的参考电压（间接法）
+4. Compare to target frequency (1024 kHz)
+5. Binary search trim code
+6. Program OTP
+7. Measure final frequency to verify
+</code></pre>
+<h4 id="频率测量方法-ate-实现">频率测量方法 (ATE 实现)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#频率测量方法-ate-实现" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：直接频率计数</strong></p>
+<p>ATE 使用其板载计时器/计数器测量：</p>
+<pre><code>1. 在 CLK_OUT pin 捕获上升沿
+2. 在已知的 Gate Time（如 1ms）内计数脉冲数
+3. 频率 = 脉冲数 / Gate Time
+注意事项：
+  - Gate Time 越长，测量精度越高
+  - 设置适当的触发阈值电平（通常 VDD/2）
+  - 考虑去抖（Debounce）设置
+</code></pre>
+<p><strong>方法二：周期测量 (Period Measurement)</strong></p>
+<pre><code>1. 测量两个连续上升沿之间的时间差 T
+2. 频率 = 1/T
+优点：适合低频、高精度测量
+</code></pre>
+<p><strong>方法三：PLL 倍频法</strong></p>
+<pre><code>1. 将 RC 时钟作为 PLL 参考输入
+2. PLL 倍频到更高频率（如 100x）
+3. 测量倍频后的频率再除以倍频系数
+优点：提高测量分辨率
+</code></pre>
+<h4 id="测试条件">测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>备注</th></tr></thead><tbody><tr><td>VDD</td><td>标称值 +/-10%</td><td>验证电源敏感性</td></tr><tr><td>温度</td><td>25°C (常温修调)</td><td>高温/低温可只测不调</td></tr><tr><td>测量精度</td><td>+/-0.1% 或更高</td><td>取决于 ATE 计时器精度</td></tr><tr><td>输出负载</td><td>CLK pin 负载 &lt; 10pF</td><td>过大负载影响频率</td></tr></tbody></table></div>
+<h4 id="passfail-判据-2">Pass/Fail 判据<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#passfail-判据-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>PASS</strong>：Trim 后频率在 1024 kHz 的 SPEC 范围内（如 +/-2%）</li>
+<li><strong>FAIL</strong>：频率偏差过大，Trim 到极限仍无法达标
+<ul>
+<li>常见原因：极端工艺角（FF/SS corner）、冗余修调开关故障</li>
+</ul>
+</li>
+<li><strong>特殊判据</strong>：较高温度和较低温度下频率漂移在可接受范围（如 +/-5% over -40~125°C）</li>
+</ul>
+<h4 id="ate-伪代码示例">ATE 伪代码示例<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ate-伪代码示例" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>function trim_rc1024k(target_freq=1024e3, tolerance_pct=2.0):
+    power_up()
+    wait_for_osc_stable(1 ms)  // RC 振荡器建立时间
+    
+    code = binary_search(0, 63, function(c):  // 6-bit trim
+        set_trim_code(c)
+        f = measure_frequency(CLK_PIN, gate_time=2ms)
+        return f - target_freq
+    )
+    
+    final_f = measure_frequency(CLK_PIN, gate_time=10ms)  // high precision
+    error_pct = abs(final_f - target_freq) / target_freq * 100
+    if error_pct &lt;= tolerance_pct:
+        program_otp(code)
+        return PASS, code, final_f
+    else:
+        return FAIL, code, final_f
+</code></pre>
+<h3 id="注意事项-considerations-2">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>起振时间 (Start-up Time)</strong>：RC 振荡器在使能后需要一定时间稳定（通常几十到几百 us），测量前必须等待稳定。</li>
+<li><strong>Jitter 与测量误差</strong>：RC 振荡器存在周期性的抖动（Jitter），单周期测量可能不准确。建议测量多个周期取平均或用长 Gate Time。</li>
+<li><strong>电源推动 (Supply Pushing)</strong>：RC OSC 频率对电源电压敏感。测量时电源应有良好的去耦，并记录电压条件。</li>
+<li><strong>温度漂移 (Temperature Drift)</strong>：常温修调到目标频率后，高温和低温下的频率漂移由温度补偿电路决定。如芯片无温度补偿，需确认全温范围的漂移是否满足应用需求。</li>
+<li><strong>测试模式路由 (Test Mode Routing)</strong>：有些设计不直接引出 CLK 引脚，需要通过 test mode 将内部时钟路由到 GPIO 或专用测试引脚，需确认 test mode 配置正确。</li>
+<li><strong>VCO 模式</strong>：如果 RC OSC 作为 PLL 的参考时钟，修调的是 PLL 的输出频率而非 OSC 本身，修调算法需考虑 PLL 倍频/分频系数。</li>
+<li><strong>Trim Code 格雷码编码</strong>：某些设计使用格雷码（Gray Code）对 trim bits 编码，以减少切换时可能发生的毛刺。</li>
+<li><strong>环境耦合噪声</strong>：ATE 测试头、探针台的射频干扰可能耦合到 OSC 节点，引起频率偏移。</li>
+</ol>
+<hr/>
+<h2 id="4-vbg-基准电压修调">4. VBG 基准电压修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-vbg-基准电压修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-principles-3">原理 (Principles)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principles-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="bandgap-基准电压源原理">Bandgap 基准电压源原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#bandgap-基准电压源原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Bandgap 基准电压（Bandgap Reference Voltage）是 PMIC 中最核心的参考源。经典的 <strong>Brokaw Cell</strong> 或 <strong>BJT-based Bandgap</strong> 利用以下原理产生与温度无关的电压：</p>
+<p><strong>核心公式</strong>：
+[ VBG = V_{BE} + m \times \Delta V_{BE} ]</p>
+<p>其中：</p>
+<ul>
+<li><strong>VBE</strong>：BJT 的基极-发射极电压，具有负温度系数（CTAT），约 -2 mV/°C</li>
+<li><strong>ΔVBE</strong>：两个不同电流密度下的 BJT 的 VBE 之差，具有正温度系数（PTAT），约为 (kT/q) * ln(N)</li>
+<li><strong>m</strong>：增益系数，用于放大 PTAT 电压以恰好补偿 CTAT 电压</li>
+</ul>
+<p><strong>标准电路示意</strong>：</p>
+<pre><code>                      VDD
+                       |
+                   +-------+
+                   |  OPA  |
+                   +---+---+
+                       |
+         +-------------+-------------+
+         |                           |
+        [R1]                        [R2]
+         |                           |
+    +----+----+                +----+----+
+    |   Q1    |                |   Q2    |
+    |  (1x)   |                |  (Nx)   |
+    +----+----+                +----+----+
+         |                           |
+         +-------------+-------------+
+                       |
+                     [R3]
+                       |
+                      GND
+</code></pre>
+<ul>
+<li>Q1 和 Q2 的发射极面积比为 1:N</li>
+<li>OPA 迫使 Q1 和 Q2 的集电极电压相等</li>
+<li>得到 ΔVBE = VBE1 - VBE2 = (kT/q) * ln(N)</li>
+<li>PTAT 电流 I = ΔVBE / R1</li>
+<li>VBG = VBE1 + (R2/R1) * ΔVBE</li>
+</ul>
+<p><strong>温度补偿</strong>：通过调整 R2/R1 的比例 m，使 VBG 在某一温度（如 25~30°C）拥有零温度系数。</p>
+<h4 id="为什么需要修调-3">为什么需要修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#为什么需要修调-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>
+<p><strong>BJT 工艺参数偏差</strong>：</p>
+<ul>
+<li>饱和电流 IS 随工艺变化</li>
+<li>正向电流增益 β 的变化</li>
+<li>Early 电压效应</li>
+</ul>
+</li>
+<li>
+<p><strong>电阻比值偏差</strong>：</p>
+<ul>
+<li>虽然电阻比（R2/R1）的匹配度较好，但绝对值偏差会影响环路工作点</li>
+<li>电阻类型（poly, diffusion, well）的电压系数</li>
+</ul>
+</li>
+<li>
+<p><strong>运放失调电压</strong>：</p>
+<ul>
+<li>OPA 的输入失调 Vos 直接乘以增益系数加到 VBG 上</li>
+<li>典型 Vos ~ 1~10 mV，乘上增益 <del>10 倍，影响可达 10</del>100 mV</li>
+</ul>
+</li>
+<li>
+<p><strong>曲率补偿残余</strong>：</p>
+<ul>
+<li>一阶补偿（first-order compensation）后仍有残差（约几百 uV ~ 几 mV）</li>
+<li>高阶曲率补偿（curvature compensation）可以减少但无法完全消除</li>
+</ul>
+</li>
+</ol>
+<h4 id="修调电路-1">修调电路<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调电路-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>VBG 修调通常有以下方式：</p>
+<p><strong>1. 电阻比值修调 (Resistor Ratio Trim)</strong></p>
+<pre><code>VBG = VBE + (R2_trim / R1) * ΔVBE
+</code></pre>
+<p>在 R2 上添加可调修调电阻，改变电压增益系数 m：</p>
+<ul>
+<li>增大 R2 <span>→</span> 增大 PTAT 分量 <span>→</span> VBG 升高</li>
+<li>减小 R2 <span>→</span> 减小 PTAT 分量 <span>→</span> VBG 降低</li>
+</ul>
+<p><strong>2. 修调电阻串并联（Vbg Trim Ladder）</strong></p>
+<pre><code>      VBG node
+         |
+       [R_fixed]
+         |
+    +----+----+----+
+    |    |    |    |
+   [S0] [S1] [S2] [S3]
+    |    |    |    |
+   [R0] [R1] [R2] [R3]
+    |    |    |    |
+    +----+----+----+
+         |
+        GND
+</code></pre>
+<p>通过控制开关 S0~S3，选择性地将修调电阻接入，改变分压网络的等效电阻。</p>
+<p><strong>3. Offset 注入修调 (Offset Trim)</strong></p>
+<p>在 OPA 输入端注入微小偏移电流，等效于调整 OPA 的输入参考失调，从而改变 VBG 输出。</p>
+<p><strong>4. 温度系数修调 (Tempco Trim)</strong></p>
+<p>某些高精度设计会同时修调 VBG 的<strong>绝对电压值</strong>和<strong>温度系数</strong>，需要两套修调码：</p>
+<ul>
+<li>Coarse Trim：调整绝对电压</li>
+<li>Fine Trim：调整温度系数（在高温和低温两个温度点测量后计算）</li>
+</ul>
+<h3 id="测试方法-test-methods-3">测试方法 (Test Methods)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-methods-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="标准-cp-修调流程">标准 CP 修调流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#标准-cp-修调流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>1. 上电并开启 Bandgap 模块
+2. 等待 Bandgap 稳定（~100 us ~ 1 ms，取决于启动电路）
+3. 用 ATE 高精度 ADC 测量 VBG pin 电压
+4. 与目标 VBG（如 1.200V）比较
+5. 二分法搜索最佳 Trim Code
+6. 编程 OTP
+7. 验证最终 VBG 电压
+</code></pre>
+<h4 id="多温度点修调流程">多温度点修调流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#多温度点修调流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>对于同时修调温度系数的方案：</p>
+<pre><code>Step 1: 常温修调 (Trim @ 25°C)
+  - 调整到目标电压 VBG_target (如 1.200V)
+  - 记录 Trim Code_25C
+
+Step 2: 高温测量 (Measure @ 85°C or 125°C)
+  - 施加温度，等待热平衡
+  - 测量 VBG 电压，记录偏差 ΔV_high = VBG(85°C) - VBG(25°C)
+
+Step 3: 低温测量 (Measure @ -40°C or 0°C)
+  - 施加温度，等待热平衡
+  - 测量 VBG 电压，记录偏差 ΔV_low = VBG(-40°C) - VBG(25°C)
+
+Step 4: 温度系数计算
+  - TC (ppm/°C) = max(|ΔV_high|, |ΔV_low|) / (VBG_target * ΔT) * 1e6
+  - 若 TC 超标，调整温度补偿 Trim Code（如有）
+
+Step 5: 确定最终 Trim Code
+  - 如有多套修调码（VBG Trim + TC Trim），分别编程
+</code></pre>
+<h4 id="测试条件-1">测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试条件-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>备注</th></tr></thead><tbody><tr><td>电压</td><td>VDD = 标称值 +/-10%</td><td>测试 PSRR 影响</td></tr><tr><td>温度</td><td>25°C (主修调), 85°C, -40°C</td><td>全温范围验证</td></tr><tr><td>负载电流</td><td>0 ~ Imax (如 100 uA)</td><td>验证负载调节率</td></tr><tr><td>测量点位</td><td>尽量近芯片 pad (Kelvin)</td><td>减少走线压降</td></tr><tr><td>热平衡时间</td><td>1~5 秒/°C 变化</td><td>大温差需较长 soak</td></tr></tbody></table></div>
+<h4 id="passfail-判据-3">Pass/Fail 判据<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#passfail-判据-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>PASS</strong>：VBG 在修调范围内，全温偏移满足 SPEC (典型 +/-1% 或 +/-0.5%)</li>
+<li><strong>FAIL</strong>：
+<ul>
+<li>VBG 不可修调到目标值（Trim range 不足或电路异常）</li>
+<li>温度系数严重超标（匹配异常或曲率补偿失效）</li>
+<li>高温或低温下 VBG 跳变（启动电路失效或漏电）</li>
+</ul>
+</li>
+</ul>
+<h3 id="注意事项-considerations-3">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>电压模式下的测量准确性</strong>：VBG 节点通常高阻抗，微安级的漏电（如探针卡漏电、ATE 输入漏电）就会造成可观的误差。使用高阻抗探针或缓冲器。</li>
+<li><strong>热梯度（Thermal Gradient）</strong>：芯片内部的功率耗散不均可导致局部温度梯度，引起 VBG 的误差。尤其在高温测试和大电流模块工作时。</li>
+<li><strong>应力影响（Package Stress）</strong>：封装后的塑封应力会改变 BJT 的 VBE 特性和电阻值，导致 FT 和 CP 的 VBG 结果有偏移。高精度设计需要在 CP 预留 offset 补偿。</li>
+<li><strong>启动电路</strong>：Bandgap 启动电路故障可能导致 VBG = 0 或 VBG = VDD（锁定在简并偏置点）。测试时需确认 VBG 已正常启动。</li>
+<li><strong>Trim Code 安全边界</strong>：不要选择边界处的 Trim Code，预留一定的双向调节余量应对封装应力和老化。</li>
+<li><strong>混合信号干扰</strong>：同一芯片上的数字电路开关噪声会通过衬底耦合到 Bandgap 节点。CP/FT 测试中需关注数字电路活动期间的 VBG 纹波。</li>
+</ol>
+<hr/>
+<h2 id="5-vref-输出电压精度修调">5. VREF 输出电压精度修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-vref-输出电压精度修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-principles-4">原理 (Principles)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principles-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="电路架构-2">电路架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#电路架构-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>VREF 是 PMIC 中经过 Buffer 缓冲后的参考电压（区别于直接输出的 VBG 或 VREF1P0），通常通过以下结构产生：</p>
+<pre><code>VBG (1.2V) ---> [Resistor Divider] ---> [Buffer Amplifier] ---> VREF output node
+                      ^                          |
+                      |                          |
+               Trim Code Control              [C_load]
+</code></pre>
+<ul>
+<li>VREF 可能与 VREF1P0 共用分压后的电压，也可能单独产生（如 0.6V、0.8V、1.8V 等不同电压的参考源）</li>
+<li>与 VREF1P0 的核心区别在于：VREF 修调关注的是<strong>从 Bandgap VBG 到最终 VREF 输出的全链路精度</strong></li>
+</ul>
+<h4 id="为什么需要独立修调-vref而非仅修调-vbg">为什么需要独立修调 VREF（而非仅修调 VBG）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#为什么需要独立修调-vref而非仅修调-vbg" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>Buffer 失调偏差</strong>：VREF 输出的 Buffer 放大器有自己的输入失调电压，与 VBG 修调的 OPA 不一定是同一个。</li>
+<li><strong>分压网络偏差</strong>：分压电阻的匹配误差（即使 VBG 已修调准确）。</li>
+<li><strong>不同 VREF 分支各自独立</strong>：PMIC 可能有多个 VREF 电压（如 VREF_AO、VREF_IO、VREF_CORE 等），每个需要独立修调。</li>
+</ol>
+<h4 id="修调电路-2">修调电路<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调电路-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>VREF 修调通常采用与 VREF1P0 类似的阻性分压修调方式：</p>
+<ul>
+<li>改变分压电阻比例</li>
+<li>或注入偏移电流（Current-steering DAC）</li>
+</ul>
+<h3 id="测试方法-test-methods-4">测试方法 (Test Methods)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-methods-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="cpft-测试流程">CP/FT 测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cpft-测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>VREF 修调的流程与 VREF1P0 修调高度相似：</p>
+<pre><code>1. Power on, enable VREF output
+2. 在 VREF 引脚以 Kelvin 方式测量输出电压
+3. 用 ATE 高精度 DVM 测量（精度 >= 0.1mV）
+4. 与目标电压比较
+5. 二分法搜索最佳 Trim Code
+6. 编程 OTP
+7. 验证
+</code></pre>
+<h4 id="测试条件对比表">测试条件对比表<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试条件对比表" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>VREF Trim</th><th>VREF1P0 Trim</th><th>备注</th></tr></thead><tbody><tr><td>典型电压</td><td>0.6V / 0.8V / 1.8V</td><td>1.0V</td><td>视设计而定</td></tr><tr><td>修调精度要求</td><td>+/-1~2%</td><td>+/-1~2%</td><td>可能更严</td></tr><tr><td>Buffer 驱动能力</td><td>通常更弱</td><td>中等</td><td>测 load regulation</td></tr><tr><td>去耦需求</td><td>强（高阻节点）</td><td>中</td><td></td></tr></tbody></table></div>
+<h3 id="注意事项-considerations-4">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>高阻节点测量</strong>：VREF 节点可能非常高的输出阻抗，任何测量路径的漏电都会引起电压误差。建议：</p>
+<ul>
+<li>使用主动缓冲探针（Active Probe）</li>
+<li>测量时间尽可能短，避免电荷注入</li>
+<li>使用 Guard Ring 技术保护测量走线</li>
+</ul>
+</li>
+<li>
+<p><strong>电源噪声敏感性</strong>：VREF 输出上的噪声会被 LDO 和 ADC 等负载直接使用，影响系统性能。测试中应使用低噪声电源。</p>
+</li>
+<li>
+<p><strong>多 VREF 的交叉影响</strong>：若多个 VREF 共享同一个 Bandgap 源，修调其中一个可能通过电源线或衬底耦合影响其他 VREF 的输出。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="6-iref-基准电流修调">6. IREF 基准电流修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6-iref-基准电流修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="原理-principles-5">原理 (Principles)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#原理-principles-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="电路架构-3">电路架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#电路架构-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>IREF（Reference Current）是 PMIC 中用于偏置所有模块（LDO、Buck、Buckboost、ADC、OSC 等）的基准电流。典型的 IREF 产生电路基于 Bandgap 参考电压和片上电阻：</p>
+<p><strong>典型实现方式</strong>：</p>
+<pre><code>       VDD
+        |
+   +----+-----+
+   |   PMOS    |   &lt;- 电流镜
+   +----+-----+
+        |
+        +----------- IREF 输出 (给各模块镜像)
+        |
+    +---+---+
+    |  OPA  |
+    +---+---+
+        |
+        +---+---+
+            |
+       +---+---+
+       |  Rref  |   &lt;- 决定电流大小的参考电阻
+       +---+---+
+            |
+           GND
+</code></pre>
+<p><strong>工作原理</strong>：</p>
+<ol>
+<li>OPA 将 VREF（或 VBG）加在参考电阻 Rref 两端</li>
+<li>产生电流 I = VREF / Rref</li>
+<li>PMOS 电流镜将此电流镜像输出给其他模块</li>
+</ol>
+<p><strong>电流镜分配</strong>：</p>
+<pre><code>IREF (master)
+    |
+    +---> I_LDO (1x)
+    +---> I_BUCK (4x)
+    +---> I_OSC (2x)
+    +---> I_ADC (0.5x)
+    +---> I_BIAS (0.25x)
+</code></pre>
+<p>各模块的偏置电流通过电流镜比例缩放得到。</p>
+<h4 id="为什么需要修调-4">为什么需要修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#为什么需要修调-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>电阻 Rref 的工艺偏差</strong>：片上电阻绝对值偏差可达 +/-20~30%，导致 IREF 同比例偏差</li>
+<li><strong>VREF 残余误差</strong>：虽然 VREF 已修调，但仍有残余误差</li>
+<li><strong>电流镜匹配误差</strong>：PMOS 电流镜的沟道长度调制效应和 Vth 失配</li>
+<li><strong>温度系数</strong>：电阻的 TCR 导致 IREF 随温度变化</li>
+</ol>
+<p><strong>影响范围</strong>：</p>
+<ul>
+<li>IREF 偏差 10% <span>→</span> LDO 静态电流偏差 10%</li>
+<li>IREF 偏差 <span>→</span> RC OSC 频率偏差（因为充电电流直接来自 IREF）</li>
+<li>IREF 偏差 <span>→</span> LDO/Buck 的 slew rate 变化</li>
+<li>IREF 偏差 <span>→</span> 比较器延迟变化</li>
+</ul>
+<p>所以 IREF 修调对整体 PMIC 性能有系统性影响。</p>
+<h4 id="修调电路-3">修调电路<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调电路-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>IREF 的修调主要是<strong>改变等效参考电阻 Rref</strong> 或<strong>改变 VREF 的加成系数</strong>：</p>
+<p><strong>1. 电阻 Bank 修调 (Resistor Array Trim)</strong></p>
+<pre><code>    VREF
+      |
+    [R_fixed]
+      |
+    +--S0--[R0]--+
+    |            |
+    +--S1--[R1]--|
+    |            |
+    +--S2--[R2]--+
+      |
+     GND
+</code></pre>
+<ul>
+<li>开关 S0~S2 控制是否将对应修调电阻接入</li>
+<li>总电阻 = R_fixed + Σ(Ri * Si)</li>
+<li>增大电阻 <span>→</span> IREF 减小</li>
+<li>减小电阻 <span>→</span> IREF 增大</li>
+</ul>
+<p><strong>2. 电流 DAC 修调 (Current DAC Trim)</strong></p>
+<pre><code>IREF = I_master + I_trim
+</code></pre>
+<p>在主电流 I_master 的基础上，叠加一个可正可负的修调电流 I_trim：</p>
+<ul>
+<li>使用电流 DAC 产生精细调整的修调电流</li>
+<li>优点：调整精细、不依赖电阻匹配</li>
+<li>缺点：功耗略大</li>
+</ul>
+<p><strong>3. 电流镜比例修调</strong></p>
+<p>改变镜像晶体管的尺寸比（M:N），直接缩放输出电流。但芯片制造后尺寸固定，这种修调通常通过冗余的并联晶体管阵列实现。</p>
+<h3 id="测试方法-test-methods-5">测试方法 (Test Methods)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试方法-test-methods-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="cp-测试修调流程-2">CP 测试修调流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cp-测试修调流程-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>1. 上电开启 IREF 模块
+2. 建立一个外部测量路径：
+   - 方式 A: 直接测量 IREF pin（如有专用 pin，通过 ATE pA 级电流表）
+   - 方式 B: 测量 IREF 镜像到某个测试 pin 的电流
+   - 方式 C: 测量 IREF 流过某个外接电阻产生的电压（V = IREF * Rext）
+3. 与目标 IREF 值比较（如 2.0 uA）
+4. 二分法搜索最佳 Trim Code
+5. 编程 OTP
+6. 验证
+</code></pre>
+<h4 id="小电流测量技术">小电流测量技术<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#小电流测量技术" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>IREF 通常是微安级（1~10 uA），测量小电流需特别注意：</p>
+<ol>
+<li>
+<p><strong>ATE pA 级电流表</strong>：直接测量 IREF pin</p>
+<ul>
+<li>优点：直接、准确</li>
+<li>缺点：需要高精度电流表（昂贵），测量速度慢</li>
+</ul>
+</li>
+<li>
+<p><strong>电阻法</strong>：IREF 流过精密外置电阻，测量电阻两端电压</p>
+<pre><code>IREF pin ---[Rext (精密 0.1%)]--- GND
+             |
+           测量 V = IREF * Rext
+</code></pre>
+<ul>
+<li>选择合适的 Rext 使 V 在 50~500mV 范围内</li>
+<li>使用 Kelvin 测量电压</li>
+<li>优点：成本低、测量速度快</li>
+<li>缺点：需要高精度外接电阻，且电阻值需匹配电流范围</li>
+</ul>
+</li>
+<li>
+<p><strong>集成电流镜法</strong>：将 IREF 镜像到 ATE 可测的更大电流路径</p>
+<ul>
+<li>如镜像放大 100 倍，测大电流再除回来</li>
+<li>缺点：镜像比例本身有误差</li>
+</ul>
+</li>
+<li>
+<p><strong>积分法 (Capacitor Integration)</strong>：</p>
+<pre><code>将 IREF 对已知电容 C 充电
+测量电压从 0 到 Vth 的时间 t
+IREF = C * Vth / t
+</code></pre>
+<ul>
+<li>优点：适合极微小电流</li>
+<li>缺点：测量时间较长</li>
+</ul>
+</li>
+</ol>
+<h4 id="测试条件-2">测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试条件-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>备注</th></tr></thead><tbody><tr><td>VDD</td><td>标称值 +/-10%</td><td>验证电流随 VDD 变化（PSRR）</td></tr><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>IREF TCR 关键</td></tr><tr><td>输出负载</td><td>接近典型应用</td><td>电流镜输出阻抗影响</td></tr><tr><td>测量精度</td><td>+/-1% 或更高</td><td>取决于 ATE 电流测量能力</td></tr></tbody></table></div>
+<h4 id="passfail-判据-4">Pass/Fail 判据<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#passfail-判据-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>PASS</strong>：Trim 后 IREF 在目标值 +/-2~5% 内（根据不同 SPEC）</li>
+<li><strong>FAIL</strong>：
+<ul>
+<li>修调到极限仍无法达标 <span>→</span> 电阻偏差过大或电流镜像故障</li>
+<li>IREF 在不同 VDD 条件下变化过大（PSRR 差）</li>
+<li>IREF 随温度漂移过大（电阻 TCR 异常）</li>
+</ul>
+</li>
+</ul>
+<h3 id="注意事项-considerations-5">注意事项 (Considerations)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#注意事项-considerations-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>电流镜输出阻抗</strong>：电流源的输出阻抗有限，当输出端电压变化时，IREF 会因沟道长度调制效应而变化。测试时需固定输出端电压（Force Voltage, Measure Current）。</li>
+<li><strong>漏电补偿</strong>：ATE 通道的漏电（尤其是半导体开关矩阵的漏电）在小电流测量中不能忽略。使用前需做漏电校准（Open/Short 补偿或减去背景电流）。</li>
+<li><strong>Shielding（屏蔽）</strong>：微小电流测量路径需要良好的屏蔽（Guard Trace），减少 EMI 和串扰。</li>
+<li><strong>稳定时间</strong>：IREF 模块的启动时间可能在几百 us 到几 ms，特别是有启动辅助电路的设计。</li>
+<li><strong>对其他模块的影响</strong>：IREF 修调改变后，所有依赖 IREF 的模块行为都会变化。修调 IREF 后需重新验证关键模块的性能（如 OSC 频率、LDO 静态电流、比较器延迟）。</li>
+<li><strong>同步修调（Linked Trims）</strong>：IREF 和 OSC 频率修调存在耦合（OSC 频率依赖于 IREF），修调顺序很重要：
+<ul>
+<li>通常先修 IREF（确定全局偏置电流基准）</li>
+<li>再修 OSC 频率（针对已确定的 IREF 做电容修调）</li>
+<li>最后修 VREF/VBG（如果没有交叉依赖）</li>
+</ul>
+</li>
+<li><strong>Trim Code 冗余 vs. 精度</strong>：IREF 修调的位数需平衡修调范围和步长。典型设计 4~6 bit。</li>
+</ol>
+<hr/>
+<h2 id="总结与修调顺序建议">总结与修调顺序建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#总结与修调顺序建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="推荐的修调依赖顺序">推荐的修调依赖顺序<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#推荐的修调依赖顺序" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>在 PMIC 的 CP 测试中，各基准修调项之间存在依赖关系，正确的修调顺序至关重要：</p>
+<pre><code>Step 1: VBG Trim         ← 最底层参考（与温度无关的电压）
+     |
+Step 2: IREF Trim         ← 依赖 VBG，全局偏置电流
+     |
+Step 3: VREF1P0 Trim      ← 依赖 VBG，参考电压输出
+     |
+Step 4: VREF Accuracy Trim ← 依赖 VBG/VREF1P0，LDO/SAR 参考
+     |
+Step 5: RC OSC Trim       ← 依赖 IREF（充电电流）
+     |
+Step 6: LDO VOUT Trim     ← 依赖 VREF，反馈网络
+</code></pre>
+<p><strong>严格禁止</strong>：</p>
+<ul>
+<li>先修 OSC 再修 IREF（OSC 频率将在 IREF 修调后被改变）</li>
+<li>先修 VREF 再修 VBG（VREF 会在 VBG 修调后偏移）</li>
+</ul>
+<h3 id="各修调项的典型规格汇总">各修调项的典型规格汇总<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#各修调项的典型规格汇总" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>修调项</th><th>典型目标值</th><th>未修调精度</th><th>修调后精度</th><th>典型 Trim Bits</th></tr></thead><tbody><tr><td>VBG</td><td>1.200 V</td><td>+/-5%</td><td>+/-0.5~1%</td><td>5~7 bits</td></tr><tr><td>VREF1P0</td><td>1.000 V</td><td>+/-5%</td><td>+/-1~2%</td><td>4~6 bits</td></tr><tr><td>VREF</td><td>0.600~1.800 V</td><td>+/-5%</td><td>+/-1~2%</td><td>4~6 bits</td></tr><tr><td>IREF</td><td>1~10 uA</td><td>+/-20~30%</td><td>+/-2~5%</td><td>4~6 bits</td></tr><tr><td>RC OSC</td><td>1024 kHz</td><td>+/-30~40%</td><td>+/-1~2%</td><td>5~7 bits</td></tr><tr><td>LDO VOUT</td><td>按 SPEC</td><td>+/-5~10%</td><td>+/-1~2%</td><td>4~6 bits</td></tr></tbody></table></div>
+<h3 id="修调验证-checklist">修调验证 Checklist<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修调验证-checklist" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul class="contains-task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> 各修调项的修调范围是否覆盖所有工艺角？</li>
+<li class="task-list-item"><input type="checkbox" disabled/> Trim Code 是否有单调性？（Monotonicity check）</li>
+<li class="task-list-item"><input type="checkbox" disabled/> 各温度点的偏移是否在 SPEC 内？</li>
+<li class="task-list-item"><input type="checkbox" disabled/> 修调后的芯片在不同电压下是否仍满足 SPEC？</li>
+<li class="task-list-item"><input type="checkbox" disabled/> OTP 编程良率？（Program Yield）</li>
+<li class="task-list-item"><input type="checkbox" disabled/> 封装后 FT 的修调验证？（CP vs FT correlation）</li>
+<li class="task-list-item"><input type="checkbox" disabled/> Trim Code 存储和读回是否正确？（Readback verification）</li>
+</ul>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ol>
+<li><em>Bandgap Reference Design</em> - Behzad Razavi, “Design of Analog CMOS Integrated Circuits”</li>
+<li><em>CMOS Voltage References</em> - Rincon-Mora, Gabriel A.</li>
+<li><em>ATE Production Testing of PMICs</em> - 内部 ATE 测试规范文档</li>
+<li><em>Trim and Calibration Techniques in Mixed-Signal ICs</em> - IEEE Journal of Solid-State Circuits</li>
+</ol></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-92" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#基准与参考源修调" data-for="基准与参考源修调">基准与参考源修调</a></li><li class="depth-1"><a href="#概述" data-for="概述">概述</a></li><li class="depth-1"><a href="#1-vref1p0-电压修调" data-for="1-vref1p0-电压修调">1. VREF1P0 电压修调</a></li><li class="depth-2"><a href="#原理-principles" data-for="原理-principles">原理 (Principles)</a></li><li class="depth-2"><a href="#测试方法-test-methods" data-for="测试方法-test-methods">测试方法 (Test Methods)</a></li><li class="depth-2"><a href="#注意事项-considerations" data-for="注意事项-considerations">注意事项 (Considerations)</a></li><li class="depth-1"><a href="#2-ldo-输出电压修调" data-for="2-ldo-输出电压修调">2. LDO 输出电压修调</a></li><li class="depth-2"><a href="#原理-principles-1" data-for="原理-principles-1">原理 (Principles)</a></li><li class="depth-2"><a href="#测试方法-test-methods-1" data-for="测试方法-test-methods-1">测试方法 (Test Methods)</a></li><li class="depth-2"><a href="#注意事项-considerations-1" data-for="注意事项-considerations-1">注意事项 (Considerations)</a></li><li class="depth-1"><a href="#3-rc1024k_top-晶振修调-rc-振荡器频率修调" data-for="3-rc1024k_top-晶振修调-rc-振荡器频率修调">3. RC1024K_TOP 晶振修调 (RC 振荡器频率修调)</a></li><li class="depth-2"><a href="#原理-principles-2" data-for="原理-principles-2">原理 (Principles)</a></li><li class="depth-2"><a href="#测试方法-test-methods-2" data-for="测试方法-test-methods-2">测试方法 (Test Methods)</a></li><li class="depth-2"><a href="#注意事项-considerations-2" data-for="注意事项-considerations-2">注意事项 (Considerations)</a></li><li class="depth-1"><a href="#4-vbg-基准电压修调" data-for="4-vbg-基准电压修调">4. VBG 基准电压修调</a></li><li class="depth-2"><a href="#原理-principles-3" data-for="原理-principles-3">原理 (Principles)</a></li><li class="depth-2"><a href="#测试方法-test-methods-3" data-for="测试方法-test-methods-3">测试方法 (Test Methods)</a></li><li class="depth-2"><a href="#注意事项-considerations-3" data-for="注意事项-considerations-3">注意事项 (Considerations)</a></li><li class="depth-1"><a href="#5-vref-输出电压精度修调" data-for="5-vref-输出电压精度修调">5. VREF 输出电压精度修调</a></li><li class="depth-2"><a href="#原理-principles-4" data-for="原理-principles-4">原理 (Principles)</a></li><li class="depth-2"><a href="#测试方法-test-methods-4" data-for="测试方法-test-methods-4">测试方法 (Test Methods)</a></li><li class="depth-2"><a href="#注意事项-considerations-4" data-for="注意事项-considerations-4">注意事项 (Considerations)</a></li><li class="depth-1"><a href="#6-iref-基准电流修调" data-for="6-iref-基准电流修调">6. IREF 基准电流修调</a></li><li class="depth-2"><a href="#原理-principles-5" data-for="原理-principles-5">原理 (Principles)</a></li><li class="depth-2"><a href="#测试方法-test-methods-5" data-for="测试方法-test-methods-5">测试方法 (Test Methods)</a></li><li class="depth-2"><a href="#注意事项-considerations-5" data-for="注意事项-considerations-5">注意事项 (Considerations)</a></li><li class="depth-1"><a href="#总结与修调顺序建议" data-for="总结与修调顺序建议">总结与修调顺序建议</a></li><li class="depth-2"><a href="#推荐的修调依赖顺序" data-for="推荐的修调依赖顺序">推荐的修调依赖顺序</a></li><li class="depth-2"><a href="#各修调项的典型规格汇总" data-for="各修调项的典型规格汇总">各修调项的典型规格汇总</a></li><li class="depth-2"><a href="#修调验证-checklist" data-for="修调验证-checklist">修调验证 Checklist</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/02_基准FT测试" class="internal">基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

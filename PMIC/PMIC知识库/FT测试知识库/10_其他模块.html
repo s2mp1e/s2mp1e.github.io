@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>其他模块测试 — PMIC LRA/GPIO/CODEC FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="其他模块测试 — PMIC LRA/GPIO/CODEC FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="其他模块测试 — PMIC LRA/GPIO/CODEC FT 测试"/><meta name="twitter:description" content="PMIC 其他辅助模块（LRA 马达驱动、GPIO、CODEC 音频编解码器）的 FT 测试详细指南，涵盖测试原理、方法与判定标准"/><meta property="og:description" content="PMIC 其他辅助模块（LRA 马达驱动、GPIO、CODEC 音频编解码器）的 FT 测试详细指南，涵盖测试原理、方法与判定标准"/><meta property="og:image:alt" content="PMIC 其他辅助模块（LRA 马达驱动、GPIO、CODEC 音频编解码器）的 FT 测试详细指南，涵盖测试原理、方法与判定标准"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/10_其他模块"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/10_其他模块"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 其他辅助模块（LRA 马达驱动、GPIO、CODEC 音频编解码器）的 FT 测试详细指南，涵盖测试原理、方法与判定标准"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/10_其他模块-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/10_其他模块-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/10_其他模块-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/10_其他模块"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-234"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-234" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>其他模块测试 — PMIC LRA/GPIO/CODEC FT 测试</a></div></nav><h1 class="article-title">其他模块测试 — PMIC LRA/GPIO/CODEC FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>36分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../../tags/lra" class="internal tag-link">lra</a></li><li><a href="../../../tags/gpio" class="internal tag-link">gpio</a></li><li><a href="../../../tags/codec" class="internal tag-link">codec</a></li><li><a href="../../../tags/haptic" class="internal tag-link">haptic</a></li><li><a href="../../../tags/audio" class="internal tag-link">audio</a></li></ul></div></div><article class="popover-hint"><h1 id="其他模块测试--pmic-lra--gpio--codec-ft-测试">其他模块测试 — PMIC LRA / GPIO / CODEC FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#其他模块测试--pmic-lra--gpio--codec-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p><strong>本文档详细阐述 PMIC 中 LRA（Linear Resonant Actuator，线性谐振马达驱动）、GPIO（General Purpose Input/Output，通用输入输出）和 CODEC（Audio Codec，音频编解码器）模块在 FT 阶段的测试原理与测试方法。</strong></p>
+</blockquote>
+<hr/>
+<h2 id="1-lra-测试-linear-resonant-actuator-driver-test">1. LRA 测试 (Linear Resonant Actuator Driver Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-lra-测试-linear-resonant-actuator-driver-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-概述">1.1 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>LRA (Linear Resonant Actuator)</strong> 是一种线性谐振马达，广泛应用于智能手机、可穿戴设备等消费电子产品中，用于提供触觉反馈（Haptic Feedback）。LRA 的核心特性是<strong>需要在谐振频率下驱动</strong>才能获得最大振动幅度和最佳效率。</p>
+<p>PMIC 内部的 LRA 驱动器负责产生正弦波驱动信号，驱动 LRA 马达在最佳工作点振动。</p>
+<h3 id="12-工作原理">1.2 工作原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-工作原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="121-lra-的物理特性">1.2.1 LRA 的物理特性<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#121-lra-的物理特性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>LRA 等效模型:
+
+              ┌──────────┐
+              │          │
+  Drive ──────┤  R_motor ├──────┬───── GND
+  Signal      │          │      │
+              └──────────┘      │
+                              ┌─┴─┐
+                              │ C │
+                              │   │
+                              └─┬─┘
+                                │
+                              ┌─┴─┐
+                              │ L │
+                              │   │
+                              └─┬─┘
+                                │
+                              GND
+
+  R: 线圈直流电阻 (典型 8~30Ω)
+  L: 线圈电感 (典型 50~500μH)
+  C: 弹簧等效电容 (由机械谐振决定)
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>LRA 参数</th><th>典型范围</th><th>说明</th></tr></thead><tbody><tr><td>谐振频率 (F_res)</td><td>150~250Hz</td><td>机械共振频率，在此频率下效率最高</td></tr><tr><td>线圈电阻 (R_coil)</td><td>8~30Ω</td><td>直流电阻</td></tr><tr><td>工作电压</td><td>1.0~3.0V rms</td><td>典型驱动电压</td></tr><tr><td>最大驱动电流</td><td>100~300mA</td><td>取决于 LRA 大小</td></tr><tr><td>起振时间</td><td>5~20ms</td><td>从 0 到稳态的时间</td></tr><tr><td>制动时间 (Brake)</td><td>5~15ms</td><td>主动制动后的停止时间</td></tr></tbody></table></div>
+<h4 id="122-lra-驱动器架构">1.2.2 LRA 驱动器架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#122-lra-驱动器架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PMIC 中 LRA 驱动器的典型结构：</p>
+<pre><code>                     VDD_BAT
+                       │
+  ┌──────────────┐    ┌┴┐
+  │  Waveform    │    │ │  H-Bridge
+  │  Generator   │    │ │
+  │  (Sine PWM) │    │ │
+  │              │    │ │
+  │  Frequency   ├────┤ │──── LRA+
+  │  Control     │    │ │
+  │              │    │ │
+  │  Amplitude   │    │ │──── LRA-
+  │  Control     │    └─┘
+  │              │     │
+  │  Brake Ctrl  │    ┌─┴─┐
+  │              │    │ │ │  Current
+  │  Auto-       │    │ │ │  Sense
+  │  Resonance   │    └─┬─┘
+  │  Tracking    │      │
+  └──────────────┘      │
+                    Feedback (optional)
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>子模块</th><th>功能</th><th>说明</th></tr></thead><tbody><tr><td><strong>波形发生器 (Waveform Gen)</strong></td><td>生成正弦波 PWM 信号</td><td>基于 DDS (Direct Digital Synthesis) 或查表法</td></tr><tr><td><strong>H-Bridge (全桥驱动)</strong></td><td>将 PWM 转换为 LRA 两端驱动电压</td><td>差分输出，效率高</td></tr><tr><td><strong>频率控制 (Freq Ctrl)</strong></td><td>设置驱动频率 = LRA 谐振频率</td><td>通过寄存器设置</td></tr><tr><td><strong>振幅控制 (Amp Ctrl)</strong></td><td>调节驱动电压幅度</td><td>通过 PWM 占空比或电源电压调节</td></tr><tr><td><strong>制动控制 (Brake Ctrl)</strong></td><td>快速停止 LRA 振动</td><td>主动短路或反向驱动</td></tr><tr><td><strong>自动谐振跟踪 (Auto-Resonance)</strong></td><td>自动追踪 LRA 谐振频率</td><td>通过监测反电动势 (BEMF) 实现</td></tr></tbody></table></div>
+<h4 id="123-开环-vs-闭环驱动">1.2.3 开环 vs 闭环驱动<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#123-开环-vs-闭环驱动" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>驱动方式</th><th>原理</th><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td><strong>开环驱动</strong></td><td>直接设置固定频率驱动</td><td>实现简单</td><td>无法补偿谐振频率偏移（老化/温度）</td></tr><tr><td><strong>闭环驱动</strong></td><td>监测 BEMF 相位，自动调整频率</td><td>效率高，可自动跟踪</td><td>需要额外检测电路</td></tr></tbody></table></div>
+<p><strong>闭环谐振跟踪原理：</strong></p>
+<pre><code>1. 驱动器输出电压 V_drive @ 设定频率
+2. LRA 两端产生电流 I_drive
+3. 电流波形中的相位信息反映 LRA 是否在谐振点:
+   - 驱动频率 &lt; F_res: 电流相位超前电压 (感性)
+   - 驱动频率 = F_res: 电流与电压同相 (纯阻性)
+   - 驱动频率 > F_res: 电流相位滞后电压 (容性)
+4. 检测 I_drive 与 V_drive 的相位差
+5. 调整驱动频率使相位差 → 0
+6. 锁定谐振频率
+</code></pre>
+<h3 id="13-测试方法">1.3 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#13-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="131-输出波形测试-output-waveform-verification">1.3.1 输出波形测试 (Output Waveform Verification)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#131-输出波形测试-output-waveform-verification" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 LRA 驱动器输出正弦波的频率和幅度是否在规格内。</p>
+<pre><code>测试条件:
+  - PMIC 正常供电 (VDD_BAT = 3.8V, VDD_IO = 1.8V)
+  - 使能 LRA 驱动器
+  - 设置驱动频率 = F_res (如 200Hz)
+  - 设置驱动幅度 = V_target (如 2.0Vpp)
+  - LRA 输出端接等效负载 R_LRA (如 15Ω)
+
+测试连接:
+  LRA+ ────┤ 示波器 CH1 (差分)
+  LRA- ────┤
+             │
+            R_L (模拟 LRA 线圈电阻)
+             │
+            GND
+
+测试步骤:
+  Step 1: 使能 LRA 驱动器
+  Step 2: 等待输出稳定 (t_wait > 20ms)
+  Step 3: 捕获输出波形 (至少 10 个周期)
+  Step 4: 测量波形频率 F_meas
+  Step 5: 测量波形峰峰值 V_pp
+  Step 6: 计算 THD (总谐波失真)
+  Step 7: 验证所有参数在规格内
+
+判定标准:
+  | 参数 | 典型规格 | 说明 |
+  |------|:--------:|------|
+  | 频率偏差 | ±5% | 相对于设定频率 |
+  | 幅度偏差 | ±10% | 相对于设定幅度 |
+  | 波形 THD | &lt; 5% | 正弦波纯度 |
+  | 占空比对称性 | ±2% | 正负半周对称 |
+</code></pre>
+<h4 id="132-驱动电流电压能力测试">1.3.2 驱动电流/电压能力测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#132-驱动电流电压能力测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 LRA 驱动器的最大输出能力。</p>
+<pre><code>测试条件:
+  - 设置最大驱动幅度
+  - 连接不同阻值的负载电阻
+
+测试步骤:
+  Step 1: 设置最大幅度寄存器 (0xFF 或最大值)
+  Step 2: 接入负载 R_load = R_min (如 8Ω)
+  Step 3: 测量输出电流 I_out = V_LRA / R_load
+  Step 4: 计算输出功率 P_out = I_out² × R_load
+  Step 5: 验证是否满足电流/功率规格
+  Step 6: 切换负载到 R_max (如 30Ω) 重复测试
+
+判定标准:
+  | 参数 | 规格 | 测试条件 |
+  |------|:----:|---------|
+  | 最大输出电流 | ≥ Imax_spec | R_load = R_min |
+  | 最大输出电压 | ≥ Vmax_spec | R_load = R_max |
+  | 输出功率 | ≥ Pmax_spec | — |
+</code></pre>
+<h4 id="133-自动谐振跟踪测试-auto-resonance-tracking">1.3.3 自动谐振跟踪测试 (Auto-Resonance Tracking)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#133-自动谐振跟踪测试-auto-resonance-tracking" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>测试条件:
+  - 需要模拟实际 LRA 的谐振特性
+  - 或使用可调 LC 负载模拟器
+
+测试步骤:
+  Step 1: 使能闭环自动谐振跟踪模式
+  Step 2: 设置初始驱动频率 (如偏离谐振点 +10%)
+  Step 3: 监测频率调整过程
+  Step 4: 验证驱动器在 t_lock 时间内锁定到谐振频率
+  Step 5: 验证锁定后频率 F_locked 与目标 F_res 的偏差
+  Step 6: 模拟频率漂移 (改变负载参数)，确认跟踪能力
+
+判定标准:
+  | 参数 | 规格 |
+  |------|:----:|
+  | 锁定时间 | &lt; 100ms |
+  | 锁定频率精度 | ±2% (相对于目标 F_res) |
+  | 跟踪范围 | F_res × (80%~120%) |
+  | 失锁检测 | 能在 100ms 内上报失锁状态 |
+</code></pre>
+<h4 id="134-主动制动功能测试-active-brake-test">1.3.4 主动制动功能测试 (Active Brake Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#134-主动制动功能测试-active-brake-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 LRA 驱动器的主动制动功能，确保在停止驱动后 LRA 能快速停止振动。</p>
+<pre><code>测试条件:
+  - LRA 驱动器输出稳定正弦波
+  - 使能制动功能
+
+制动方式:
+  1. 短路制动: 将 LRA 两端短路，利用反电动势消耗能量
+  2. 反向驱动制动: 施加反相电压/电流强制停止
+  3. 智能制动: 根据 BEMF 相位动态调整制动信号
+
+测试步骤:
+  Step 1: 使能 LRA 驱动并输出稳定波形
+  Step 2: 触发制动命令 (写制动寄存器)
+  Step 3: 测量从制动触发到 V_LRA &lt; V_threshold (如 50mV) 的时间
+  Step 4: 验证制动时间 &lt; T_brake_spec
+  Step 5: 验证制动后无残余振荡
+
+判定标准:
+  | 制动方式 | 制动时间 | 说明 |
+  |---------|:--------:|------|
+  | 短路制动 | &lt; 15ms | 无残余振荡 |
+  | 主动制动 | &lt; 8ms | 需要更复杂电路 |
+  | 无制动 (自然衰减) | ~40~60ms | 作为对比参考 |
+</code></pre>
+<h3 id="14-判定标准总表-criteria">1.4 判定标准总表 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#14-判定标准总表-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th style="text-align:center;">典型规格</th><th>备注</th></tr></thead><tbody><tr><td><strong>频率精度</strong></td><td style="text-align:center;">±5% (开环) / ±2% (闭环)</td><td>全驱动范围</td></tr><tr><td><strong>幅度精度</strong></td><td style="text-align:center;">±10%</td><td>含负载变化</td></tr><tr><td><strong>波形 THD</strong></td><td style="text-align:center;">&lt; 5%</td><td>正弦波质量</td></tr><tr><td><strong>最大输出电流</strong></td><td style="text-align:center;">≥ 200mA</td><td>视具体设计</td></tr><tr><td><strong>最大输出电压</strong></td><td style="text-align:center;">≥ 3.0Vpp</td><td>视具体设计</td></tr><tr><td><strong>自动谐振锁定时间</strong></td><td style="text-align:center;">&lt; 100ms</td><td>闭环模式</td></tr><tr><td><strong>自动谐振跟踪范围</strong></td><td style="text-align:center;">±20% F_res</td><td>—</td></tr><tr><td><strong>制动时间 (短路制动)</strong></td><td style="text-align:center;">&lt; 15ms</td><td>—</td></tr><tr><td><strong>制动时间 (主动制动)</strong></td><td style="text-align:center;">&lt; 8ms</td><td>—</td></tr><tr><td><strong>静态漏电流</strong></td><td style="text-align:center;">&lt; 1μA</td><td>禁用状态</td></tr></tbody></table></div>
+<h3 id="15-注意事项">1.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#15-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>LRA 模拟负载</strong>：FT 测试中无法连接真实 LRA 马达（机械部件），必须使用等效 RL 负载模型。推荐使用精密电阻 (R) 串联电感 (L) 的等效电路。</li>
+<li><strong>自谐振频率识别</strong>：LRA 的谐振频率存在个体差异和温度漂移，FT 中应测试驱动器的频率调节能力而非绝对频率值。</li>
+<li><strong>启动冲击电流</strong>：LRA 启动瞬间存在较大的冲击电流，测试时需确保 ATE 电源的瞬态响应能力。</li>
+<li><strong>制动能量回收</strong>：主动制动会将 LRA 的机械能转换为电能回馈到电源线，需确保测试板有足够的吸收能力。</li>
+<li><strong>EMI 考量</strong>：LRA 驱动器的 PWM 开关频率可能辐射噪声，测试时应注意屏蔽和去耦。</li>
+</ol>
+<hr/>
+<h2 id="2-gpio-功能测试-gpio-function-test">2. GPIO 功能测试 (GPIO Function Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-gpio-功能测试-gpio-function-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-概述">2.1 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>GPIO (General Purpose Input/Output, 通用输入输出)</strong> 是 PMIC 中最基本的数字接口引脚。在 FT 测试中，需要验证每个 GPIO 引脚的所有可配置功能和电特性。</p>
+<h3 id="22-gpio-功能模块">2.2 GPIO 功能模块<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-gpio-功能模块" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="221-gpio-引脚典型结构">2.2.1 GPIO 引脚典型结构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#221-gpio-引脚典型结构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>                        VDD_IO
+                         │
+                    ┌────┴────┐
+                    │  Pull-  │
+                    │   Up    │
+                    │ (可选)  │
+                    └────┬────┘
+                         │
+  ┌───────┐             ├─────────── 输出数据 (DOUT)
+  │ Output│             │            (来自寄存器)
+  │ En    ├── Enable ───┤
+  │ Ctrl  │             │
+  └───────┘            ┌┴┐
+  ┌───────┐           │ │
+  │ Input │           │ │
+  │ En    ├── Enable  │ │
+  │ Ctrl  │           │ │
+  └───────┘           │ │
+                      │ │
+                      └┬┘
+                       │
+                    ┌──┴──┐
+              ┌─────┤ MUX │←─── IOMUX (功能复用选择)
+              │     └─────┘
+              │        │
+              │    ┌───┴──── GPIO Pad
+              │    │
+              ├── 输入数据 (DIN → 寄存器)
+              │
+              ├── 中断检测 (上升/下降/双边沿)
+              │
+              └── 替代功能 (如: I2C, SPI, PWM_out...)
+</code></pre>
+<h4 id="222-gpio-可配置特性">2.2.2 GPIO 可配置特性<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#222-gpio-可配置特性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>特性</th><th>可选配置</th><th>说明</th></tr></thead><tbody><tr><td><strong>方向</strong></td><td>输入 / 输出 / 开漏 / 高阻</td><td>基本引脚方向控制</td></tr><tr><td><strong>输出类型</strong></td><td>Push-Pull / Open-Drain</td><td>输出驱动模式</td></tr><tr><td><strong>输出驱动强度</strong></td><td>2mA / 4mA / 8mA / 12mA</td><td>驱动电流能力</td></tr><tr><td><strong>内部上拉</strong></td><td>使能 / 禁用</td><td>可选内部上拉电阻</td></tr><tr><td><strong>内部下拉</strong></td><td>使能 / 禁用</td><td>可选内部下拉电阻</td></tr><tr><td><strong>中断触发</strong></td><td>上升沿 / 下降沿 / 双边沿 / 电平</td><td>中断检测配置</td></tr><tr><td><strong>功能复用</strong></td><td>GPIO / 专用功能 n</td><td>IOMUX 选择</td></tr></tbody></table></div>
+<h3 id="23-测试方法">2.3 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="231-输出功能测试-output-test">2.3.1 输出功能测试 (Output Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#231-输出功能测试-output-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 GPIO 配置为输出模式时，能正确输出 0 和 1 电平。</p>
+<pre><code>测试步骤:
+  Step 1: 将 GPIO 配置为输出模式 (Push-Pull)
+  Step 2: 写寄存器输出 0 (GPIO_DOUT = 0)
+  Step 3: 用 ATE 数字通道测量引脚电压
+  Step 4: 验证 V_pin &lt; V_OL_max (如 0.4V)
+  Step 5: 写寄存器输出 1 (GPIO_DOUT = 1)
+  Step 6: 用 ATE 数字通道测量引脚电压
+  Step 7: 验证 V_pin > V_OH_min (如 VDD_IO - 0.4V)
+
+判定标准:
+  | 参数 | 规格 | 条件 |
+  |------|:----:|------|
+  | V_OL (输出低电平) | &lt; 0.4V | I_sink = 2~8mA |
+  | V_OH (输出高电平) | > VDD_IO - 0.4V | I_source = 2~8mA |
+</code></pre>
+<h4 id="232-输入功能测试-input-test">2.3.2 输入功能测试 (Input Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#232-输入功能测试-input-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 GPIO 配置为输入模式时，能正确读取外部输入电平。</p>
+<pre><code>测试步骤:
+  Step 1: 将 GPIO 配置为输入模式 (高阻)
+  Step 2: 用 ATE 数字通道 Force 低电平 (0V)
+  Step 3: 读取 GPIO 输入寄存器 DIN
+  Step 4: 验证 DIN = 0
+  Step 5: 用 ATE 数字通道 Force 高电平 (VDD_IO)
+  Step 6: 读取 GPIO 输入寄存器 DIN
+  Step 7: 验证 DIN = 1
+
+判定标准:
+  | 参数 | 规格 | 说明 |
+  |------|:----:|------|
+  | V_IL (输入低电平最大) | &lt; 0.3 × VDD_IO | 保证识别为 0 |
+  | V_IH (输入高电平最小) | > 0.7 × VDD_IO | 保证识别为 1 |
+  | 输入漏电流 | &lt; ±1μA | 高阻态下 |
+</code></pre>
+<h4 id="233-开漏--开集输出测试-open-drain-output-test">2.3.3 开漏 / 开集输出测试 (Open-Drain Output Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#233-开漏--开集输出测试-open-drain-output-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 GPIO 配置为开漏输出时的功能。</p>
+<pre><code>测试步骤:
+  Step 1: 将 GPIO 配置为 Open-Drain 输出模式
+  Step 2: 使能内部上拉（或在外部连接上拉电阻）
+  Step 3: 写输出 0:
+         - 测量 V_pin &lt; V_OL (应为低电平)
+  Step 4: 写输出 1 (高阻):
+         - 测量 V_pin ≈ V_pullup (上拉电压)
+  Step 5: 验证开漏功能正确
+
+判定:
+  - 输出 0 时: V_pin &lt; 0.4V (N-MOS 导通)
+  - 输出 1 时: V_pin = V_pullup (N-MOS 关断, 高阻)
+</code></pre>
+<h4 id="234-上拉--下拉电阻测试-pull-uppull-down-test">2.3.4 上拉 / 下拉电阻测试 (Pull-Up/Pull-Down Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#234-上拉--下拉电阻测试-pull-uppull-down-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 GPIO 内部上拉/下拉电阻的阻值在规格范围内。</p>
+<pre><code>测试方法 (以上拉为例):
+
+  Step 1: GPIO 配置为输入模式
+  Step 2: 使能内部上拉 (设置寄存器)
+  Step 3: GPIO 引脚保持悬空 (高阻)
+  Step 4: 测量引脚电压 V_pin
+  Step 5: V_pin ≈ VDD_IO (上拉到电源)
+  
+  如果需要精确测量电阻值:
+  Step 4': 外部连接精密电阻 R_ext 到 GND
+  Step 5': 测量 V_pin
+  Step 6': 计算 R_pu = R_ext × (VDD_IO - V_pin) / V_pin
+  
+  下拉电阻测试类似:
+  - 使能内部下拉
+  - 引脚悬空时 V_pin ≈ GND
+  - 外接 R_ext 到 VDD_IO 测量分压
+
+判定标准:
+  | 上拉/下拉类型 | 典型值 | 精度 |
+  |--------------|:------:|:----:|
+  | 弱上拉 | 50~100kΩ | ±20% |
+  | 强上拉 | 4.7~10kΩ | ±10% |
+  | 弱下拉 | 50~100kΩ | ±20% |
+  | 强下拉 | 4.7~10kΩ | ±10% |
+</code></pre>
+<h4 id="235-中断功能测试-interrupt-test">2.3.5 中断功能测试 (Interrupt Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#235-中断功能测试-interrupt-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 GPIO 的中断检测功能。</p>
+<pre><code>测试步骤:
+  Step 1: GPIO 配置为输入模式
+  Step 2: 配置中断触发方式 (上升沿/下降沿/双边沿/电平)
+  Step 3: 清除中断标志寄存器
+  Step 4: 施加触发条件:
+         - 上升沿: Force 低 → 高跳变
+         - 下降沿: Force 高 → 低跳变
+         - 电平: Force 并保持指定电平
+  Step 5: 读取中断状态寄存器，验证中断标志被置位
+  Step 6: 清除中断标志
+  Step 7: 验证中断清除后状态寄存器复位
+
+判定标准:
+  - 中断标志位在触发条件发生后正确置位
+  - 中断标志位在清除操作后正确复位
+  - 无虚假中断 (无触发时无标志)
+  - 中断触发去抖时间 (如有) 符合规格
+</code></pre>
+<h4 id="236-驱动强度测试-drive-strength-test">2.3.6 驱动强度测试 (Drive Strength Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#236-驱动强度测试-drive-strength-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 GPIO 在不同驱动强度下的输出电流能力。</p>
+<pre><code>测试步骤:
+  Step 1: GPIO 配置为输出 Push-Pull 模式
+  Step 2: 设置输出为高电平
+  Step 3: GPIO 引脚连接 SMU (Force Low)
+  Step 4: SMU 从引脚抽取电流 I_load
+  Step 5: 测量 V_pin 随 I_load 的变化
+  Step 6: 找到 V_OH 降至 VDD_IO - 0.4V 时的电流 I_source_max
+  Step 7: 切换驱动强度设置，重复 Step 2~6
+
+测试条件:
+  | 驱动强度设置 | 预期 I_source_max | 测试 I_load |
+  |:-----------:|:-----------------:|:----------:|
+  | 2mA | ≥ 2mA | 2mA |
+  | 4mA | ≥ 4mA | 4mA |
+  | 8mA | ≥ 8mA | 8mA |
+  | 12mA | ≥ 12mA | 12mA |
+</code></pre>
+<h4 id="237-功能复用-iomux-测试">2.3.7 功能复用 (IOMUX) 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#237-功能复用-iomux-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 GPIO 引脚在不同功能复用下的正确性。</p>
+<pre><code>测试方法:
+  - 对每个 GPIO 的备用功能进行验证
+  - 方法取决于备用功能类型:
+    * 若备用功能为通信接口 (I2C/SPI): 运行对应通信协议测试
+    * 若备用功能为 PWM 输出: 使用示波器/频率计验证波形
+    * 若备用功能为外部中断: 触发并验证中断响应
+    * 若备用功能为时钟输出: 测量频率和幅度
+
+  - 测试后必须恢复 GPIO 模式并确认功能正常
+</code></pre>
+<h3 id="24-判定标准总表-criteria">2.4 判定标准总表 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#24-判定标准总表-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th style="text-align:center;">典型规格</th><th>备注</th></tr></thead><tbody><tr><td><strong>V_OH (高电平输出)</strong></td><td style="text-align:center;">> VDD_IO - 0.4V</td><td>@ 额定驱动电流</td></tr><tr><td><strong>V_OL (低电平输出)</strong></td><td style="text-align:center;">&lt; 0.4V</td><td>@ 额定驱动电流</td></tr><tr><td><strong>V_IH (输入高电平)</strong></td><td style="text-align:center;">> 0.7 × VDD_IO</td><td>—</td></tr><tr><td><strong>V_IL (输入低电平)</strong></td><td style="text-align:center;">&lt; 0.3 × VDD_IO</td><td>—</td></tr><tr><td><strong>输入漏电流</strong></td><td style="text-align:center;">&lt; ±1μA</td><td>高阻态</td></tr><tr><td><strong>输出驱动强度</strong></td><td style="text-align:center;">±2mA / ±4mA / ±8mA</td><td>可配置</td></tr><tr><td><strong>上拉电阻</strong></td><td style="text-align:center;">4.7k~100kΩ ±20%</td><td>按配置</td></tr><tr><td><strong>下拉电阻</strong></td><td style="text-align:center;">4.7k~100kΩ ±20%</td><td>按配置</td></tr><tr><td><strong>中断响应时间</strong></td><td style="text-align:center;">&lt; 1μs (硬件)</td><td>从引脚跳变到标志置位</td></tr><tr><td><strong>IOMUX 切换时间</strong></td><td style="text-align:center;">&lt; 1μs</td><td>功能切换延迟</td></tr></tbody></table></div>
+<h3 id="25-gpio-测试矩阵">2.5 GPIO 测试矩阵<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#25-gpio-测试矩阵" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>对于包含多个 GPIO 的 PMIC，建议采用以下测试矩阵：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">GPIO</th><th style="text-align:center;">输出测试</th><th style="text-align:center;">输入测试</th><th style="text-align:center;">上拉</th><th style="text-align:center;">下拉</th><th style="text-align:center;">中断</th><th style="text-align:center;">驱动强度</th><th style="text-align:center;">IOMUX</th><th>备注</th></tr></thead><tbody><tr><td style="text-align:center;">GPIO0</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">—</td><td>基本 GPIO</td></tr><tr><td style="text-align:center;">GPIO1</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">—</td><td style="text-align:center;">✓</td><td style="text-align:center;">I2C_SCL</td><td>复用为 I2C</td></tr><tr><td style="text-align:center;">GPIO2</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">—</td><td style="text-align:center;">✓</td><td style="text-align:center;">I2C_SDA</td><td>复用为 I2C</td></tr><tr><td style="text-align:center;">GPIO3</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">—</td><td style="text-align:center;">—</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">PWM0</td><td>复用为 PWM</td></tr><tr><td style="text-align:center;">GPIO4</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">—</td><td>带中断</td></tr><tr><td style="text-align:center;">…</td><td style="text-align:center;">…</td><td style="text-align:center;">…</td><td style="text-align:center;">…</td><td style="text-align:center;">…</td><td style="text-align:center;">…</td><td style="text-align:center;">…</td><td style="text-align:center;">…</td><td>…</td></tr></tbody></table></div>
+<h3 id="26-注意事项">2.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#26-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>上电初始状态</strong>：GPIO 在上电瞬间应处于高阻态，避免与外部电路冲突。FT 测试需验证上电后寄存器默认值正确。</li>
+<li><strong>测试顺序</strong>：在多 GPIO 芯片上测试时，未被测试的引脚应保持在确定的电平（高阻 + 上拉/下拉或固定输出），防止悬浮导致不确定结果。</li>
+<li><strong>IO 环回测试</strong>：当两个 GPIO 可连通时（通过 PCB 走线），可进行环回测试（一个输出，另一个输入），验证内部数字路径的完整性。</li>
+<li><strong>静电放电 (ESD) 保护</strong>：GPIO 引脚上的 ESD 保护结构可能引入额外的漏电路径。在漏电测试中应注意区分正常 ESD 漏电和异常缺陷。</li>
+<li><strong>负载电容</strong>：GPIO 输出的上升/下降时间受负载电容影响。FT 测试应使用已知负载电容 (如 20pF / 50pF) 以获得可重复的测试结果。</li>
+</ol>
+<hr/>
+<h2 id="3-codec-测试-audio-codec-test">3. CODEC 测试 (Audio Codec Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-codec-测试-audio-codec-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-概述">3.1 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>CODEC (Coder-Decoder, 音频编解码器)</strong> 是 PMIC 中负责音频信号输入/输出的模块。它包含 <strong>ADC（录音路径）</strong> 和 <strong>DAC（播放路径）</strong>，可能还包括麦克风偏置、功放、混音器等辅助功能。</p>
+<h3 id="32-工作原理">3.2 工作原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-工作原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="321-codec-系统架构">3.2.1 CODEC 系统架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#321-codec-系统架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>播放路径 (Playback / DAC Path):
+
+  数字音频输入 ──→ 数字滤波器 ──→ DAC ──→ 低通滤波 ──→ 功放 ──→ 耳机/喇叭
+  (I2S/PDM)     (SRC/FIR/IIR)                    (LPF)     (PA)
+
+录音路径 (Record / ADC Path):
+
+  麦克风 ──→ 前置放大 ──→ 抗混叠滤波 ──→ ADC ──→ 数字滤波器 ──→ 数字音频输出
+           (PGA)          (AAF)                  (DEC/HPF)
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>子模块</th><th>功能</th><th>关键参数</th></tr></thead><tbody><tr><td><strong>DAC (数模转换器)</strong></td><td>将数字音频信号转换为模拟电压</td><td>SNR, THD+N, 动态范围</td></tr><tr><td><strong>ADC (模数转换器)</strong></td><td>将模拟音频信号转换为数字信号</td><td>SNR, THD+N, 动态范围</td></tr><tr><td><strong>PGA (可编程增益放大器)</strong></td><td>麦克风/线路输入增益控制</td><td>增益范围, 步进, 噪声</td></tr><tr><td><strong>PA (功率放大器)</strong></td><td>驱动耳机/喇叭</td><td>输出功率, THD+N, 效率</td></tr><tr><td><strong>数字滤波器</strong></td><td>采样率转换, 滤波, 均衡</td><td>通带纹波, 阻带衰减</td></tr><tr><td><strong>麦克风偏置 (Mic Bias)</strong></td><td>为驻极体麦克风提供偏置电压</td><td>电压精度, 噪声</td></tr></tbody></table></div>
+<h4 id="322-关键性能指标">3.2.2 关键性能指标<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#322-关键性能指标" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>指标</th><th>英文</th><th>定义</th><th style="text-align:center;">典型消费级</th><th style="text-align:center;">典型高保真级</th></tr></thead><tbody><tr><td><strong>信噪比</strong></td><td>SNR</td><td>(信号功率 / 噪声功率) 的对数比</td><td style="text-align:center;">90~100dB</td><td style="text-align:center;">> 110dB</td></tr><tr><td><strong>总谐波失真+噪声</strong></td><td>THD+N</td><td>(谐波+噪声) / (总信号) 的比例</td><td style="text-align:center;">&lt; 0.01%</td><td style="text-align:center;">&lt; 0.001%</td></tr><tr><td><strong>动态范围</strong></td><td>DR</td><td>最大不失真信号与最小可辨信号之比</td><td style="text-align:center;">90~100dB</td><td style="text-align:center;">> 110dB</td></tr><tr><td><strong>通道串扰</strong></td><td>Crosstalk</td><td>一个通道对另一通道的泄漏</td><td style="text-align:center;">&lt; -80dB</td><td style="text-align:center;">&lt; -100dB</td></tr><tr><td><strong>频率响应</strong></td><td>Freq Resp</td><td>通带内幅度平坦度</td><td style="text-align:center;">±1dB (20Hz~20kHz)</td><td style="text-align:center;">±0.1dB</td></tr><tr><td><strong>采样率</strong></td><td>Sample Rate</td><td>每秒采集的样本数</td><td style="text-align:center;">48kHz / 96kHz</td><td style="text-align:center;">192kHz / 384kHz</td></tr></tbody></table></div>
+<h3 id="33-测试方法">3.3 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="331-dac-测试-dac-path-test">3.3.1 DAC 测试 (DAC Path Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#331-dac-测试-dac-path-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证数字音频到模拟音频的转换质量。</p>
+<pre><code>测试条件:
+  - 数字测试信号: 1kHz/20Hz/20kHz 正弦波 (0dBFS 或 -3dBFS)
+  - 输出负载: 标准负载 (如 32Ω 耳机 / 10kΩ 线路)
+  - 采样率: 48kHz (典型)
+  - 位深: 16-bit / 24-bit
+
+测试步骤:
+  Step 1: 配置 CODEC 播放路径 (DAC 使能, 输出通道选择)
+  Step 2: 向 DAC 发送数字测试信号 (I2S 数据)
+  Step 3: 等待输出稳定 (t_settle > 100ms)
+  Step 4: 使用 Audio Analyzer 或 ATE Digitizer 捕获模拟输出
+  Step 5: 对捕获信号进行 FFT 分析
+  Step 6: 计算 SNR, THD+N, 频率响应等指标
+  Step 7: 与规格比较判定 PASS/FAIL
+</code></pre>
+<h5 id="3311-thdn-测试">3.3.1.1 THD+N 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3311-thdn-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<pre><code>输入: 1kHz 正弦波, -3dBFS (或 -1dBFS)
+输出负载: 32Ω (耳机) / 10kΩ (线路)
+FFT 设置:
+  - 采样率: 192kHz (≥ 4x)
+  - FFT 点数: 65536 (64k)
+  - 窗口: 汉宁窗 (Hanning)
+  - 平均次数: ≥ 16
+
+分析:
+  THD+N (%) = sqrt(Σ(harmonic_power) + noise_power) / signal_power × 100
+  THD+N (dB) = 10 × log10(THD+N)
+
+判定:
+  | 等级 | THD+N | SNR |
+  |:----:|:-----:|:---:|
+  | 消费级 | &lt; 0.05% | > 85dB |
+  | 中端 | &lt; 0.01% | > 95dB |
+  | 高端 | &lt; 0.002% | > 105dB |
+</code></pre>
+<h5 id="3312-snr-测试">3.3.1.2 SNR 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3312-snr-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<pre><code>测试方法 (带权/无加权):
+
+方法 A (无加权):
+  1. 播放 1kHz, -60dBFS 信号
+  2. 捕获输出，FFT 分析
+  3. SNR = 信号幅度 (dB) - 噪声底噪 (dB) + 60dB
+
+方法 B (A-加权, 常用):
+  1. 播放 1kHz, -60dBFS 信号
+  2. 通过 A-Weighting 滤波器
+  3. 计算加权 SNR
+  
+判定: SNR > 90dB (A-weighted) @ 1kHz
+</code></pre>
+<h5 id="3313-频率响应测试">3.3.1.3 频率响应测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3313-频率响应测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<pre><code>测试步骤:
+  Step 1: 播放多频点正弦波 (20Hz, 100Hz, 1kHz, 5kHz, 10kHz, 20kHz)
+  Step 2: 对每个频点测量输出幅度
+  Step 3: 以 1kHz 为参考 (0dB)
+  Step 4: 计算各频率点的相对增益:
+         Gain(f) = 20 × log10(V_out(f) / V_out(1kHz))
+
+判定标准:
+  | 频率范围 | 允许偏差 | 说明 |
+  |:--------:|:--------:|------|
+  | 20Hz ~ 100Hz | ±1.5dB | 低频延伸 |
+  | 100Hz ~ 10kHz | ±0.5dB | 中频平坦度 |
+  | 10kHz ~ 20kHz | ±1.0dB | 高频滚降 |
+</code></pre>
+<h5 id="3314-通道串扰测试">3.3.1.4 通道串扰测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3314-通道串扰测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<pre><code>测试步骤:
+  Step 1: 左声道播放 1kHz 正弦波 (0dBFS)
+  Step 2: 右声道静音 (输出 0)
+  Step 3: 测量左声道输出 V_L 和右声道输出 V_R
+  Step 4: 串扰 = 20 × log10(V_R / V_L) [dB]
+  Step 5: 交换左右声道，重复 Step 1~4
+  Step 6: 取两个方向的串扰值
+
+判定: 通道串扰 &lt; -80dB (典型)
+</code></pre>
+<h4 id="332-adc-测试-adc-path-test">3.3.2 ADC 测试 (ADC Path Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#332-adc-测试-adc-path-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证模拟音频到数字音频的转换质量。</p>
+<pre><code>测试条件:
+  - 模拟输入信号: 1kHz 正弦波, 幅度在满量程附近
+  - 使用低失真信号源 (THD &lt; -100dB)
+  - 采样率: 48kHz
+
+测试步骤:
+  Step 1: 配置 CODEC 录音路径 (ADC 使能, PGA 增益设置)
+  Step 2: Audio Analyzer 或低失真信号源输出测试信号
+  Step 3: 注入到 CODEC 模拟输入引脚
+  Step 4: 通过 I2S 或数字接口捕获 ADC 输出数字信号
+  Step 5: 对捕获的音频数据进行 FFT 分析
+  Step 6: 计算 SNR, THD+N 等指标
+  Step 7: 与规格比较判定 PASS/FAIL
+
+与 DAC 测试的区别:
+  - ADC 需要外部低失真信号源
+  - ADC 输出是数字量，需要通过数字接口捕获
+  - 噪声源不同（量化噪声 vs 模拟噪声）
+</code></pre>
+<h4 id="333-输出功率--负载驱动能力测试">3.3.3 输出功率 / 负载驱动能力测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#333-输出功率--负载驱动能力测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证音频功放在不同负载下的输出功率。</p>
+<pre><code>测试条件:
+  - 负载类型: 16Ω / 32Ω / 600Ω (视应用)
+  - 电源电压: VDD_IO (如 1.8V) 或功放专用电源 (如 5V)
+
+测试步骤:
+  Step 1: 播放 1kHz 正弦波, 逐步增大数字增益
+  Step 2: 监测输出波形, 直到 THD 达到 1% (或 10% 视规格)
+  Step 3: 记录此时的输出功率:
+         P_out = V_rms² / R_load
+  Step 4: 验证 P_out > P_out_spec (规格值)
+  Step 5: 切换负载并重复
+
+判定:
+  | 负载 | 最小输出功率 | 测试条件 |
+  |:----:|:-----------:|---------|
+  | 16Ω  | 25mW | THD &lt; 1%, VDD=1.8V |
+  | 32Ω  | 25mW | THD &lt; 1%, VDD=1.8V |
+  | 600Ω | 10mW | THD &lt; 1%, VDD=1.8V |
+</code></pre>
+<h4 id="334-输入灵敏度测试">3.3.4 输入灵敏度测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#334-输入灵敏度测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证 ADC 录音路径在不同输入电平下的响应。</p>
+<pre><code>测试条件:
+  - PGA 增益设置为最小值 (如 0dB)
+  - 输入信号频率: 1kHz
+
+测试步骤:
+  Step 1: 从极小幅度开始, 逐步增大输入信号
+  Step 2: 记录 ADC 输出数字量
+  Step 3: 找到输入灵敏度点 (输出达到 -3dBFS 时的输入电平)
+  Step 4: 调节 PGA 增益, 验证输入灵敏度的变化
+  Step 5: 测量本底噪声 (无输入时的 ADC 输出噪声)
+
+判定:
+  | 参数 | 典型值 |
+  |------|:------:|
+  | 最小输入灵敏度 | &lt; 10mV rms (PGA=0dB) |
+  | 最大输入电平 | > 1V rms (PGA=0dB) |
+  | PGA 增益范围 | 0dB ~ 60dB |
+  | PGA 步进 | 1dB / 2dB |
+  | 等效输入噪声 | &lt; -110dBV (A-weighted) |
+</code></pre>
+<h3 id="34-codec-测试规范汇总">3.4 CODEC 测试规范汇总<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-codec-测试规范汇总" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>测试方法</th><th style="text-align:center;">典型规格</th></tr></thead><tbody><tr><td><strong>DAC SNR</strong></td><td>1kHz, -60dBFS, A-加权</td><td style="text-align:center;">> 95dB</td></tr><tr><td><strong>DAC THD+N</strong></td><td>1kHz, -3dBFS, 32Ω</td><td style="text-align:center;">&lt; 0.01%</td></tr><tr><td><strong>DAC 动态范围</strong></td><td>-60dBFS 信噪比 + 60dB</td><td style="text-align:center;">> 95dB</td></tr><tr><td><strong>DAC 频率响应</strong></td><td>20Hz~20kHz sine sweep</td><td style="text-align:center;">±0.5dB (100Hz~10kHz)</td></tr><tr><td><strong>DAC 串扰</strong></td><td>1kHz, 单声道播放</td><td style="text-align:center;">&lt; -80dB</td></tr><tr><td><strong>ADC SNR</strong></td><td>1kHz, -60dBFS, A-加权</td><td style="text-align:center;">> 90dB</td></tr><tr><td><strong>ADC THD+N</strong></td><td>1kHz, -3dBFS</td><td style="text-align:center;">&lt; 0.01%</td></tr><tr><td><strong>ADC 频率响应</strong></td><td>20Hz~20kHz sine sweep</td><td style="text-align:center;">±0.5dB (100Hz~10kHz)</td></tr><tr><td><strong>输出功率 (耳机)</strong></td><td>32Ω, THD &lt; 1%</td><td style="text-align:center;">≥ 25mW</td></tr><tr><td><strong>输出功率 (线路)</strong></td><td>10kΩ, THD &lt; 0.01%</td><td style="text-align:center;">≥ 1V rms</td></tr><tr><td><strong>输入灵敏度</strong></td><td>1kHz, 0dB PGA</td><td style="text-align:center;">≤ 50mV rms</td></tr><tr><td><strong>PGA 增益精度</strong></td><td>步进验证</td><td style="text-align:center;">±0.5dB</td></tr><tr><td><strong>Mic Bias 电压</strong></td><td>空载测量</td><td style="text-align:center;">2.0V ± 5%</td></tr><tr><td><strong>Pop/Click 噪声</strong></td><td>上电/下电瞬间</td><td style="text-align:center;">&lt; 50mV</td></tr></tbody></table></div>
+<h3 id="35-测试电路配置">3.5 测试电路配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#35-测试电路配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="351-dac-测试配置">3.5.1 DAC 测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#351-dac-测试配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>数字音频源 (ATE Digital / I2S Master)
+    │
+    └─── I2S (BCLK, LRCLK, DATA) ──── CODEC (Playback)
+                                              │
+                                        模拟输出 (HP_OUT / LINE_OUT)
+                                              │
+                                     ┌────────┴────────┐
+                                     │                  │
+                                  Audio Analyzer    示波器
+                                  (APx555 / U8903B)  (波形检查)
+                                     │
+                                   FFT 分析
+                                 (THD+N, SNR, etc.)
+</code></pre>
+<h4 id="352-adc-测试配置">3.5.2 ADC 测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#352-adc-测试配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>低失真信号源 (Audio Analyzer / AWG)
+    │
+    └─── 模拟输入 ──── CODEC (Record)
+                              │
+                        数字输出 (I2S)
+                              │
+                              └─── ATE Digital Capture
+                                        │
+                                      FFT 分析
+                                    (THD+N, SNR, etc.)
+</code></pre>
+<h4 id="353-ft-简化测试方案">3.5.3 FT 简化测试方案<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#353-ft-简化测试方案" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>针对量产 FT 的测试时间约束，CODEC 测试可简化为：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>方案</th><th>测试项</th><th style="text-align:center;">预计测试时间</th><th>适用</th></tr></thead><tbody><tr><td><strong>最小方案</strong></td><td>DAC THD+N @ 1kHz, DAC SNR</td><td style="text-align:center;">&lt; 100ms</td><td>低端消费</td></tr><tr><td><strong>标准方案</strong></td><td>DAC/ADC THD+N, SNR, 响应</td><td style="text-align:center;">&lt; 300ms</td><td>中端消费</td></tr><tr><td><strong>完整方案</strong></td><td>全频响应, 串扰, 功率, 所有增益</td><td style="text-align:center;">> 1s</td><td>QA / 实验室</td></tr></tbody></table></div>
+<h4 id="354-量产测试波形参数">3.5.4 量产测试波形参数<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#354-量产测试波形参数" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th style="text-align:center;">信号频率</th><th style="text-align:center;">信号幅度</th><th style="text-align:center;">FFT 长度</th><th style="text-align:center;">平均次数</th><th style="text-align:center;">典型时间</th></tr></thead><tbody><tr><td>THD+N</td><td style="text-align:center;">1kHz</td><td style="text-align:center;">-3dBFS</td><td style="text-align:center;">4096</td><td style="text-align:center;">4</td><td style="text-align:center;">~50ms</td></tr><tr><td>SNR</td><td style="text-align:center;">1kHz</td><td style="text-align:center;">-60dBFS</td><td style="text-align:center;">8192</td><td style="text-align:center;">8</td><td style="text-align:center;">~150ms</td></tr><tr><td>频率响应</td><td style="text-align:center;">多点</td><td style="text-align:center;">-3dBFS</td><td style="text-align:center;">2048</td><td style="text-align:center;">2</td><td style="text-align:center;">~100ms</td></tr><tr><td>串扰</td><td style="text-align:center;">1kHz</td><td style="text-align:center;">0dBFS</td><td style="text-align:center;">4096</td><td style="text-align:center;">4</td><td style="text-align:center;">~50ms</td></tr></tbody></table></div>
+<h3 id="36-注意事项">3.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#36-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>信号源纯度</strong>：THD+N 测试中，信号源的失真必须远低于被测 CODEC 的预期 THD+N（至少低 10dB 以上）。建议使用 Audio Precision APx555 等专用音频分析仪。</li>
+<li><strong>接地与屏蔽</strong>：音频测试对地回路噪声和电磁干扰极为敏感。测试板应采用星型接地，音频信号路径应使用屏蔽线。</li>
+<li><strong>数字域 vs 模拟域</strong>：DAC 测试是数字域注入、模拟域分析；ADC 测试是模拟域注入、数字域分析。两者需要不同的测试设备和连接。</li>
+<li><strong>Pop/Click 噪声</strong>：CODEC 上电/下电时的瞬态噪声可能被人耳感知为 “噗” 声 (Pop/Click)。FT 中需要验证启停过程的瞬态噪声。</li>
+<li><strong>时钟抖动</strong>：I2S 时钟的抖动会直接影响 DAC/ADC 的 SNR。测试过程中应使用低抖动时钟源。</li>
+<li><strong>多采样率</strong>：CODEC 可能支持多种采样率 (8/16/32/44.1/48/96kHz)。FT 应验证所有支持采样率下的基本性能（至少测 48kHz 和 96kHz）。</li>
+<li><strong>测试负载一致性</strong>：不同测试工位间的负载电阻偏差会导致输出功率测量值差异。使用精密电阻 (&lt; ±0.1%) 作为负载。</li>
+</ol>
+<hr/>
+<h2 id="4-测试总结">4. 测试总结<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-测试总结" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">#</th><th>模块</th><th>关键测试项</th><th>核心测量指标</th><th>主要测试设备</th></tr></thead><tbody><tr><td style="text-align:center;">1</td><td><strong>LRA 马达驱动</strong></td><td>输出波形频率/幅度</td><td>频率偏差 &lt; ±5%</td><td>示波器 / 频谱分析</td></tr><tr><td style="text-align:center;">2</td><td><strong>LRA 马达驱动</strong></td><td>自动谐振跟踪</td><td>锁定时间 &lt; 100ms</td><td>示波器</td></tr><tr><td style="text-align:center;">3</td><td><strong>LRA 马达驱动</strong></td><td>制动功能</td><td>制动时间 &lt; 15ms</td><td>示波器</td></tr><tr><td style="text-align:center;">4</td><td><strong>LRA 马达驱动</strong></td><td>输出 THD</td><td>THD &lt; 5%</td><td>频谱分析</td></tr><tr><td style="text-align:center;">5</td><td><strong>GPIO</strong></td><td>输出电平 (0/1)</td><td>V_OH/V_OL 符合规格</td><td>ATE 数字通道</td></tr><tr><td style="text-align:center;">6</td><td><strong>GPIO</strong></td><td>输入电平识别</td><td>V_IH/V_IL 符合规格</td><td>ATE 数字通道</td></tr><tr><td style="text-align:center;">7</td><td><strong>GPIO</strong></td><td>上拉/下拉电阻</td><td>阻值 ±20%</td><td>SMU / DMM</td></tr><tr><td style="text-align:center;">8</td><td><strong>GPIO</strong></td><td>中断功能</td><td>正确触发和清除</td><td>ATE 数字通道</td></tr><tr><td style="text-align:center;">9</td><td><strong>GPIO</strong></td><td>驱动强度</td><td>输出电流能力</td><td>SMU</td></tr><tr><td style="text-align:center;">10</td><td><strong>CODEC</strong></td><td>DAC THD+N</td><td>&lt; 0.01%</td><td>音频分析仪</td></tr><tr><td style="text-align:center;">11</td><td><strong>CODEC</strong></td><td>DAC SNR</td><td>> 95dB</td><td>音频分析仪</td></tr><tr><td style="text-align:center;">12</td><td><strong>CODEC</strong></td><td>ADC THD+N</td><td>&lt; 0.01%</td><td>音频分析仪</td></tr><tr><td style="text-align:center;">13</td><td><strong>CODEC</strong></td><td>输出功率</td><td>≥ 25mW @ 32Ω</td><td>音频分析仪</td></tr><tr><td style="text-align:center;">14</td><td><strong>CODEC</strong></td><td>通道串扰</td><td>&lt; -80dB</td><td>音频分析仪</td></tr></tbody></table></div>
+<hr/>
+<h2 id="5-常见问题与排查">5. 常见问题与排查<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-常见问题与排查" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>问题模块</th><th>问题现象</th><th>可能原因</th><th>排查方向</th></tr></thead><tbody><tr><td><strong>LRA</strong></td><td>输出幅度偏低</td><td>H-Bridge Ron 偏大 / 电源电压不足</td><td>检查 H-Bridge 导通电阻和 VDD</td></tr><tr><td><strong>LRA</strong></td><td>频率偏差大</td><td>波形发生器时钟偏差</td><td>检查内部振荡器精度</td></tr><tr><td><strong>LRA</strong></td><td>自动谐振无法锁定</td><td>反馈路径故障 / 相位检测异常</td><td>检查 BEMF 检测电路</td></tr><tr><td><strong>LRA</strong></td><td>制动时间过长</td><td>制动 MOSFET 导通不良</td><td>检查制动控制逻辑</td></tr><tr><td><strong>GPIO</strong></td><td>V_OH 偏低</td><td>驱动强度设置不足 / 输出阻抗大</td><td>检查驱动强度配置</td></tr><tr><td><strong>GPIO</strong></td><td>输入读取错误</td><td>电平阈值偏差 / 去抖时间影响</td><td>检查 V_IH/V_IL 阈值</td></tr><tr><td><strong>GPIO</strong></td><td>中断丢失</td><td>去抖过滤 / 中断寄存器配置</td><td>检查中断配置时序</td></tr><tr><td><strong>CODEC</strong></td><td>THD+N 超标</td><td>时钟抖动 / 电源噪声 / 信号源失真</td><td>检查时钟源和电源滤波</td></tr><tr><td><strong>CODEC</strong></td><td>SNR 偏低</td><td>底噪过大 / 数字路径噪声耦合</td><td>检查 PCB 布线和接地</td></tr><tr><td><strong>CODEC</strong></td><td>通道串扰大</td><td>输出走线耦合 / 电源耦合</td><td>检查 PCB 布局</td></tr><tr><td><strong>CODEC</strong></td><td>输出功率不足</td><td>功放增益 / 负载偏差 / 电源限流</td><td>检查 PA 偏置和电源</td></tr><tr><td><strong>CODEC</strong></td><td>Pop/Click 噪声</td><td>上电顺序 / 输出耦合电容</td><td>检查上电时序和 mute 时序</td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li><a href="../../.././FT" class="internal alias" data-slug="FT">FT.md — FT 测试总览</a> — PMIC FT 测试完整清单</li>
+<li><a href="../../.././Trim" class="internal alias" data-slug="Trim">Trim.md — 修调总览</a> — PMIC 修调项说明</li>
+<li><em>Haptic Driver Design Guide</em> — Texas Instruments Application Report</li>
+<li><em>GPIO Electrical Characteristics Testing</em> — JEDEC Standard JESD8</li>
+<li><em>Audio Codec Testing with APx500</em> — Audio Precision Application Note</li>
+<li>AES17-2015: AES Standard Method for Digital Audio Measurement</li>
+<li>IEEE 1658-2011: IEEE Standard for Terminology and Test Methods for Digital-to-Analog Converters</li>
+</ul>
+<hr/>
+<blockquote>
+<p><strong>最后更新: 2026-07-24</strong></p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-90" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#其他模块测试--pmic-lra--gpio--codec-ft-测试" data-for="其他模块测试--pmic-lra--gpio--codec-ft-测试">其他模块测试 — PMIC LRA / GPIO / CODEC FT 测试</a></li><li class="depth-1"><a href="#1-lra-测试-linear-resonant-actuator-driver-test" data-for="1-lra-测试-linear-resonant-actuator-driver-test">1. LRA 测试 (Linear Resonant Actuator Driver Test)</a></li><li class="depth-2"><a href="#11-概述" data-for="11-概述">1.1 概述</a></li><li class="depth-2"><a href="#12-工作原理" data-for="12-工作原理">1.2 工作原理</a></li><li class="depth-2"><a href="#13-测试方法" data-for="13-测试方法">1.3 测试方法</a></li><li class="depth-2"><a href="#14-判定标准总表-criteria" data-for="14-判定标准总表-criteria">1.4 判定标准总表 (Criteria)</a></li><li class="depth-2"><a href="#15-注意事项" data-for="15-注意事项">1.5 注意事项</a></li><li class="depth-1"><a href="#2-gpio-功能测试-gpio-function-test" data-for="2-gpio-功能测试-gpio-function-test">2. GPIO 功能测试 (GPIO Function Test)</a></li><li class="depth-2"><a href="#21-概述" data-for="21-概述">2.1 概述</a></li><li class="depth-2"><a href="#22-gpio-功能模块" data-for="22-gpio-功能模块">2.2 GPIO 功能模块</a></li><li class="depth-2"><a href="#23-测试方法" data-for="23-测试方法">2.3 测试方法</a></li><li class="depth-2"><a href="#24-判定标准总表-criteria" data-for="24-判定标准总表-criteria">2.4 判定标准总表 (Criteria)</a></li><li class="depth-2"><a href="#25-gpio-测试矩阵" data-for="25-gpio-测试矩阵">2.5 GPIO 测试矩阵</a></li><li class="depth-2"><a href="#26-注意事项" data-for="26-注意事项">2.6 注意事项</a></li><li class="depth-1"><a href="#3-codec-测试-audio-codec-test" data-for="3-codec-测试-audio-codec-test">3. CODEC 测试 (Audio Codec Test)</a></li><li class="depth-2"><a href="#31-概述" data-for="31-概述">3.1 概述</a></li><li class="depth-2"><a href="#32-工作原理" data-for="32-工作原理">3.2 工作原理</a></li><li class="depth-2"><a href="#33-测试方法" data-for="33-测试方法">3.3 测试方法</a></li><li class="depth-2"><a href="#34-codec-测试规范汇总" data-for="34-codec-测试规范汇总">3.4 CODEC 测试规范汇总</a></li><li class="depth-2"><a href="#35-测试电路配置" data-for="35-测试电路配置">3.5 测试电路配置</a></li><li class="depth-2"><a href="#36-注意事项" data-for="36-注意事项">3.6 注意事项</a></li><li class="depth-1"><a href="#4-测试总结" data-for="4-测试总结">4. 测试总结</a></li><li class="depth-1"><a href="#5-常见问题与排查" data-for="5-常见问题与排查">5. 常见问题与排查</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

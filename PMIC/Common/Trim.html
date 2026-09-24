@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>PMIC Trim 完整指南</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="PMIC Trim 完整指南"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="PMIC Trim 完整指南"/><meta name="twitter:description" content="PMIC Trim 完整指南 / PMIC Trim Complete Guide 修调 (Trim) 是 PMIC 量产测试的核心环节。工艺偏差导致每颗芯片的模拟参数都不同，Trim 通过在 CP 阶段测量→计算→烧录修正码，使所有芯片的最终参数落在规格范围内。 一、为什么要 Trim？ / Why Trim? PMIC 是模拟密集型芯片。虽然 Bandgap 可以产生相对稳定的参考电压，但电阻、电容、MOS 特性、BJT 匹配等随工艺变化，导致关键参数偏离目标值。 典型工艺偏差来源 / Process Variation Sources 偏差来源影响参数典型偏差量电阻绝对值 (Poly/N..."/><meta property="og:description" content="PMIC Trim 完整指南 / PMIC Trim Complete Guide 修调 (Trim) 是 PMIC 量产测试的核心环节。工艺偏差导致每颗芯片的模拟参数都不同，Trim 通过在 CP 阶段测量→计算→烧录修正码，使所有芯片的最终参数落在规格范围内。 一、为什么要 Trim？ / Why Trim? PMIC 是模拟密集型芯片。虽然 Bandgap 可以产生相对稳定的参考电压，但电阻、电容、MOS 特性、BJT 匹配等随工艺变化，导致关键参数偏离目标值。 典型工艺偏差来源 / Process Variation Sources 偏差来源影响参数典型偏差量电阻绝对值 (Poly/N..."/><meta property="og:image:alt" content="PMIC Trim 完整指南 / PMIC Trim Complete Guide 修调 (Trim) 是 PMIC 量产测试的核心环节。工艺偏差导致每颗芯片的模拟参数都不同，Trim 通过在 CP 阶段测量→计算→烧录修正码，使所有芯片的最终参数落在规格范围内。 一、为什么要 Trim？ / Why Trim? PMIC 是模拟密集型芯片。虽然 Bandgap 可以产生相对稳定的参考电压，但电阻、电容、MOS 特性、BJT 匹配等随工艺变化，导致关键参数偏离目标值。 典型工艺偏差来源 / Process Variation Sources 偏差来源影响参数典型偏差量电阻绝对值 (Poly/N..."/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/Common/Trim"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/Common/Trim"/><link rel="icon" href="../../static/icon.png"/><meta name="description" content="PMIC Trim 完整指南 / PMIC Trim Complete Guide 修调 (Trim) 是 PMIC 量产测试的核心环节。工艺偏差导致每颗芯片的模拟参数都不同，Trim 通过在 CP 阶段测量→计算→烧录修正码，使所有芯片的最终参数落在规格范围内。 一、为什么要 Trim？ / Why Trim? PMIC 是模拟密集型芯片。虽然 Bandgap 可以产生相对稳定的参考电压，但电阻、电容、MOS 特性、BJT 匹配等随工艺变化，导致关键参数偏离目标值。 典型工艺偏差来源 / Process Variation Sources 偏差来源影响参数典型偏差量电阻绝对值 (Poly/N..."/><meta name="generator" content="Quartz"/><link href="../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/Common/Trim-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/Common/Trim-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/Common/Trim-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/Common/Trim"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-199"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-199" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../PMIC/Common/">通用测试方法知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>PMIC Trim 完整指南</a></div></nav><h1 class="article-title">PMIC Trim 完整指南</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-18T00:00:00.000Z">2026年7月18日</time><span>14分钟阅读</span></p><ul class="tags"><li><a href="../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../tags/trim" class="internal tag-link">trim</a></li><li><a href="../../tags/ate" class="internal tag-link">ate</a></li><li><a href="../../tags/reference" class="internal tag-link">reference</a></li></ul></div></div><article class="popover-hint"><h1 id="pmic-trim-完整指南--pmic-trim-complete-guide">PMIC Trim 完整指南 / PMIC Trim Complete Guide<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#pmic-trim-完整指南--pmic-trim-complete-guide" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p>修调 (Trim) 是 PMIC 量产测试的核心环节。工艺偏差导致每颗芯片的模拟参数都不同，Trim 通过在 CP 阶段测量→计算→烧录修正码，使所有芯片的最终参数落在规格范围内。</p>
+</blockquote>
+<hr/>
+<h2 id="一为什么要-trim--why-trim">一、为什么要 Trim？ / Why Trim?<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一为什么要-trim--why-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>PMIC 是模拟密集型芯片。虽然 Bandgap 可以产生相对稳定的参考电压，但<strong>电阻、电容、MOS 特性、BJT 匹配</strong>等随工艺变化，导致关键参数偏离目标值。</p>
+<h3 id="典型工艺偏差来源--process-variation-sources">典型工艺偏差来源 / Process Variation Sources<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#典型工艺偏差来源--process-variation-sources" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>偏差来源</th><th>影响参数</th><th>典型偏差量</th></tr></thead><tbody><tr><td><strong>电阻绝对值</strong> (Poly/Nwell R)</td><td>OSC 频率、RC Ton、VREF、VOUT</td><td>±15%~±20%</td></tr><tr><td><strong>电容绝对值</strong> (MIM/MOM C)</td><td>OSC 频率、RC Timer、Soft Start</td><td>±10%~±15%</td></tr><tr><td><strong>MOS 阈值电压 Vth</strong></td><td>电流源精度、ILIM、比较器偏移</td><td>±50mV~±100mV</td></tr><tr><td><strong>BJT VBE 匹配</strong></td><td>Bandgap VREF 绝对值</td><td>±2%~±5%</td></tr><tr><td><strong>电阻比例匹配</strong></td><td>VOUT 分压比、电流镜匹配</td><td>±0.5%~±2%</td></tr><tr><td><strong>芯片间 (Lot-Lot/Wafer-Wafer)</strong></td><td>所有参数</td><td>—</td></tr></tbody></table></div>
+<h3 id="trim-收益示例">Trim 收益示例<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#trim-收益示例" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>Trim 前:
+  VREF:  1.200V ± 5%   → 1.140V ~ 1.260V
+  FOSC:  2.000MHz ± 15% → 1.700MHz ~ 2.300MHz
+  Ton:   100ns ± 18%   → 82ns ~ 118ns
+
+Trim 后:
+  VREF:  1.200V ± 0.5%  → 1.194V ~ 1.206V
+  FOSC:  2.000MHz ± 3%   → 1.940MHz ~ 2.060MHz
+  Ton:   100ns ± 3%    → 97ns ~ 103ns
+</code></pre>
+<hr/>
+<h2 id="二trim-全流程--trim-flow">二、Trim 全流程 / Trim Flow<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二trim-全流程--trim-flow" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│  CP (Chip Probing / 晶圆测试)                             │
+│                                                          │
+│  ① Pre-Trim Measurement                                 │
+│     测量所有需要 Trim 的参数 (默认 Trim Code = 0)          │
+│     ↓                                                    │
+│  ② Trim Code Calculation                                │
+│     根据测量值 vs 目标值，计算每个参数的修正码              │
+│     ↓                                                    │
+│  ③ OTP / EFUSE Program                                 │
+│     将 Trim Code 烧录到 OTP/EFUSE                        │
+│     ↓                                                    │
+│  ④ Post-Trim Verify                                     │
+│     芯片重新上电，读回 Trim Code，验证参数已修正            │
+│     ──── End of CP ────                                  │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│  FT (Final Test / 成品测试)                               │
+│                                                          │
+│  ⑤ OTP Readback                                         │
+│     芯片上电自动加载 OTP，通过 I2C/SPI 或内部自动读取         │
+│     ↓                                                    │
+│  ⑥ Trim Verification (关键参数复测)                        │
+│     验证 Trim 后的参数确实在规格内                          │
+│     ↓                                                    │
+│  ⑦ Full Parametric Test                                 │
+│     所有 AC/DC/Timing/Protection 测试                     │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<hr/>
+<h2 id="三存储技术--storage-technologies">三、存储技术 / Storage Technologies<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三存储技术--storage-technologies" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="技术对比">技术对比<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#技术对比" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>技术</th><th>可编程次数</th><th>存储原理</th><th>面积</th><th>可靠性</th><th>PMIC 常用</th></tr></thead><tbody><tr><td><strong>Poly Fuse</strong></td><td>1次</td><td>大电流熔断多晶硅</td><td>大</td><td>高</td><td>模拟 IC</td></tr><tr><td><strong>Metal Fuse</strong></td><td>1次</td><td>大电流熔断金属线</td><td>大</td><td>高</td><td>模拟 IC</td></tr><tr><td><strong>Gate Oxide OTP</strong></td><td>1次</td><td>高压击穿栅氧层</td><td>小</td><td>中高</td><td>数模混合</td></tr><tr><td><strong>E-Fuse</strong></td><td>1次</td><td>电迁移熔断金属</td><td>小</td><td>高</td><td>最常见</td></tr><tr><td><strong>Anti-Fuse</strong></td><td>1次</td><td>击穿介质层形成通路</td><td>极小</td><td>极高</td><td>高可靠性</td></tr><tr><td><strong>MTP</strong></td><td>多次(几百~几千)</td><td>浮栅/电荷存储</td><td>中</td><td>中</td><td>研发/小批量</td></tr></tbody></table></div>
+<h3 id="31-e-fuse-物理原理">3.1 E-Fuse 物理原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-e-fuse-物理原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>未烧录:  电阻 ~ 几 Ω (导通)
+           ↓
+烧录:    施加烧录电流 (~10mA~50mA, ~几 μs)
+           ↓
+电迁移:   金属原子迁移 → 空洞形成
+           ↓
+已烧录:  电阻 > 1MΩ (开路)
+</code></pre>
+<h3 id="32-gate-oxide-anti-fuse-物理原理">3.2 Gate Oxide Anti-Fuse 物理原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-gate-oxide-anti-fuse-物理原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>未烧录:  阻抗 > GΩ (栅氧完整，不导通)
+           ↓
+烧录:    施加高压 (~6V~8V, ~几 μs)
+           ↓
+击穿:    栅氧化层局部击穿 → 导电通道形成
+           ↓
+已烧录:  阻抗 ~ kΩ (导通)
+</code></pre>
+<h3 id="33-otp-redundancy-冗余">3.3 OTP Redundancy (冗余)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-otp-redundancy-冗余" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>每个 Trim Bit 有多个备份:
+
+Bit 0:  [Main Cell] [Redundancy Cell 1] [Redundancy Cell 2]
+
+烧录策略:
+  1. 先烧 Main Cell → Verify
+  2. 若 Main Cell 失败 → 烧 Redundancy 1
+  3. 若仍失败 → 烧 Redundancy 2
+  4. 全部失败 → Die 判废
+
+提升良率的关键技术
+</code></pre>
+<hr/>
+<h2 id="四各模块-trim-详解--trim-by-module">四、各模块 Trim 详解 / Trim by Module<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四各模块-trim-详解--trim-by-module" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-buck--rc-ton-trim">4.1 Buck — RC Ton Trim<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-buck--rc-ton-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: RC Timer 的时间常数
+<strong>影响参数</strong>: Ton, Fsw, Efficiency</p>
+<pre><code>测试流程:
+  ① 在固定 VIN/VOUT/IOUT 下测量 Ton 或 Fsw
+  ② 目标: Ton_target = VOUT / (VIN × Fsw_target)
+  ③ 实际: Ton_meas ≠ Ton_target
+  ④ 计算 Trim Step:
+     每个 Trim Code 改变 ~2%~4% 的 Ton
+  ⑤ Code = Round((Target - Actual) / (Target × Step%))
+  ⑥ 烧录 → 复测验证
+</code></pre>
+<p><strong>设计要点</strong>:</p>
+<ul>
+<li>通常 Trim Range: ±20%~±30% (覆盖工艺偏差)</li>
+<li>通常 Step Size: 1%~3% (精度要求越高，Step 越小)</li>
+<li>Trim Code 位数: 3<del>5 bits (8</del>32 档)</li>
+</ul>
+<p>详见: <a href="../../30.areas/PMIC/Buck/Buck_Ton与ACT_TIME测试" class="internal alias" data-slug="30.areas/PMIC/Buck/Buck_Ton与ACT_TIME测试">Buck Ton 与 ACT TIME 测试</a></p>
+<hr/>
+<h3 id="42-buck--ldo--vout-trim">4.2 Buck / LDO — VOUT Trim<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-buck--ldo--vout-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: Feedback 分压电阻比例
+<strong>影响参数</strong>: VOUT Accuracy</p>
+<pre><code>测试流程:
+  ① 在额定 VIN/IOUT 下测量 VOUT
+  ② 目标: VOUT_target (如 1.800V)
+  ③ 实际: VOUT_meas (如 1.820V → +1.1%)
+  ④ Trim 通过调整 FB 分压电阻改变反馈点参考
+  ⑤ Code = Round((VOUT_meas - VOUT_target) / Step_V)
+  ⑥ 烧录 → 复测
+</code></pre>
+<p><strong>两种实现方式</strong>:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>方式</th><th>原理</th><th>优缺点</th></tr></thead><tbody><tr><td><strong>电阻梯形网络</strong></td><td>改变 FB 电阻分压比</td><td>线性、面积小、DCDC 常用</td></tr><tr><td><strong>Ref DAC</strong></td><td>改变 Bandgap 输出</td><td>精度高、面积大、LDO 常用</td></tr><tr><td><strong>VREF Trim</strong></td><td>直接修 Bandgap</td><td>所有模块共享、一次 Trim</td></tr></tbody></table></div>
+<hr/>
+<h3 id="43-buck--ipeak--ilim-trim-current-limit-trim">4.3 Buck — Ipeak / ILIM Trim (Current Limit Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-buck--ipeak--ilim-trim-current-limit-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: 电流检测电路 (SENSE FET / Sense Resistor / DCR)
+<strong>影响参数</strong>: OCP 阈值, Current Limit</p>
+<pre><code>测试流程:
+  ① 逐步增加负载直到 OCP 触发
+  ② OCP 触发点 = I_LIM_meas
+  ③ Target: I_LIM_target (如 2.0A)
+  ④ 调整电流检测增益
+  ⑤ 烧录 → 复测
+</code></pre>
+<p><strong>注意</strong>:</p>
+<ul>
+<li>ILIM Trim 通常和 Ton Trim 独立</li>
+<li>不过温度下 ILIM 可能漂移 (Rds_on 正温度系数)</li>
+<li>部分芯片 ILIM 不需要 Trim (设计余量足够)</li>
+</ul>
+<hr/>
+<h3 id="44-ldo--ilim-trim">4.4 LDO — ILIM Trim<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-ldo--ilim-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: LDO 输出电流检测
+<strong>影响参数</strong>: LDO OCP 阈值</p>
+<p>与 Buck ILIM 类似，但 LDO 的 ILIM 通常较低 (几十 mA ~ 几百 mA)。</p>
+<hr/>
+<h3 id="45-charger--vreg-trim-charge-voltage-trim">4.5 Charger — VREG Trim (Charge Voltage Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#45-charger--vreg-trim-charge-voltage-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: Charger CV 阶段的目标电压
+<strong>影响参数</strong>: 充电终止电压 (VREG)</p>
+<pre><code>测试流程:
+  ① 设置 VBAT = VREG_target (用 SMU Force)
+  ② 充电进入 CV 阶段
+  ③ 测量实际 VREG = VBAT 引脚电压
+  ④ Target: VREG_target (如 4.200V ± 0.5%)
+  ⑤ 调整 Bandgap 参考或反馈分压
+  ⑥ 烧录 → 复测
+</code></pre>
+<p><strong>为什么 Charger VREG 精度要求很高?</strong></p>
+<ul>
+<li>Li-Ion 过充 → 安全问题 (爆炸/起火)</li>
+<li>Li-Ion 欠充 → 电池容量不足</li>
+<li>典型要求: ±0.5% ~ ±1%</li>
+</ul>
+<hr/>
+<h3 id="46-charger--ichg-trim-charge-current-trim">4.6 Charger — ICHG Trim (Charge Current Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#46-charger--ichg-trim-charge-current-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: Charger 电流源精度
+<strong>影响参数</strong>: CC 阶段充电电流</p>
+<p>与传统 Buck 的 ILIM 不同，ICHG Trim 关注 CC 阶段恒定大电流的精度。</p>
+<hr/>
+<h3 id="47-led-driver--current-trim">4.7 LED Driver — Current Trim<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#47-led-driver--current-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: LED 电流源精度
+<strong>影响参数</strong>: 每路 LED 电流精度、通道间匹配度</p>
+<pre><code>测试流程:
+  ① 设置 LED 电流寄存器 (如 20mA)
+  ② 逐路测量实际 LED 电流
+  ③ 计算精度和匹配度
+  ④ 调整全局电流基准 (和单路匹配)
+  ⑤ 烧录 → 复测
+</code></pre>
+<hr/>
+<h3 id="48-analog-core--vref-trim-bandgap-trim">4.8 Analog Core — VREF Trim (Bandgap Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#48-analog-core--vref-trim-bandgap-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: Bandgap 参考电压
+<strong>影响参数</strong>: 所有依赖 VREF 的参数 (VOUT, ILIM, OSC, etc.)</p>
+<p>这是<strong>最重要</strong>的 Trim，因为 VREF 是所有其他模块的电压基准。</p>
+<pre><code>测试流程:
+  ① 测量 VREF 引脚电压
+  ② Target: VREF_target (如 1.200V)
+  ③ 通过调整 Bandgap 电阻网络比例修正
+  ④ 烧录 → 复测 → 确认所有模块参数同步改善
+</code></pre>
+<p><strong>VREF Trim 策略选择</strong>:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>策略</th><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td><strong>只修 VREF</strong></td><td>简单、一次搞定</td><td>各模块偏差独立</td></tr><tr><td><strong>分模块修</strong></td><td>精度最高</td><td>测试时间长</td></tr><tr><td><strong>混合策略</strong></td><td>折中</td><td>测试流程复杂</td></tr></tbody></table></div>
+<hr/>
+<h3 id="49-analog-core--osc-trim-oscillator-frequency-trim">4.9 Analog Core — OSC Trim (Oscillator Frequency Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#49-analog-core--osc-trim-oscillator-frequency-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: RC Oscillator 频率
+<strong>影响参数</strong>: Buck/Boost Fsw, Charge Pump Fsw</p>
+<pre><code>测试流程:
+  ① 测量 OSC 输出频率
+  ② Target: FOSC_target (如 2.000MHz)
+  ③ 调整 OSC 充电电流或电容
+  ④ 烧录 → 复测
+</code></pre>
+<p>详见: <a href="../../30.areas/PMIC/Analog_Core/Oscillator_原理与测试" class="internal alias" data-slug="30.areas/PMIC/Analog_Core/Oscillator_原理与测试">Oscillator 原理与测试</a></p>
+<hr/>
+<h3 id="410-ovp--uvlo--ocp-threshold-trim">4.10 OVP / UVLO / OCP Threshold Trim<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#410-ovp--uvlo--ocp-threshold-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: 保护功能比较器阈值
+<strong>影响参数</strong>: OCP 触发点、OVP 触发点、UVLO 触发点</p>
+<p>某些精度要求高的 PMIC 会对保护阈值也做 Trim。</p>
+<hr/>
+<h3 id="411-tc-trim-temperature-coefficient-trim">4.11 TC Trim (Temperature Coefficient Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#411-tc-trim-temperature-coefficient-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>修调对象</strong>: Bandgap 的温度系数
+<strong>影响参数</strong>: 全温范围内的 VREF 稳定性</p>
+<pre><code>高温 (125°C) 与低温 (-40°C) 下 VREF 偏差 > 规格时:
+  ① 测 VREF @ -40°C (Cold)
+  ② 测 VREF @ 25°C (Room)
+  ③ 测 VREF @ 125°C (Hot)
+  ④ 计算 TC 曲线曲率
+  ⑤ 通过二阶补偿修正 (Temperature Compensation Trim)
+</code></pre>
+<hr/>
+<h2 id="五cp-trim-vs-ft-trim--策略选择">五、CP Trim vs FT Trim / 策略选择<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五cp-trim-vs-ft-trim--策略选择" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="cp-only-trim-最常用">CP-only Trim (最常用)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cp-only-trim-最常用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>优点:
+  • 晶圆阶段一次性完成，不需要 Handler
+  • Trim Code 已经在封装后自动生效
+  • FT 只需验证
+
+缺点:
+  • 封装应力可能略微改变参数 (通常可忽略)
+  • 某些参数 CP 测不到 (大电流 ILIM 等)
+</code></pre>
+<h3 id="cp-trim--ft-trim-双阶段">CP Trim + FT Trim (双阶段)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cp-trim--ft-trim-双阶段" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>适用于:
+  • CP 受限的参数 (大电流、高速 Timing)
+  • 封装后参数漂移不可忽略
+  • 高精度 Trim (如 ±0.5%)
+  
+流程:
+  CP: Pre-Trim Measurement → 粗 Trim
+  FT: 测量封装后参数 → 细调 TBEE (Trim Bit Error Estimate) → 验证
+</code></pre>
+<hr/>
+<h2 id="六trim-code-计算方法--calculation-methods">六、Trim Code 计算方法 / Calculation Methods<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六trim-code-计算方法--calculation-methods" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="方法-1-阶梯逼近-step-approximation">方法 1: 阶梯逼近 (Step Approximation)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#方法-1-阶梯逼近-step-approximation" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>已知: Step = 2%/Code, 共 5 bits (0~31 Code)
+Target = 100ns, Measured = 92ns
+Error = (92-100)/100 = -8%
+
+Code = -8/2 = -4 (从中值出发)
+最终 Code = Mid(16) + (-4) = 12
+</code></pre>
+<h3 id="方法-2-查表法-look-up-table">方法 2: 查表法 (Look-Up Table)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#方法-2-查表法-look-up-table" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>预存储 Trim Code vs 参数对应表:
+  Code=0  → Ton=82ns
+  Code=1  → Ton=84ns
+  ...
+  Code=16 → Ton=116ns
+  
+测量 Ton=92ns
+查表: 最近 Code = 5 (Ton=92ns 最接近)
+</code></pre>
+<h3 id="方法-3-二分法-binary-search">方法 3: 二分法 (Binary Search)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#方法-3-二分法-binary-search" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>首次: 测试 Mid Code → Ton=97ns (偏小)
+二分: 向上找 Mid+8 → Ton=103ns (偏大)
+再二分: Mid+4 → Ton=100ns ✓
+</code></pre>
+<hr/>
+<h2 id="七trim-硬件与-ate-设置--hardware-setup">七、Trim 硬件与 ATE 设置 / Hardware Setup<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七trim-硬件与-ate-设置--hardware-setup" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-烧录电压-vpp">7.1 烧录电压 (VPP)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-烧录电压-vpp" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>典型 VPP: 5V~8V (Gate Oxide)
+        1.8V~3.3V (E-Fuse, 低压)
+
+ATE SMU:
+  • VPP 精度: ±1%~±2% (偏差大烧录失败)
+  • 电流限: ~100mA (防止意外短路)
+  • Ramp rate: 控制 (太快 → 容性负载 > 限流)
+</code></pre>
+<h3 id="72-烧录时序">7.2 烧录时序<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-烧录时序" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>硬件时序:
+  VPP Enable → Wait VPP stable (~10μs)
+  ↓
+  Program Pulse (~1μs~10μs)
+  ↓
+  Wait (~5μs~10μs)
+  ↓
+  Verify Read
+</code></pre>
+<h3 id="73-dib-设计注意">7.3 DIB 设计注意<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-dib-设计注意" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>Trim 通道:
+  • VPP 走线: 短、宽、去耦 (低阻抗)
+  • VPP 独立供电 (不与其他电源共用)
+  • 避免 VPP 干扰其他通道 (Relay 隔离)
+</code></pre>
+<hr/>
+<h2 id="八常见问题--common-trim-pitfalls">八、常见问题 / Common Trim Pitfalls<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#八常见问题--common-trim-pitfalls" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>问题</th><th>原因</th><th>解决</th></tr></thead><tbody><tr><td><strong>Trim 后复测仍超规</strong></td><td>Trim Step 过大</td><td>减小 Step, 增加 Bits</td></tr><tr><td><strong>Trim Code 到边界</strong></td><td>工艺偏差超预期</td><td>扩大 Trim Range</td></tr><tr><td><strong>烧录失败</strong></td><td>VPP 不足/时序不对</td><td>检查供电、时序</td></tr><tr><td><strong>FT 读取 OTP 错误</strong></td><td>OTP 数据损坏</td><td>高温烘烤 Data Ret</td></tr><tr><td><strong>Trim 后参数漂移</strong></td><td>封装应力</td><td>增加 Guard Band</td></tr><tr><td><strong>多模块 Trim 冲突</strong></td><td>VREF 一改全动</td><td>先修 VREF, 再修模块</td></tr></tbody></table></div>
+<hr/>
+<h2 id="九trim-guard-band--安全余量">九、Trim Guard Band / 安全余量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#九trim-guard-band--安全余量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>规格上限: ────────────────
+          ↑ Guard Band (规格的 20%~30%)
+设计目标: ────────────────  ← Trim 目标值
+          ↓ Guard Band
+规格下限: ────────────────
+</code></pre>
+<p><strong>为什么要 Guard Band?</strong></p>
+<ul>
+<li>Trim 精度有限 (Step Size 导致的残留误差)</li>
+<li>温度漂移</li>
+<li>长期稳定性 (Aging)</li>
+<li>测试系统误差</li>
+</ul>
+<hr/>
+<h2 id="十trim-类型速查表--quick-reference">十、Trim 类型速查表 / Quick Reference<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十trim-类型速查表--quick-reference" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>Trim 类型</th><th>所在模块</th><th>测量参数</th><th>调整方式</th><th>关键页面</th></tr></thead><tbody><tr><td>RC Ton Trim</td><td>Buck/Buck-Boost</td><td>Ton / Fsw</td><td>RC Timer</td><td><a href="../../PMIC/Buck/Buck_Ton与ACT_TIME测试" class="internal alias" data-slug="PMIC/Buck/Buck_Ton与ACT_TIME测试">Buck Ton</a></td></tr><tr><td>VOUT Trim</td><td>Buck/Boost/LDO</td><td>输出电压</td><td>FB R-divider</td><td><a href="../../PMIC/Buck/Buck_基本原理" class="internal alias" data-slug="PMIC/Buck/Buck_基本原理">Buck</a></td></tr><tr><td>VREF Trim</td><td>Analog Core</td><td>Bandgap VREF</td><td>BG R-network</td><td><a href="../../PMIC/Analog_Core/Bandgap_原理与测试" class="internal alias" data-slug="PMIC/Analog_Core/Bandgap_原理与测试">Bandgap</a></td></tr><tr><td>OSC Trim</td><td>Analog Core</td><td>振荡频率</td><td>OSC I/C</td><td><a href="../../PMIC/Analog_Core/Oscillator_原理与测试" class="internal alias" data-slug="PMIC/Analog_Core/Oscillator_原理与测试">Osc</a></td></tr><tr><td>ILIM Trim</td><td>Buck/LoadSwitch</td><td>OCP 阈值</td><td>Current Sense</td><td><a href="../../PMIC/Protection/OVP_OCP_OTP_UVLO" class="internal alias" data-slug="PMIC/Protection/OVP_OCP_OTP_UVLO">Protection</a></td></tr><tr><td>VREG Trim</td><td>Charger</td><td>充电终止电压</td><td>CV Ref</td><td><a href="../../PMIC/Charger/Charger_原理与测试" class="internal alias" data-slug="PMIC/Charger/Charger_原理与测试">Charger</a></td></tr><tr><td>ICHG Trim</td><td>Charger</td><td>充电恒流</td><td>CC Source</td><td><a href="../../PMIC/Charger/Charger_原理与测试" class="internal alias" data-slug="PMIC/Charger/Charger_原理与测试">Charger</a></td></tr><tr><td>LED I Trim</td><td>LED Driver</td><td>LED 电流</td><td>Current Sink</td><td><a href="../../PMIC/LED_Driver/LED_Driver_原理与测试" class="internal alias" data-slug="PMIC/LED_Driver/LED_Driver_原理与测试">LED Driver</a></td></tr><tr><td>TC Trim</td><td>Bandgap</td><td>温漂系数</td><td>TC Comp</td><td><a href="../../PMIC/Analog_Core/Bandgap_原理与测试" class="internal alias" data-slug="PMIC/Analog_Core/Bandgap_原理与测试">Bandgap</a></td></tr><tr><td>OTP Read Verify</td><td>All</td><td>OTP 数据</td><td>—</td><td><a href="../../PMIC/Digital_Interface/OTP_EFUSE_Trim" class="internal alias" data-slug="PMIC/Digital_Interface/OTP_EFUSE_Trim">EFUSE</a></td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li><a href="../../30.areas/PMIC/Digital_Interface/OTP_EFUSE_Trim" class="internal alias" data-slug="30.areas/PMIC/Digital_Interface/OTP_EFUSE_Trim">Trim 测试</a> — 存储技术和烧录细节</li>
+<li><a href="../../30.areas/PMIC/Digital_Interface/I2C_SPI_测试" class="internal alias" data-slug="30.areas/PMIC/Digital_Interface/I2C_SPI_测试">SPI 测试</a> — OTP 读写接口</li>
+<li><a href="../../30.areas/PMIC/Common/FT" class="internal alias" data-slug="30.areas/PMIC/Common/FT">FT 测试完整指南</a> — FT Trim 验证</li>
+<li><a href="../../30.areas/PMIC/Common/ATE测试基础" class="internal alias" data-slug="30.areas/PMIC/Common/ATE测试基础">ATE 测试基础</a></li>
+</ul></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-74" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#pmic-trim-完整指南--pmic-trim-complete-guide" data-for="pmic-trim-完整指南--pmic-trim-complete-guide">PMIC Trim 完整指南 / PMIC Trim Complete Guide</a></li><li class="depth-1"><a href="#一为什么要-trim--why-trim" data-for="一为什么要-trim--why-trim">一、为什么要 Trim？ / Why Trim?</a></li><li class="depth-2"><a href="#典型工艺偏差来源--process-variation-sources" data-for="典型工艺偏差来源--process-variation-sources">典型工艺偏差来源 / Process Variation Sources</a></li><li class="depth-2"><a href="#trim-收益示例" data-for="trim-收益示例">Trim 收益示例</a></li><li class="depth-1"><a href="#二trim-全流程--trim-flow" data-for="二trim-全流程--trim-flow">二、Trim 全流程 / Trim Flow</a></li><li class="depth-1"><a href="#三存储技术--storage-technologies" data-for="三存储技术--storage-technologies">三、存储技术 / Storage Technologies</a></li><li class="depth-2"><a href="#技术对比" data-for="技术对比">技术对比</a></li><li class="depth-2"><a href="#31-e-fuse-物理原理" data-for="31-e-fuse-物理原理">3.1 E-Fuse 物理原理</a></li><li class="depth-2"><a href="#32-gate-oxide-anti-fuse-物理原理" data-for="32-gate-oxide-anti-fuse-物理原理">3.2 Gate Oxide Anti-Fuse 物理原理</a></li><li class="depth-2"><a href="#33-otp-redundancy-冗余" data-for="33-otp-redundancy-冗余">3.3 OTP Redundancy (冗余)</a></li><li class="depth-1"><a href="#四各模块-trim-详解--trim-by-module" data-for="四各模块-trim-详解--trim-by-module">四、各模块 Trim 详解 / Trim by Module</a></li><li class="depth-2"><a href="#41-buck--rc-ton-trim" data-for="41-buck--rc-ton-trim">4.1 Buck — RC Ton Trim</a></li><li class="depth-2"><a href="#42-buck--ldo--vout-trim" data-for="42-buck--ldo--vout-trim">4.2 Buck / LDO — VOUT Trim</a></li><li class="depth-2"><a href="#43-buck--ipeak--ilim-trim-current-limit-trim" data-for="43-buck--ipeak--ilim-trim-current-limit-trim">4.3 Buck — Ipeak / ILIM Trim (Current Limit Trim)</a></li><li class="depth-2"><a href="#44-ldo--ilim-trim" data-for="44-ldo--ilim-trim">4.4 LDO — ILIM Trim</a></li><li class="depth-2"><a href="#45-charger--vreg-trim-charge-voltage-trim" data-for="45-charger--vreg-trim-charge-voltage-trim">4.5 Charger — VREG Trim (Charge Voltage Trim)</a></li><li class="depth-2"><a href="#46-charger--ichg-trim-charge-current-trim" data-for="46-charger--ichg-trim-charge-current-trim">4.6 Charger — ICHG Trim (Charge Current Trim)</a></li><li class="depth-2"><a href="#47-led-driver--current-trim" data-for="47-led-driver--current-trim">4.7 LED Driver — Current Trim</a></li><li class="depth-2"><a href="#48-analog-core--vref-trim-bandgap-trim" data-for="48-analog-core--vref-trim-bandgap-trim">4.8 Analog Core — VREF Trim (Bandgap Trim)</a></li><li class="depth-2"><a href="#49-analog-core--osc-trim-oscillator-frequency-trim" data-for="49-analog-core--osc-trim-oscillator-frequency-trim">4.9 Analog Core — OSC Trim (Oscillator Frequency Trim)</a></li><li class="depth-2"><a href="#410-ovp--uvlo--ocp-threshold-trim" data-for="410-ovp--uvlo--ocp-threshold-trim">4.10 OVP / UVLO / OCP Threshold Trim</a></li><li class="depth-2"><a href="#411-tc-trim-temperature-coefficient-trim" data-for="411-tc-trim-temperature-coefficient-trim">4.11 TC Trim (Temperature Coefficient Trim)</a></li><li class="depth-1"><a href="#五cp-trim-vs-ft-trim--策略选择" data-for="五cp-trim-vs-ft-trim--策略选择">五、CP Trim vs FT Trim / 策略选择</a></li><li class="depth-2"><a href="#cp-only-trim-最常用" data-for="cp-only-trim-最常用">CP-only Trim (最常用)</a></li><li class="depth-2"><a href="#cp-trim--ft-trim-双阶段" data-for="cp-trim--ft-trim-双阶段">CP Trim + FT Trim (双阶段)</a></li><li class="depth-1"><a href="#六trim-code-计算方法--calculation-methods" data-for="六trim-code-计算方法--calculation-methods">六、Trim Code 计算方法 / Calculation Methods</a></li><li class="depth-2"><a href="#方法-1-阶梯逼近-step-approximation" data-for="方法-1-阶梯逼近-step-approximation">方法 1: 阶梯逼近 (Step Approximation)</a></li><li class="depth-2"><a href="#方法-2-查表法-look-up-table" data-for="方法-2-查表法-look-up-table">方法 2: 查表法 (Look-Up Table)</a></li><li class="depth-2"><a href="#方法-3-二分法-binary-search" data-for="方法-3-二分法-binary-search">方法 3: 二分法 (Binary Search)</a></li><li class="depth-1"><a href="#七trim-硬件与-ate-设置--hardware-setup" data-for="七trim-硬件与-ate-设置--hardware-setup">七、Trim 硬件与 ATE 设置 / Hardware Setup</a></li><li class="depth-2"><a href="#71-烧录电压-vpp" data-for="71-烧录电压-vpp">7.1 烧录电压 (VPP)</a></li><li class="depth-2"><a href="#72-烧录时序" data-for="72-烧录时序">7.2 烧录时序</a></li><li class="depth-2"><a href="#73-dib-设计注意" data-for="73-dib-设计注意">7.3 DIB 设计注意</a></li><li class="depth-1"><a href="#八常见问题--common-trim-pitfalls" data-for="八常见问题--common-trim-pitfalls">八、常见问题 / Common Trim Pitfalls</a></li><li class="depth-1"><a href="#九trim-guard-band--安全余量" data-for="九trim-guard-band--安全余量">九、Trim Guard Band / 安全余量</a></li><li class="depth-1"><a href="#十trim-类型速查表--quick-reference" data-for="十trim-类型速查表--quick-reference">十、Trim 类型速查表 / Quick Reference</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../postscript.js" type="module"></script></html>

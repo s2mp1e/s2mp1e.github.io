@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>LDO测试 — PMIC 低压差线性稳压器 FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="LDO测试 — PMIC 低压差线性稳压器 FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="LDO测试 — PMIC 低压差线性稳压器 FT 测试"/><meta name="twitter:description" content="PMIC 低压差线性稳压器（LDO）与负载开关（LSW）在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖输出带载调压、LSW 阻抗、Ramp 反向调压、ECO VOUT 检测、缓起时间、OCP 及静态电流测试"/><meta property="og:description" content="PMIC 低压差线性稳压器（LDO）与负载开关（LSW）在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖输出带载调压、LSW 阻抗、Ramp 反向调压、ECO VOUT 检测、缓起时间、OCP 及静态电流测试"/><meta property="og:image:alt" content="PMIC 低压差线性稳压器（LDO）与负载开关（LSW）在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖输出带载调压、LSW 阻抗、Ramp 反向调压、ECO VOUT 检测、缓起时间、OCP 及静态电流测试"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/03_LDO测试"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/03_LDO测试"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 低压差线性稳压器（LDO）与负载开关（LSW）在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖输出带载调压、LSW 阻抗、Ramp 反向调压、ECO VOUT 检测、缓起时间、OCP 及静态电流测试"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/03_LDO测试-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/03_LDO测试-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/03_LDO测试-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/03_LDO测试"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-220"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-220" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>LDO测试 — PMIC 低压差线性稳压器 FT 测试</a></div></nav><h1 class="article-title">LDO测试 — PMIC 低压差线性稳压器 FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>50分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../../tags/ldo" class="internal tag-link">ldo</a></li><li><a href="../../../tags/lsw" class="internal tag-link">lsw</a></li><li><a href="../../../tags/load-switch" class="internal tag-link">load-switch</a></li><li><a href="../../../tags/soft-start" class="internal tag-link">soft-start</a></li><li><a href="../../../tags/ocp" class="internal tag-link">ocp</a></li><li><a href="../../../tags/quiescent-current" class="internal tag-link">quiescent-current</a></li><li><a href="../../../tags/eco-mode" class="internal tag-link">eco-mode</a></li><li><a href="../../../tags/knowledge-base" class="internal tag-link">knowledge-base</a></li></ul></div></div><article class="popover-hint"><h1 id="ldo测试--pmic-低压差线性稳压器-ft-测试">LDO测试 — PMIC 低压差线性稳压器 FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ldo测试--pmic-低压差线性稳压器-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p><strong>LDO（Low Dropout Regulator）是 PMIC 中为 SoC 各电压域提供稳定低压供电的核心模块。FT 阶段需全面验证 LDO 在 Normal 模式和 ECO 模式下的 DC/AC 性能、保护功能及时序特性，确保封装后器件满足数据手册规格。</strong></p>
+<p>与 <a href="../../.././PMIC知识库/03_LDO低压差线性稳压器修调" class="internal alias" data-slug="PMIC知识库/03_LDO低压差线性稳压器修调">LDO 修调知识库（侧重 CP Trim）</a> 互补，本文聚焦于 <strong>FT 阶段的 LDO 完整功能验证与参数测试</strong>。</p>
+</blockquote>
+<hr/>
+<h2 id="目录">目录<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#目录" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ol>
+<li><a href="#1-ldo-%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%E5%9B%9E%E9%A1%BE" class="internal alias">LDO 基础架构回顾</a></li>
+<li><a href="#2-ldo-%E8%BE%93%E5%87%BA%E5%B8%A6%E8%BD%BD%E8%B0%83%E5%8E%8B%E6%B5%8B%E8%AF%95" class="internal alias">LDO 输出带载调压测试</a></li>
+<li><a href="#3-lsw-%E7%9B%B4%E9%80%9A%E9%98%BB%E6%8A%97%E6%B5%8B%E8%AF%95" class="internal alias">LSW 直通阻抗测试</a></li>
+<li><a href="#4-ldo-ramp-%E8%BF%87%E7%A8%8B%E5%8F%8D%E5%90%91%E8%B0%83%E5%8E%8B%E5%8F%8A%E4%B8%AD%E6%96%AD%E6%B5%8B%E8%AF%95" class="internal alias">LDO Ramp 过程反向调压及中断测试</a></li>
+<li><a href="#5-ldo-eco-vout-%E6%A3%80%E6%B5%8B" class="internal alias">LDO ECO VOUT 检测</a></li>
+<li><a href="#6-ldo-%E7%BC%93%E8%B5%B7%E6%97%B6%E9%97%B4%E6%B5%8B%E8%AF%95" class="internal alias">LDO 缓起时间测试</a></li>
+<li><a href="#7-ldo-ocp-%E6%B5%8B%E8%AF%95" class="internal alias">LDO OCP 测试</a></li>
+<li><a href="#8-ldo-%E9%9D%99%E6%80%81%E7%94%B5%E6%B5%81%E6%B5%8B%E8%AF%95" class="internal alias">LDO 静态电流测试</a></li>
+<li><a href="#9-%E6%80%BB%E7%BB%93%E4%B8%8E%E6%B5%8B%E8%AF%95%E9%A1%BA%E5%BA%8F%E5%BB%BA%E8%AE%AE" class="internal alias">总结与测试顺序建议</a></li>
+</ol>
+<hr/>
+<h2 id="1-ldo-基础架构回顾">1. LDO 基础架构回顾<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-ldo-基础架构回顾" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-核心架构">1.1 核心架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-核心架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>一个典型的 PMIC 片上 LDO 包含以下关键模块：</p>
+<pre><code>VIN ----┬-------------------+----┬---- VOUT
+         │                    │    │
+         │               +---[Pass]---+
+         │               |  FET      |
+         │               +-----┬-----+
+         │                     │
+         │               +-----┴-----+
+         │               |   Error   |
+         │               | Amplifier |
+         │               +-----┬-----+
+         │                     │
+         │               +-----┴-----+
+         │               |   VREF    |
+         │               +-----------+
+         │                    R1
+         │               +----===----+------------ VOUT
+         │               │           │
+         │               │    R2     │
+         │               +----===----+---- GND
+         │                     │
+         │                     FB (Feedback Node)
+         └─────────────────────┘
+</code></pre>
+<h3 id="12-输出电压公式">1.2 输出电压公式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-输出电压公式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>VOUT = VREF × (1 + R1/R2)
+</code></pre>
+<h3 id="13-normal-模式-vs-eco-模式">1.3 Normal 模式 vs ECO 模式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#13-normal-模式-vs-eco-模式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>特性</th><th>Normal 模式</th><th>ECO 模式</th></tr></thead><tbody><tr><td>偏置电流</td><td>高（几 μA ~ 几十 μA）</td><td>低（几百 nA ~ 几 μA）</td></tr><tr><td>EA 增益</td><td>高（60dB ~ 80dB）</td><td>低（40dB ~ 60dB）</td></tr><tr><td>静态电流</td><td>高</td><td>低（为轻载优化）</td></tr><tr><td>负载调整率</td><td>优（&lt; 0.5%/A）</td><td>一般（1%~2%/A）</td></tr><tr><td>瞬态响应</td><td>快</td><td>慢</td></tr><tr><td>应用场景</td><td>性能敏感负载</td><td>低功耗待机</td></tr></tbody></table></div>
+<hr/>
+<h2 id="2-ldo-输出带载调压测试">2. LDO 输出带载调压测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-ldo-输出带载调压测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-测试原理">2.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>LDO 输出带载调压测试（Load Regulation Test）验证 LDO 在不同的负载电流下输出电压的稳定性和精度。该测试覆盖 Normal 和 ECO 两种工作模式，并在多个输出电压设定点（如 0.6V / 1.0V / 1.5V）和多个负载电流（如 5mA / 10mA）下进行。</p>
+<p><strong>负载调整率的定义</strong>：</p>
+<pre><code>Load Regulation = ΔVOUT / ΔILOAD    [mV/mA 或 %/mA]
+</code></pre>
+<p>物理意义：负载电流每变化 1mA 时，输出电压的变化量。</p>
+<p><strong>理论背景</strong>：</p>
+<p>LDO 输出电压随负载变化的原因包括：</p>
+<ol>
+<li><strong>有限环路增益</strong>：误差放大器（EA）的开环增益有限，负载变化导致环路增益变化，产生稳态误差。</li>
+<li><strong>Pass FET 输出阻抗</strong>：PMOS 调整管的漏极-源极电阻 Rout 上的 IR Drop 随负载变化。</li>
+<li><strong>封装寄生电阻</strong>：bonding 线、引线框架和引脚上的电阻（Rbon + Rlead）会引入 IR Drop。</li>
+<li><strong>EA 失调电压变化</strong>：负载变化可能改变 EA 输入对管的工作点，导致 Vos 变化。</li>
+</ol>
+<h3 id="22-测试方法">2.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="测试配置">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT_target + VDO_margin（通常 +0.3V ~ +0.5V）</td><td>保证 Pass FET 工作在线性区</td></tr><tr><td>VIN 上限</td><td>不超过 LDO 绝对最大额定值</td><td>防止过压损坏</td></tr><tr><td>电子负载</td><td>有源电子负载或 ATE 板载负载模块</td><td>CC（恒流）模式</td></tr><tr><td>测量仪器</td><td>高精度 DMM 或 ATE 高精度 ADC</td><td>Kelvin 四线法</td></tr><tr><td>去耦电容</td><td>VOUT 引脚接 Cout（按数据手册）</td><td>维持环路稳定性</td></tr></tbody></table></div>
+<h4 id="测试流程">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 配置 LDO 工作模式与输出电压
+  ├── 写入寄存器选择 Normal 模式
+  ├── 设置输出目标电压（如 0.6V/1.0V/1.5V）
+  └── 使能 LDO
+
+Step 2: 空载测量（ILOAD = 0mA）
+  ├── 等待 VOUT 稳定（~100μs ~ 500μs）
+  ├── 测量 VOUT_NL
+  └── 记录空载输出电压
+
+Step 3: 轻载测量（ILOAD = 5mA）
+  ├── 施加 5mA 负载
+  ├── 等待 VOUT 稳定（~200μs ~ 1ms）
+  ├── 测量 VOUT_5mA
+  └── 记录轻载输出电压
+
+Step 4: 中载测量（ILOAD = 10mA）
+  ├── 施加 10mA 负载
+  ├── 等待 VOUT 稳定（~200μs ~ 1ms）
+  ├── 测量 VOUT_10mA
+  └── 记录中载输出电压
+
+Step 5: 重复以上步骤测试 ECO 模式
+  ├── 切换 LDO 至 ECO 模式
+  └── 重复 Step 2 ~ Step 4
+
+Step 6: 计算与判定
+  ├── 负载调整率 = (VOUT_NL - VOUT_10mA) / 10mA
+  ├── 输出电压精度 = (VOUT_meas - VOUT_target) / VOUT_target × 100%
+  └── 各项是否在规格内
+</code></pre>
+<h4 id="模式切换矩阵">模式切换矩阵<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#模式切换矩阵" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>输出电压</th><th>负载电流</th><th>测试重点</th></tr></thead><tbody><tr><td>Normal</td><td>0.6V</td><td>0mA / 5mA / 10mA</td><td>低压 LDO 带载能力</td></tr><tr><td>Normal</td><td>1.0V</td><td>0mA / 5mA / 10mA</td><td>典型电压精度</td></tr><tr><td>Normal</td><td>1.5V</td><td>0mA / 5mA / 10mA</td><td>高压 LDO 带载能力</td></tr><tr><td>ECO</td><td>0.6V</td><td>0mA / 5mA</td><td>ECO 模式轻载精度</td></tr><tr><td>ECO</td><td>1.0V</td><td>0mA / 5mA</td><td>ECO 模式典型精度</td></tr><tr><td>ECO</td><td>1.5V</td><td>0mA / 5mA</td><td>ECO 模式高压精度</td></tr></tbody></table></div>
+<h3 id="23-测试条件">2.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>Normal 模式</th><th>ECO 模式</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT + 0.3V</td><td>VOUT + 0.3V</td><td>保证充足 Dropout Margin</td></tr><tr><td>ILOAD 轻载</td><td>5mA</td><td>5mA</td><td>ECO 模式典型负载</td></tr><tr><td>ILOAD 中载</td><td>10mA</td><td>N/A</td><td>ECO 模式不建议大负载</td></tr><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>25°C / 85°C</td><td>ECO 模式低温可选测</td></tr><tr><td>稳定时间</td><td>≥ 100μs</td><td>≥ 500μs</td><td>ECO 模式建立更慢</td></tr><tr><td>测量精度</td><td>±0.1%</td><td>±0.1%</td><td>优于规格 10 倍</td></tr></tbody></table></div>
+<h3 id="24-判定标准">2.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#24-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>输出电压精度（空载）</td><td>±1% ~ ±2%</td><td>修调后的残留误差</td></tr><tr><td>输出电压精度（带载）</td><td>±1.5% ~ ±2.5%</td><td>包含负载调整率影响</td></tr><tr><td>负载调整率（Normal）</td><td>&lt; 0.5% / A</td><td>从空载到满载的变化</td></tr><tr><td>负载调整率（ECO）</td><td>&lt; 2% / A</td><td>ECO 模式增益较低</td></tr></tbody></table></div>
+<h3 id="25-注意事项">2.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#25-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>VIN 电压选择</strong>：VIN 需高于 VOUT + VDO_min 保证 LDO 正常稳压，但 VIN 过高会导致 Pass FET 上功耗增加，自热效应（Self-Heating）使结温升高，可能改变 VOUT。</p>
+</li>
+<li>
+<p><strong>负载电流的 IR Drop 补偿</strong>：大电流时 Force 路径上的 IR Drop 会影响 VIN 的实际值。需使用 Kelvin Sense 线确保测量的是 LDO 引脚端的真实电压。</p>
+</li>
+<li>
+<p><strong>输出电压稳定时间</strong>：改变负载后需等待足够时间让 LDO 环路重新稳定。ECO 模式的带宽更窄，稳定时间通常比 Normal 模式长 5~10 倍。</p>
+</li>
+<li>
+<p><strong>Cout 影响</strong>：LDO 的输出电容 Cout 会影响环路的稳定性和瞬态响应。测试时必须使用数据手册指定的 ESR 和容值范围。</p>
+</li>
+<li>
+<p><strong>多电压点测试效率</strong>：如果 PMIC 有多个 LDO，需在测试时间与覆盖率之间平衡。可以在 Characterization 阶段全面测试，量产阶段只测试关键电压点。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="3-lsw-直通阻抗测试">3. LSW 直通阻抗测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-lsw-直通阻抗测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-测试原理">3.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>LSW（Load Switch，负载开关）本质上是一个低导通电阻（Low Ron）的 PMOS/NMOS 传输管，用于将电源电压直接旁路到输出端，不经过 LDO 的稳压环路。LSW 导通时相当于一个低值电阻，其直流特性由 Ron 决定。</p>
+<p><strong>LSW 等效电路</strong>：</p>
+<pre><code>VIN ────────┬─────── [PMOS Pass FET] ────────┬─────── VOUT
+            │              Ron                │
+            │                                 │
+          Control                           Load
+          (ON/OFF)                          (Device)
+</code></pre>
+<p><strong>测试原理</strong>：</p>
+<p>LSW 阻抗测试（也称 Ron 测试）通过以下方式测量导通电阻：</p>
+<pre><code>Ron = (VOUT - VIN) / ILOAD   [当 LSW 导通时]
+</code></pre>
+<p>推导过程：</p>
+<ol>
+<li>Force 已知电流 ILOAD 流入 LSW 输出端（或流出，取决于电流方向）</li>
+<li>测量 VIN 端与 VOUT 端之间的电压差 Vdrop = VIN - VOUT</li>
+<li>Ron = Vdrop / ILOAD</li>
+</ol>
+<h3 id="32-测试方法">3.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="测试配置-1">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>标称工作电压（如 1.8V / 3.3V）</td><td>按数据手册选择</td></tr><tr><td>Force 电流</td><td>100mA ~ 500mA（典型值）</td><td>足够大以产生可测压降，但不超过额定电流</td></tr><tr><td>连接方式</td><td>Kelvin 四线法（Force + Sense 分离）</td><td>消除接触电阻和线阻的影响</td></tr><tr><td>测量仪器</td><td>SMU 或 DMM + 精密电流源</td><td>SMU 可同时 Force 和 Measure</td></tr></tbody></table></div>
+<h4 id="测试流程-1">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 配置 LSW
+  ├── 使能 LSW，使其进入导通状态（ON）
+  ├── 确认 LSW 将 VIN 直通到 VOUT
+  └── 等待 LSW 完全开启（~10μs ~ 100μs）
+
+Step 2: Force 电流
+  ├── 在 VOUT 端施加已知电流 I_force（如 200mA）
+  ├── 电流方向：从 VOUT 流向外部负载（电流流出）
+  └── 注意 LSW 是双向的还是单向的
+
+Step 3: 测量电压差
+  ├── 以 Kelvin 方式测量 VIN 引脚电压
+  ├── 以 Kelvin 方式测量 VOUT 引脚电压
+  ├── 计算 Vdrop = VIN - VOUT
+  └── 注意 Vdrop 通常很小（几 mV ~ 几十 mV）
+
+Step 4: 计算 Ron
+  ├── Ron = Vdrop / I_force
+  └── 记录 Ron 值
+
+Step 5: 可选：在不同 VIN 和温度下重复
+  ├── VIN 变化：验证 Ron 的 VGS 依赖性
+  ├── 温度变化：验证 Ron 的温度系数（正 TCR for PMOS）
+  └── 记录 Ron vs VIN / Temp 特性
+</code></pre>
+<h4 id="电流方向注意事项">电流方向注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#电流方向注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>LSW 类型</th><th>电流方向</th><th>说明</th></tr></thead><tbody><tr><td><strong>单向 LSW</strong></td><td>VIN → VOUT</td><td>电流只能从输入流向输出</td></tr><tr><td><strong>双向 LSW</strong></td><td>VIN ↔ VOUT</td><td>电流可双向流动，测试时通常从 VIN 向 VOUT 施加</td></tr><tr><td><strong>带体二极管的 PMOS</strong></td><td>注意体二极管方向</td><td>若电压极性反向，体二极管会导通干扰测量</td></tr></tbody></table></div>
+<h3 id="33-测试条件">3.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>标称值（如 1.8V / 3.3V / 5.0V）</td><td>可在多个电压点测试</td></tr><tr><td>I_force</td><td>100mA / 200mA / 500mA</td><td>根据 LSW 额定电流选择</td></tr><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>Ron 对温度敏感</td></tr><tr><td>Vdrop 测量精度</td><td>±10μV（最佳）</td><td>Vdrop 较小，需要高精度 DMM</td></tr><tr><td>电流精度</td><td>±0.1%</td><td>电流源精度</td></tr></tbody></table></div>
+<h3 id="34-判定标准">3.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>Ron（常温）</td><td>50mΩ ~ 500mΩ</td><td>视 LSW 尺寸和设计而定</td></tr><tr><td>Ron（高温）</td><td>比常温高 20%~30%</td><td>PMOS 的 TCR 为正</td></tr><tr><td>Ron 温漂系数</td><td>+3000 ~ +5000 ppm/°C</td><td>PMOS 迁移率随温度下降</td></tr></tbody></table></div>
+<h3 id="35-lsw-阻抗测试-vs-ldo-dropout-电压测试">3.5 LSW 阻抗测试 vs LDO Dropout 电压测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#35-lsw-阻抗测试-vs-ldo-dropout-电压测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>对比项</th><th>LSW Ron 测试</th><th>LDO Dropout 测试</th></tr></thead><tbody><tr><td>测试对象</td><td>负载开关导通电阻</td><td>LDO Pass FET 的 Dropout 特性</td></tr><tr><td>条件</td><td>LSW 完全导通，不稳压</td><td>LDO 退出稳压的临界点</td></tr><tr><td>测量参数</td><td>Ron = Vdrop / I</td><td>VDO = VIN - VOUT（当 VOUT 下降 X%）</td></tr><tr><td>典型值</td><td>几十 ~ 几百 mΩ</td><td>几十 ~ 几百 mV</td></tr></tbody></table></div>
+<h3 id="36-注意事项">3.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#36-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>Kelvin 连接绝对必要</strong>：Ron 测试中 Vdrop 通常只有几 mV 到几十 mV，Force 路径上的接触电阻（可能也是几 mΩ ~ 几十 mΩ）会引入显著误差。Force 和 Sense 必须分离。</p>
+</li>
+<li>
+<p><strong>Force 电流选择</strong>：</p>
+<ul>
+<li>电流太小 → Vdrop 太小 → 信噪比低 → Ron 测量误差大</li>
+<li>电流太大 → 自热效应使 Ron 值漂移（PMOS 的 Ron 随结温升高而增大）</li>
+<li>建议在 Characterization 阶段做电流扫描，确定最优 Force 电流</li>
+</ul>
+</li>
+<li>
+<p><strong>温度敏感性</strong>：PMOS 的 Ron 具有显著的正温度系数，测量时应记录芯片温度，并将结果归一化到标准温度。</p>
+</li>
+<li>
+<p><strong>LSW 控制时序</strong>：确保 LSW 在测量前已完全开启。某些 LSW 设计有缓起功能（Soft-Start），开启时间可能长达几十 μs。</p>
+</li>
+<li>
+<p><strong>体二极管效应</strong>：如果 LSW 使用 PMOS + 体二极管结构，当 VOUT > VIN 时体二极管会正向导通，测量的 Vdrop 会显著减小，导致 Ron 计算错误。测试时应确保 VIN > VOUT。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="4-ldo-ramp-过程反向调压及中断测试">4. LDO Ramp 过程反向调压及中断测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-ldo-ramp-过程反向调压及中断测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-测试原理">4.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>LDO Ramp（动态电压调节，Dynamic Voltage Scaling）是指 LDO 在使能状态下通过寄存器改变输出电压目标值的过程。Ramp 过程中 LDO 的输出电压从当前值以可控的压摆率（Slew Rate）过渡到新的目标值。</p>
+<p><strong>Ramp 过程的时序</strong>：</p>
+<pre><code>VOUT
+  ^
+  |     ┌───────────────────── 新目标电压（如 1.0V）
+  |    /
+  |   /    Ramp 过程（Slew Rate 可控）
+  |  /
+  | └───────────────────────── 原目标电压（如 0.6V）
+  |
+  +──────────────────────────────────> 时间
+       ^                          ^
+       |                          |
+  寄存器写入新目标             VOUT 到达新目标
+</code></pre>
+<p><strong>反向调压（Reverse Regulation）测试</strong>：</p>
+<p>反向调压测试验证在 Ramp 过程中（VOUT 正在变化时），若收到反向的调压指令（如从升压切换为降压，或从降压切换为升压），LDO 能否正确响应而不产生异常行为（如过冲、下冲、振荡或输出失效）。</p>
+<p><strong>中断测试</strong>：</p>
+<p>中断测试验证在 Ramp 过程中收到中断信号（如 FAULT、OCP、OTP 事件），LDO 能否按预期行为响应（如停止 Ramp、回到安全电压、或关断）。</p>
+<h3 id="42-测试方法">4.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="测试配置-2">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT_max + VDO_margin</td><td>保证最高输出电压时仍有足够裕量</td></tr><tr><td>负载</td><td>恒定负载（如 5mA）</td><td>避免负载变化引入干扰</td></tr><tr><td>测量仪器</td><td>高速示波器（≥ 100MHz 带宽）</td><td>捕获 Ramp 过程中的瞬态波形</td></tr><tr><td>触发方式</td><td>寄存器写入事件或电压变化沿</td><td>精确捕获 Ramp 起始点</td></tr></tbody></table></div>
+<h4 id="反向调压测试流程">反向调压测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#反向调压测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 初始配置
+  ├── 使能 LDO，设置初始输出电压 VOUT_start
+  ├── 施加恒定负载 ILOAD
+  └── 等待 VOUT 稳定在 VOUT_start
+
+Step 2: 启动 Ramp（升压方向）
+  ├── 通过 I2C/SPI 写入寄存器，设置 VOUT_target > VOUT_start
+  ├── LDO 开始以设定 Slew Rate 升压
+  └── 示波器触发捕获 Ramp 波形
+
+Step 3: 在 Ramp 过程中插入反向指令
+  ├── 在 VOUT 尚未到达 VOUT_target 时（约半程）
+  ├── 写入反向调压指令：设置新的 VOUT_target2 &lt; 当前电压
+  └── 示波器连续捕获波形
+
+Step 4: 观察与分析
+  ├── VOUT 是否平滑反向过渡？
+  ├── 有无过冲（Overshoot）或下冲（Undershoot）？
+  ├── 有无振荡或不稳定现象？
+  ├── Ramp 方向切换是否及时？
+  └── 是否在规定时间内到达新的目标电压？
+
+Step 5: 重复 Step 2~4，测试降压 → 升压反向
+  ├── 初始为高压，Ramp 降压过程中插入升压指令
+  └── 观察反向切换行为
+</code></pre>
+<h4 id="中断测试流程">中断测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#中断测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 初始配置
+  ├── 使能 LDO，设置 VOUT_start
+  └── 开始 Ramp 升压
+
+Step 2: 在 Ramp 过程中触发中断事件
+  ├── 方法 A：注入 OCP 事件（短暂过载）
+  ├── 方法 B：注入 OTP 事件（加热）
+  ├── 方法 C：通过寄存器模拟 FAULT 事件
+  └── 在 Ramp 中途触发中断
+
+Step 3: 观察 LDO 对中断的响应
+  ├── LDO 是否按设计停止 Ramp？
+  ├── 是否回到预设的安全电压？
+  ├── 中断清除后是否能恢复 Ramp？
+  └── 是否有异常波形（振荡、电压崩溃等）？
+
+Step 4: 记录结果
+  ├── 记录响应时间和行为模式
+  └── 判定是否满足设计预期
+</code></pre>
+<h3 id="43-测试条件">4.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>说明</th></tr></thead><tbody><tr><td>VOUT_start</td><td>最低设定值（如 0.4V）</td><td>从低到高测试升压 Ramp</td></tr><tr><td>VOUT_target</td><td>最高设定值（如 1.5V）</td><td>Ramp 的目标电压</td></tr><tr><td>Ramp Slew Rate</td><td>按数据手册（如 1~10 mV/μs）</td><td>可通过寄存器配置</td></tr><tr><td>ILOAD</td><td>5mA（恒定）</td><td>避免负载瞬态干扰</td></tr><tr><td>示波器采样率</td><td>≥ 1GSa/s</td><td>捕获快速瞬态</td></tr><tr><td>示波器带宽</td><td>≥ 100MHz</td><td>观测细节</td></tr></tbody></table></div>
+<h3 id="44-判定标准">4.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>检查项</th><th>判定标准</th><th>说明</th></tr></thead><tbody><tr><td>反向切换连续性</td><td>VOUT 波形无跳变/中断</td><td>应平滑过渡</td></tr><tr><td>过冲幅度</td><td>&lt; VOUT_target × 5%</td><td>切换时峰值不超过目标值 5%</td></tr><tr><td>下冲幅度</td><td>&lt; VOUT_target × 5%</td><td>切换时谷值不低于目标值 5%</td></tr><tr><td>切换响应时间</td><td>&lt; 2 × Ramp 半周期</td><td>从反向指令发出到方向改变</td></tr><tr><td>中断响应时间</td><td>&lt; 10μs</td><td>从中断触发到 LDO 响应</td></tr><tr><td>中断后电压</td><td>回到预设安全值</td><td>无电压崩溃或失控</td></tr></tbody></table></div>
+<h3 id="45-注意事项">4.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#45-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>I2C/SPI 通信时序</strong>：Ramp 过程中的寄存器写入需在 Ramp 窗口内精确控制。需要使用 ATE 的数字通道或 MCU 精确控制通信时序。</p>
+</li>
+<li>
+<p><strong>示波器触发设置</strong>：Ramp 过程可能持续几十到几百 μs，示波器触发应设置在 Ramp 起始点附近。可使用电压阈值触发或数字通道触发。</p>
+</li>
+<li>
+<p><strong>负载效应</strong>：恒定负载有助于分离 Ramp 行为与负载瞬态。但需注意，在某些设计下 Ramp 过程中负载电流可能发生变化（如负载随 VOUT 变化），建议在不同负载条件下重复测试。</p>
+</li>
+<li>
+<p><strong>安全考虑</strong>：Ramp 过程中如果出现失控（如输出超过绝对最大额定值），可能导致芯片损坏。测试时应在 VOUT 端设置过压保护限值。</p>
+</li>
+<li>
+<p><strong>寄存器配置确认</strong>：测试前需确认 Slew Rate 配置寄存器、Ramp 使能寄存器、方向控制寄存器的地址和默认值。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="5-ldo-eco-vout-检测">5. LDO ECO VOUT 检测<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-ldo-eco-vout-检测" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-测试原理">5.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>ECO 模式（Efficiency Optimization Mode）是 LDO 在轻载条件下通过降低偏置电流来提高效率的工作模式。在 ECO 模式下，LDO 采用比较器（Comparator）而非线性误差放大器（Linear Error Amplifier）进行稳压，从而导致输出电压存在一定的纹波和偏移。</p>
+<p><strong>ECO 模式稳压原理</strong>：</p>
+<pre><code>             ┌─────────────┐
+VREF ────────┤+ Comparator ├─────── Control Logic ──── Pass FET Gate
+             │             │
+FB ──────────┤-            │
+             └─────────────┘
+                  |
+            VOUT 经过 R1/R2 分压到 FB
+</code></pre>
+<p>ECO 模式的特点：</p>
+<ul>
+<li><strong>比较器式调节</strong>：当 FB 电压下降到低于 VREF 时，比较器触发，开启 Pass FET 对输出充电</li>
+<li><strong>迟滞控制（Hysteresis）</strong>：比较器具有迟滞特性，避免在 VREF 附近频繁开关</li>
+<li><strong>输出电压纹波</strong>：由于迟滞控制方式，VOUT 会在 VREF ± ΔV 范围内波动，产生锯齿波纹波</li>
+<li><strong>平均电压偏移</strong>：由于比较器的响应延迟和迟滞，ECO 模式下的平均 VOUT 通常略低于 Normal 模式</li>
+</ul>
+<h3 id="52-测试方法">5.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="测试配置-3">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT + 0.3V</td><td>标准供电条件</td></tr><tr><td>ILOAD</td><td>轻载（100μA ~ 1mA）</td><td>ECO 模式的典型工作范围</td></tr><tr><td>测量仪器</td><td>高精度 DMM（DC 平均电压）+ 示波器（纹波）</td><td>DMM 测平均，示波器测 AC 分量</td></tr><tr><td>带宽限制</td><td>示波器 20MHz 带宽限制</td><td>避免高频噪声干扰</td></tr><tr><td>测量模式</td><td>AC Coupling（示波器）</td><td>观察纹波细节</td></tr></tbody></table></div>
+<h4 id="测试流程-2">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 配置 LDO 为 ECO 模式
+  ├── 写入寄存器使能 ECO 模式
+  ├── 设置目标输出电压 VOUT_target
+  ├── 使能 LDO
+  └── 施加轻载 ILOAD（如 500μA）
+
+Step 2: 等待稳态
+  ├── 等待 ECO 模式环路进入稳态
+  └── 稳定时间：Normal 模式的 5~10 倍（~1ms ~ 5ms）
+
+Step 3: 测量平均 VOUT（DC）
+  ├── 使用 DMM 的 DCV 模式
+  ├── 测量 VOUT 引脚的平均电压
+  ├── 采样时间 ≥ 10 个纹波周期
+  └── 记录 VOUT_DC_avg
+
+Step 4: 测量 VOUT 纹波（AC）
+  ├── 使用示波器 AC Coupling 模式
+  ├── 观察 VOUT 纹波波形（锯齿波）
+  ├── 测量峰峰值 Vripple_pp
+  └── 测量纹波频率 Fripple
+
+Step 5: 判定
+  ├── VOUT_DC_avg 是否在 ECO 模式精度规格内
+  ├── Vripple_pp 是否在纹波规格内
+  └── 纹波频率是否在正常范围内
+</code></pre>
+<h4 id="波形特征">波形特征<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#波形特征" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>ECO 模式 VOUT 的典型波形：</p>
+<pre><code>VOUT
+  ^
+  |     ┌────┐    ┌────┐    ┌────┐    ┌────
+  |     │    │    │    │    │    │    │
+  |   ──┘    └────┘    └────┘    └────┘
+  |                                         → VOUT_DC_avg
+  |                                    （略低于 Normal 模式 VOUT）
+  +─────────────────────────────────────────────> 时间
+         ↑         ↑         ↑
+      比较器触发   Pass FET  Pass FET
+      FB &lt; VREF   开启充电  关闭（FB > VREF+HYST）
+</code></pre>
+<h3 id="53-测试条件">5.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>说明</th></tr></thead><tbody><tr><td>ILOAD</td><td>100μA / 500μA / 1mA</td><td>ECO 模式适用轻载</td></tr><tr><td>VIN</td><td>VOUT + 0.3V</td><td>标准供电</td></tr><tr><td>温度</td><td>25°C / 85°C</td><td>ECO 模式温度敏感性高</td></tr><tr><td>输出电容</td><td>按数据手册</td><td>影响纹波幅度和频率</td></tr><tr><td>DMM 采样时间</td><td>≥ 10ms</td><td>覆盖多个纹波周期</td></tr><tr><td>示波器时间基准</td><td>100μs/div ~ 1ms/div</td><td>观察完整纹波周期</td></tr></tbody></table></div>
+<h3 id="54-判定标准">5.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>VOUT 平均精度（ECO）</td><td>±2% ~ ±3%</td><td>ECO 模式精度通常低于 Normal</td></tr><tr><td>VOUT 纹波峰峰值</td><td>&lt; VOUT_target × 1% ~ 2%</td><td>视负载条件而定</td></tr><tr><td>ECO 与 Normal VOUT 差异</td><td>&lt; 1% ~ 2%</td><td>两种模式的输出电压偏移</td></tr><tr><td>纹波频率</td><td>10kHz ~ 100kHz（典型）</td><td>取决于负载和输出电容</td></tr></tbody></table></div>
+<h3 id="55-注意事项">5.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#55-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>DMM 平均测量 vs 示波器测量</strong>：</p>
+<ul>
+<li>DMM 测量 DC 平均电压精度高，适合判定 VOUT 精度</li>
+<li>示波器适合捕捉纹波波形和瞬态特征，但 DC 精度较低</li>
+<li>建议同时使用两种仪器</li>
+</ul>
+</li>
+<li>
+<p><strong>ECO 模式建立时间</strong>：ECO 模式环路带宽较窄，从 Normal 切换到 ECO 后需要较长时间才能进入稳态。测试时需耐心等待。</p>
+</li>
+<li>
+<p><strong>负负载电流</strong>：某些设计中，ECO 模式下 LDO 可能不支持负负载（电流从输出流入），测试时需确认负载电流方向。</p>
+</li>
+<li>
+<p><strong>与 OCP 的交互</strong>：ECO 模式下 OCP 的响应可能不同（由于偏置电流降低），如果测试中 VOUT 出现异常下降，需排除 OCP 误触发。建议在 ECO 测试后加测 Normal 模式确认 LDO 未受损。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="6-ldo-缓起时间测试">6. LDO 缓起时间测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6-ldo-缓起时间测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-测试原理">6.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>LDO 缓起（Soft-Start）是 LDO 在使能后控制输出电压以可控的压摆率上升至目标值的过程，主要目的是限制启动时的浪涌电流（Inrush Current）。</p>
+<p><strong>物理背景</strong>：</p>
+<p>当 LDO 突然使能且输出端有大电容 Cout 时：</p>
+<pre><code>I_inrush = Cout × dVOUT/dt
+
+若不控制 dVOUT/dt（缓起），则 I_inrush 可能非常大：
+- 导致 VIN 电压跌落（VIN Drop）
+- 触发 OCP（过流保护误动作）
+- 产生电磁干扰（EMI）
+- 对上游电源造成冲击
+</code></pre>
+<p><strong>缓起实现方式</strong>：</p>
+<pre><code>方法一：参考电压缓起（最常见）
+  在 EA 正端使用一个缓慢上升的参考电压：
+  VREF(t) = VREF_final × (1 - e^(-t/τ))  或 VREF(t) = Slew_Rate × t
+
+方法二：电流源对电容充电
+  使用电流源对内部缓起电容 CSS 充电，产生缓起波形
+
+方法三：数字 Ramp
+  通过数字寄存器逐步增加输出电压目标值
+</code></pre>
+<h3 id="62-测试方法">6.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="缓起时间的定义">缓起时间的定义<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#缓起时间的定义" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>缓起时间（Soft-Start Time, tSS）通常定义为：</p>
+<ul>
+<li><strong>使能信号 → VOUT 达到 90% × VOUT_target</strong> 所需的时间</li>
+<li>或有定义为 <strong>VOUT 从 0V 上升到 VOUT_target 的时间</strong>（不同公司标准不同）</li>
+</ul>
+<pre><code>VOUT
+  ^
+  |                      ────────── VOUT_target
+  |                    /
+  |                  /
+  |                /   ← 缓起过程（Slew Rate 控制）
+  |              /
+  |            /
+  |          /
+  |        /
+  |      /
+  |    /
+  |   └─────────────────────────────> 时间
+  |    ↑                         ↑
+  |    |                         |
+  |  使能信号                VOUT 到达 90% VOUT_target
+  |  (EN 或 REG write)          tSS
+  |
+</code></pre>
+<h4 id="测试配置-4">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT_target + VDO_margin</td><td>标准供电</td></tr><tr><td>输出电容</td><td>Cout（按数据手册推荐值）</td><td>实际应用条件</td></tr><tr><td>负载</td><td>空载 或 轻载（如 1mA）</td><td>空载时缓起最慢</td></tr><tr><td>测量仪器</td><td>示波器（2 通道以上）</td><td>通道1: EN 信号，通道2: VOUT</td></tr><tr><td>探头</td><td>10x 无源探头或差分探头</td><td>带宽 ≥ 100MHz</td></tr></tbody></table></div>
+<h4 id="测试流程-3">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 示波器配置
+  ├── 通道1：连接 EN 使能信号（或 LDO 使能寄存器对应的 GPIO）
+  ├── 通道2：连接 VOUT 引脚
+  ├── 触发模式：上升沿触发（通道1）
+  ├── 触发阈值：EN = VIN/2（或 0.7×VIN，视逻辑电平而定）
+  ├── 时基：50μs/div ~ 200μs/div（视缓起时间而定）
+  └── 垂直刻度：500mV/div（通道2）
+
+Step 2: 使能 LDO
+  ├── LDO 初始为关断状态（VOUT = 0V）
+  ├── 写入寄存器使能 LDO（或拉高 EN 引脚）
+  ├── LDO 开始缓起
+  └── 示波器触发捕获波形
+
+Step 3: 测量缓起时间
+  ├── 光标测量：从使能信号 50% 点 → VOUT 达到 90% × VOUT_target 的点
+  ├── 记录 tSS_rise
+  └── 若有关断缓起（Soft-Down），测量下降时间
+
+Step 4: 多条件重复
+  ├── 不同 VOUT_target（0.6V / 1.0V / 1.5V）
+  ├── 不同负载（空载 / 轻载 / 满载）
+  ├── 不同温度（25°C / 85°C）
+  └── 不同 Cout（若可配置）
+
+Step 5: 判定
+  ├── tSS_rise ∈ [tSS_min, tSS_max]
+  └── 缓起波形无异常（无过冲、平台、振荡）
+</code></pre>
+<h3 id="63-测试条件">6.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>说明</th></tr></thead><tbody><tr><td>VOUT_target</td><td>0.6V / 1.0V / 1.5V</td><td>覆盖低中高档位</td></tr><tr><td>ILOAD</td><td>0mA / 1mA / 10mA</td><td>空载最慢，满载最快</td></tr><tr><td>Cout</td><td>按数据手册（如 1μF / 2.2μF / 10μF）</td><td>影响缓起时间</td></tr><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>温度影响缓起电流源</td></tr><tr><td>示波器采样率</td><td>≥ 100MSa/s</td><td>足够的分辨率</td></tr><tr><td>触发同步</td><td>EN 信号优于 VOUT 自触发</td><td>准确测量起始点</td></tr></tbody></table></div>
+<h3 id="64-判定标准">6.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#64-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>缓起时间 tSS</td><td>100μs ~ 500μs</td><td>视设计而定</td></tr><tr><td>缓起时间容差</td><td>±20% ~ ±50%</td><td>视缓起精度要求</td></tr><tr><td>VOUT 过冲</td><td>&lt; VOUT_target × 2%</td><td>缓起结束时无过冲</td></tr><tr><td>缓起线性度</td><td>波形无明显平台或台阶</td><td>缓起应平滑</td></tr></tbody></table></div>
+<h3 id="65-注意事项">6.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#65-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>使能信号触发的准确性</strong>：</p>
+<ul>
+<li>使用 LDO 的专用 EN 引脚触发比通过 I2C 写寄存器触发更准确（I2C 通信有不确定延迟）</li>
+<li>如果必须用 I2C 触发，可将示波器触发连接到 I2C 的 SCL 或 SDA 信号上</li>
+</ul>
+</li>
+<li>
+<p><strong>输出电容影响</strong>：</p>
+<ul>
+<li>缓起时间与输出电容成正比。测试条件必须明确指定 Cout，并与数据手册一致</li>
+<li>不同 ESR 的电容可能影响缓起波形的平滑度</li>
+</ul>
+</li>
+<li>
+<p><strong>轻载 vs 空载</strong>：</p>
+<ul>
+<li>空载时缓起最慢（负载不消耗电流，所有能量用于给 Cout 充电）</li>
+<li>满载时缓起最快（负载同时消耗电流）</li>
+<li>数据手册通常标注空载条件</li>
+</ul>
+</li>
+<li>
+<p><strong>缓起与 OCP 的交互</strong>：</p>
+<ul>
+<li>若缓起过程中浪涌电流超过 OCP 阈值，LDO 可能进入限流模式</li>
+<li>这会导致缓起时间变长、VOUT 上不去</li>
+<li>需确认 OCP 阈值高于启动浪涌电流</li>
+</ul>
+</li>
+<li>
+<p><strong>Miller Plateau 效应</strong>：某些 LDO 设计中，缓起过程中的 Pass FET 栅极充电可能出现 Miller Plateau，导致 VOUT 上升出现一段平坦区。这不是故障，但需在判定时考虑。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="7-ldo-ocp-测试">7. LDO OCP 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#7-ldo-ocp-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-测试原理">7.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>LDO OCP（Over-Current Protection，过流保护）是 LDO 的重要保护功能，在输出电流超过安全阈值时限制输出电流，防止 Pass FET 因过流而损坏。</p>
+<p><strong>OCP 电路架构</strong>：</p>
+<pre><code>VIN ───────┬──────────────────────── VOUT
+           │
+    +------+------+
+    | Current     |      OCP 比较器
+    | Sense       |         |
+    | (Sense FET) │─────────+─── OCP_Flag
+    +------+------+         |
+           │             [VREF_OCP]
+        I_sense
+           │
+    +------+------+
+    |  Control    |
+    |  Logic      |
+    +------+------+
+           │
+       Gate Drive
+           │
+    +------+------+
+    | Pass FET    |
+    +------+------+
+           │
+          GND
+</code></pre>
+<p><strong>工作原理</strong>：</p>
+<ol>
+<li><strong>电流检测（Current Sense）</strong>：使用 Sense FET 技术，通过一个小比例（如 1:1000）的镜像器件检测 Pass FET 的电流</li>
+<li><strong>比较器比较</strong>：将感测电流转换为电压后与参考电压 VREF_OCP 比较</li>
+<li><strong>限流动作</strong>：当 IOUT 超过 OCP 阈值时，控制电路减小 Pass FET 的栅极驱动，限制输出电流</li>
+<li><strong>恢复机制</strong>：OCP 触发后，LDO 可配置为自动恢复（Hiccup）或锁存（Latch-off）</li>
+</ol>
+<p><strong>OCP 的典型响应特性</strong>：</p>
+<pre><code>IOUT
+  ^
+  |     ┌──────────────────────────── OCP 限流值（ILIMIT）
+  |    /
+  |   /    正常负载范围
+  |  /
+  | /
+  |/
+  +─────────────────────────────────────> VOUT
+  |                                     |
+  |                                   VOUT 开始下降
+  |                                   （输出进入恒流模式）
+</code></pre>
+<h3 id="72-测试方法">7.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="ocp-阈值测试ilimit-测试">OCP 阈值测试（ILIMIT 测试）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ocp-阈值测试ilimit-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>OCP 测试的核心是找到 LDO 输出电流的限流点（ILIMIT），即 VOUT 开始明显下降时的输出电流。</p>
+<h4 id="测试配置-5">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT_target + VDO_margin</td><td>充足裕量，避免 Dropout 干扰</td></tr><tr><td>负载</td><td>有源电子负载（CC 模式）或 SMU</td><td>可编程斜波增加电流</td></tr><tr><td>测量仪器</td><td>示波器 + DMM</td><td>捕获 VOUT 跌落曲线</td></tr><tr><td>ILOAD 扫描方式</td><td>线性斜波或步进</td><td>从 0 斜升至超过 OCP 阈值</td></tr></tbody></table></div>
+<h4 id="测试流程-4">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>方法 A：斜波电流扫描法（推荐）
+
+Step 1: 配置 LDO
+  ├── 使能 LDO，设置 VOUT_target
+  ├── 施加空载或极轻载
+  └── 等待稳态
+
+Step 2: 斜波增加负载电流
+  ├── 电子负载以恒定斜率（如 1mA/μs）增加电流
+  ├── 同时监测 VOUT
+  └── VOUT 下降斜率 = dVOUT/dI（用于反应负载调整率）
+
+Step 3: 检测 OCP 触发点
+  ├── 定义 OCP 触发条件：VOUT 下降超过 ΔV（如 VOUT_target × 3%）
+  ├── 记录触发点的电流值 ILIMIT
+  └── 同时记录 OCP Flag 的状态（如果有 Flag 输出）
+
+Step 4: 确认限流行为
+  ├── 继续增加负载电流，确认 VOUT 下降但 IOUT 不再增加（恒流模式）
+  └── 或者 IOUT 下降（Hiccup 模式）
+
+Step 5: 恢复测试
+  ├── 降低负载电流至正常范围
+  ├── 确认 LDO 恢复正常稳压
+  └── 记录恢复行为（自动恢复 / 需要复位）
+</code></pre>
+<pre><code>方法 B：步进电流搜索法（ATE 常用）
+
+Step 1: 设置初始负载 I = 0
+Step 2: 步进增加负载 ΔI（如 5% × I_rated）
+Step 3: 在每个步进点测量 VOUT
+Step 4: 当 VOUT &lt; VOUT_target - ΔV_threshold 时，
+        记录当前 I 为 ILIMIT
+Step 5: 继续增加 1~2 步确认恒流行为
+</code></pre>
+<h4 id="判定参数">判定参数<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#判定参数" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>OCP 阈值 ILIMIT</td><td>I_rated × 120% ~ 150%</td><td>如额定 200mA，ILIMIT = 240~300mA</td></tr><tr><td>OCP 响应时间</td><td>&lt; 10μs</td><td>从过流到限流动作的时间</td></tr><tr><td>限流后 VOUT</td><td>VOUT_target × 50% ~ 80%</td><td>限流后输出电压</td></tr><tr><td>恢复方式</td><td>自动恢复 / Hiccup / 锁存</td><td>视设计而定</td></tr></tbody></table></div>
+<h3 id="73-测试条件">7.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT_target + 0.3V</td><td>确保不在 Dropout 条件下测 OCP</td></tr><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>ILIMIT 随温度变化（负 TCR）</td></tr><tr><td>VOUT_target</td><td>最低和最高设定值</td><td>覆盖全电压范围</td></tr><tr><td>电流扫描斜率</td><td>1mA/μs ~ 10mA/μs</td><td>太慢会引起自热，太快会过冲</td></tr><tr><td>测量采样率</td><td>≥ 100kSa/s（DMM），≥ 10MSa/s（示波器）</td><td>足够的采样密度</td></tr></tbody></table></div>
+<h3 id="74-判定标准">7.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#74-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>示例（额定 200mA LDO）</th></tr></thead><tbody><tr><td>ILIMIT 最小值</td><td>≥ I_rated × 120%</td><td>≥ 240mA</td></tr><tr><td>ILIMIT 最大值</td><td>≤ I_rated × 150%</td><td>≤ 300mA</td></tr><tr><td>ILIMIT 温度系数</td><td>负（-1000 ~ -3000 ppm/°C）</td><td>高温时 ILIMIT 下降</td></tr><tr><td>限流后 VOUT</td><td>> 0V（非 0 输出）</td><td>通常不会关断到 0</td></tr><tr><td>OCP 恢复</td><td>自动（Hiccup 或 Foldback）</td><td>过流移除后自动恢复正常</td></tr></tbody></table></div>
+<h3 id="75-ocp-与-scp-的区别">7.5 OCP 与 SCP 的区别<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#75-ocp-与-scp-的区别" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>对比项</th><th>OCP（过流保护）</th><th>SCP（短路保护）</th></tr></thead><tbody><tr><td>触发条件</td><td>输出电流超过额定值 120%~150%</td><td>输出对 GND 短路（VOUT ≈ 0V）</td></tr><tr><td>保护级别</td><td>软保护，限制电流</td><td>硬保护，通常关断 LDO</td></tr><tr><td>恢复方式</td><td>自动恢复 / Hiccup / Foldback</td><td>通常需要 POR 或重新使能</td></tr><tr><td>响应速度</td><td>较慢（几 μs）</td><td>较快（几百 ns）</td></tr><tr><td>测试方法</td><td>斜波电流扫描</td><td>强制 VOUT 到 GND</td></tr></tbody></table></div>
+<h3 id="76-注意事项">7.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#76-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>自热效应（Self-Heating）</strong>：OCP 测试中 LDO 功耗很大（Vdrop × ILIMIT），可能达到几百 mW 甚至几 W。长时间测试会导致芯片结温升高，ILIMIT 因温度系数漂移。</p>
+</li>
+<li>
+<p><strong>斜波速率选择</strong>：</p>
+<ul>
+<li>斜波太快：可能因 OCP 比较器响应延迟导致过冲，测得的 ILIMIT 偏高</li>
+<li>斜波太慢：自热效应导致 ILIMIT 漂移，测得的 ILIMIT 偏低</li>
+<li>建议在 Characterization 阶段扫描不同斜波速率，确定最优值</li>
+</ul>
+</li>
+<li>
+<p><strong>Dropout 与 OCP 的区分</strong>：当 VIN 接近 VOUT 时，LDO 进入 Dropout 区域，VOUT 也会下降。OCP 测试时必须确保 VIN 有足够裕量，以区分 Dropout 和 OCP。</p>
+</li>
+<li>
+<p><strong>Hiccup 模式测试</strong>：如果 LDO 采用 Hiccup 模式（触发 OCP 后周期性重启），需要捕获多个 Hiccup 周期来确认保护行为。建议使用示波器的长存储深度模式。</p>
+</li>
+<li>
+<p><strong>多次 OCP 测试的累积效应</strong>：重复触发 OCP 可能导致芯片热积累。建议在测试间加入冷却时间（Cooling Time），或通过温度监测确保结温在安全范围内。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="8-ldo-静态电流测试">8. LDO 静态电流测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#8-ldo-静态电流测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="81-测试原理">8.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#81-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>LDO 静态电流（Quiescent Current, IQ）是 LDO 正常工作但输出空载时，从输入电源消耗的电流中除去输出负载电流的部分。IQ 主要用于 LDO 内部控制电路（误差放大器、基准电压源、偏置电路等）的供电。</p>
+<p><strong>IQ 的物理定义</strong>：</p>
+<pre><code>IQ = IIN - ILOAD
+
+当 ILOAD = 0（空载）时：IQ = IIN
+</code></pre>
+<p><strong>IQ 的构成</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>组成部分</th><th>来源</th><th>典型值</th><th>特性</th></tr></thead><tbody><tr><td>EA 偏置电流</td><td>误差放大器偏置</td><td>1μA ~ 10μA</td><td>VIN 决定，与 ILOAD 无关</td></tr><tr><td>VREF 缓冲器电流</td><td>参考电压缓冲器</td><td>0.5μA ~ 5μA</td><td>通常恒定</td></tr><tr><td>反馈分压网络电流</td><td>R1 + R2 分压电流</td><td>1μA ~ 10μA</td><td>通过 FB 电阻的电流</td></tr><tr><td>Pass FET 栅极驱动</td><td>栅极驱动电路</td><td>0.1μA ~ 1μA</td><td>与 ILOAD 弱相关</td></tr><tr><td>保护电路偏置</td><td>OCP、OTP 等</td><td>0.1μA ~ 1μA</td><td>通常恒定</td></tr></tbody></table></div>
+<p><strong>IQ 与接地电流（Ground Current, IGND）的区别</strong>：</p>
+<pre><code>术语解释：
+
+IQ（Quiescent Current）：
+  = IIN - ILOAD
+  理想情况：IQ = IIN（当 ILOAD = 0）
+  
+IGND（Ground Current）：
+  = 通过 GND 引脚流出的电流
+  对于 LDO：IGND = IIN - IOUT
+  
+在大多数 LDO 中，IQ ≈ IGND，因为 IIN 中未被 IOUT 使用的部分
+主要从 GND 流出。但严格来说，IQ 是所有内部控制电路消耗的电流，
+而 IGND 包括了 IQ 和任何从 GND 引脚流出的额外电流。
+
+重要区分：
+- IQ 是设计参数，衡量 LDO 自身的功耗效率
+- IGND 是测量参数，在空载时 IGND = IQ（忽略微小差异）
+- 某些 LDO 设计中 IQ 不等于 IGND（如 NMOS LDO 有额外的 VBIAS 供电）
+</code></pre>
+<h3 id="82-测试方法">8.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#82-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="iq-测试空载条件">IQ 测试（空载条件）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#iq-测试空载条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>IQ 的 FT 测试通常在空载条件下进行，测量 LDO 输入端的电流。</p>
+<h4 id="测试配置-6">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置-6" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>标称工作电压</td><td>可在多个 VIN 点测试</td></tr><tr><td>VOUT</td><td>设定为目标电压</td><td>LDO 使能并稳压</td></tr><tr><td>ILOAD</td><td>0（空载）</td><td>输出端开路或接高阻负载</td></tr><tr><td>测量仪器</td><td>高精度 SMU 或 pA 级电流表</td><td>测量 LDO 输入电流</td></tr><tr><td>测量方式</td><td>串联电流测量（SMU Force V, Measure I）</td><td>最简单的 IQ 测量</td></tr></tbody></table></div>
+<h4 id="测试流程-5">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-5" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 配置 SMU
+  ├── SMU 设置为 Force Voltage 模式
+  ├── 输出电压 = VIN（LDO 输入电压）
+  ├── 电流测量量程：自动或手动选择 μA 级量程
+  └── 输出端：不接负载（或接高阻 > 1MΩ）
+
+Step 2: LDO 关断状态测量（可选，用于背景校准）
+  ├── LDO 处于 Disable 状态
+  ├── 测量 IIN_shutdown
+  └── 记录关机电流（可用作背景电流扣除）
+
+Step 3: 使能 LDO
+  ├── 通过寄存器使能 LDO
+  ├── 设置输出电压到目标值
+  └── 等待 VOUT 稳定（~100μs ~ 500μs）
+
+Step 4: 测量 IQ
+  ├── 在空载条件下测量 IIN
+  ├── 等待电流稳定（~1ms ~ 10ms，因偏置电路建立时间）
+  ├── 采样多次取平均
+  ├── IQ = IIN_measured（因为 ILOAD = 0）
+  └── 记录 IQ
+
+Step 5: 多条件重复
+  ├── 不同 VIN（标称值 ± 10%）
+  ├── 不同模式（Normal / ECO）
+  ├── 不同温度（25°C / 85°C）
+  └── 不同 VOUT 设定（可选）
+
+Step 6: 判定
+  ├── IQ ∈ [IQ_min, IQ_max]
+  └── 若超出规格，分析是否为工艺角偏差
+</code></pre>
+<h4 id="iq-测试-vs-ignd-测试">IQ 测试 vs IGND 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#iq-测试-vs-ignd-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>对比项</th><th>IQ 测试</th><th>IGND 测试</th></tr></thead><tbody><tr><td>测试条件</td><td>ILOAD = 0（空载）</td><td>ILOAD = 0 ~ I_rated</td></tr><tr><td>测量位置</td><td>输入电源路径</td><td>GND 引脚</td></tr><tr><td>数值关系</td><td>IQ ≈ IGND（空载时）</td><td>IGND = IQ + 其他漏电路径</td></tr><tr><td>典型值</td><td>1μA ~ 50μA</td><td>与 IQ 基本相同（空载时）</td></tr><tr><td>FT 测试频率</td><td>必测项</td><td>视产品需求而定</td></tr></tbody></table></div>
+<h3 id="83-测试条件">8.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#83-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>Normal 模式</th><th>ECO 模式</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>标称值 ± 5%</td><td>标称值 ± 5%</td><td>可验证 IQ vs VIN 关系</td></tr><tr><td>ILOAD</td><td>0（空载）</td><td>0（空载）</td><td>空载是 IQ 测试的标准条件</td></tr><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>25°C / 85°C</td><td>IQ 随温度变化（TCR 影响）</td></tr><tr><td>测量分辨率</td><td>≤ 10nA</td><td>≤ 1nA</td><td>ECO 模式 IQ 更低</td></tr><tr><td>稳定时间</td><td>≥ 500μs</td><td>≥ 2ms</td><td>ECO 模式偏置建立更慢</td></tr><tr><td>采样平均次数</td><td>16 ~ 64</td><td>16 ~ 64</td><td>降低噪声</td></tr></tbody></table></div>
+<h3 id="84-判定标准">8.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#84-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>Normal 模式典型值</th><th>ECO 模式典型值</th><th>说明</th></tr></thead><tbody><tr><td>IQ</td><td>5μA ~ 50μA</td><td>0.5μA ~ 5μA</td><td>视 LDO 设计而定</td></tr><tr><td>IQ 精度要求</td><td>±20% ~ ±50%</td><td>±20% ~ ±50%</td><td>IQ 偏差可用 Trim 修正</td></tr><tr><td>IQ 温度系数</td><td>正（电阻 TCR 主导）</td><td>正</td><td>高温 IQ 增大</td></tr><tr><td>IQ vs VIN</td><td>弱相关（PSRR 好时）</td><td>可能较强</td><td>ECO 模式下 PSRR 较差</td></tr></tbody></table></div>
+<h3 id="85-小电流测量技术">8.5 小电流测量技术<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#85-小电流测量技术" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>FT 中测量微安级甚至纳安级 IQ 需要特殊的测试技术：</p>
+<p><strong>1. SMU 直接测量法（推荐）</strong></p>
+<pre><code>配置 SMU → Force VIN, Measure IIN
+  - 优点：简单直接，集成在 ATE 中
+  - 缺点：SMU 在低电流量程时测量速度较慢
+  - 建议：使用自动量程（Auto-Ranging）
+</code></pre>
+<p><strong>2. 电阻法（不适合超低 IQ）</strong></p>
+<pre><code>IIN ----[Rsense]---- LDO VIN
+         |
+       测量 Vsense = IIN × Rsense
+  - 优点：低成本
+  - 缺点：Rsense 上的压降会降低 LDO 实际 VIN
+  - 适用：IQ > 10μA
+</code></pre>
+<p><strong>3. 积分法（适合 nA 级 IQ）</strong></p>
+<pre><code>IIN 对已知电容 C 充电 → 测量 dV/dt
+IIN = C × dV/dt
+  - 优点：可测极低电流
+  - 缺点：测量时间长，受漏电影响
+</code></pre>
+<h3 id="86-注意事项">8.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#86-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>ATE 通道漏电流</strong>：ATE 接脚矩阵（Pin Electronics）的漏电流通常为几 nA 到几百 pA。对于 ECO 模式的 IQ（可能 &lt; 1μA），ATE 的漏电流本身就可能成为显著的误差源。测量前需做漏电流校准。</p>
+</li>
+<li>
+<p><strong>PCB 漏电流</strong>：测试板的表面污染（助焊剂残留、湿气）会在 VIN 和 GND 之间形成漏电路径。高阻测试（IQ &lt; 1μA）时，建议使用 Guard Ring 保护。</p>
+</li>
+<li>
+<p><strong>去耦电容的漏电流</strong>：VIN 引脚上的去耦电容（MLCC）的绝缘电阻（IR）通常在 GΩ 级，但在高温下可能下降到 MΩ 级，引入额外的漏电。测试时需注意电容的选择。</p>
+</li>
+<li>
+<p><strong>温度效应</strong>：</p>
+<ul>
+<li>高温时漏电流增大（PN 结反向漏电每 10°C 翻倍）</li>
+<li>MOS 管的亚阈值漏电（Isubthreshold）在高温下显著增加</li>
+<li>高温 IQ 通常比常温高 2~5 倍</li>
+</ul>
+</li>
+<li>
+<p><strong>模式切换后的稳定时间</strong>：从 Normal 切换到 ECO 模式后，内部偏置需要重新建立。ECO 模式的偏置电流更小，RC 时间常数更大，稳定时间可能长达几 ms 甚至几十 ms。</p>
+</li>
+<li>
+<p><strong>关机电流 vs IQ</strong>：关机电流（Shutdown Current）是 LDO 处于 Disable 状态时的输入电流，通常远小于 IQ（如 &lt; 100nA）。如果 IQ 测试结果异常，可以对比关机电流来帮助定位问题。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="9-总结与测试顺序建议">9. 总结与测试顺序建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#9-总结与测试顺序建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="91-ldo-ft-测试执行顺序">9.1 LDO FT 测试执行顺序<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#91-ldo-ft-测试执行顺序" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>Step 1: 系统基础检查
+  ├── OS 测试（确保所有 LDO 引脚连接正常）
+  ├── 漏电测试（确保无异常漏电路径）
+  └── 关机电流测试（建立背景电流基线）
+
+Step 2: LDO 输出电压精度测试（带载调压）
+  ├── Normal 模式，多电压点，多负载点
+  └── ECO 模式，轻载条件
+
+Step 3: LDO ECO VOUT 检测
+  ├── ECO 模式平均电压精度
+  └── ECO 模式纹波测量
+
+Step 4: LDO 缓起时间测试
+  └── 多电压点，多负载，多温度
+
+Step 5: LSW 直通阻抗测试
+  └── Ron 测量
+
+Step 6: LDO Ramp 反向调压及中断测试
+  └── Ramp 过程中的反向切换和中断响应
+
+Step 7: LDO OCP 测试
+  ├── ILIMIT 阈值测量
+  └── 限流行为验证
+
+Step 8: LDO 静态电流测试
+  ├── Normal 模式 IQ
+  └── ECO 模式 IQ
+</code></pre>
+<h3 id="92-测试时间估计">9.2 测试时间估计<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#92-测试时间估计" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>单条件测试时间</th><th>多条件总时间</th><th>说明</th></tr></thead><tbody><tr><td>输出带载调压</td><td>~50ms</td><td>~500ms</td><td>6 个电压点 × 3 个负载</td></tr><tr><td>LSW 阻抗</td><td>~20ms</td><td>~60ms</td><td>3 个温度点</td></tr><tr><td>Ramp 反向调压</td><td>~200ms</td><td>~400ms</td><td>升压+降压反向各一次</td></tr><tr><td>ECO VOUT 检测</td><td>~100ms</td><td>~200ms</td><td>DC+AC 测量</td></tr><tr><td>缓起时间</td><td>~50ms</td><td>~300ms</td><td>3 电压 × 2 负载</td></tr><tr><td>OCP</td><td>~200ms</td><td>~600ms</td><td>斜波电流扫描</td></tr><tr><td>静态电流</td><td>~100ms</td><td>~600ms</td><td>2 模式 × 3 温度</td></tr></tbody></table></div>
+<h3 id="93-各测试项关键规格汇总">9.3 各测试项关键规格汇总<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#93-各测试项关键规格汇总" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>关键参数</th><th>Normal 模式</th><th>ECO 模式</th></tr></thead><tbody><tr><td>输出电压精度</td><td>VOUT 误差</td><td>±1% ~ ±2%</td><td>±2% ~ ±3%</td></tr><tr><td>负载调整率</td><td>ΔVOUT/ΔILOAD</td><td>&lt; 0.5%/A</td><td>&lt; 2%/A</td></tr><tr><td>LSW Ron</td><td>导通电阻</td><td>50 ~ 500 mΩ</td><td>—</td></tr><tr><td>Ramp 反向切换</td><td>切换响应</td><td>&lt; 2 × 半周期</td><td>同 Normal</td></tr><tr><td>ECO VOUT 纹波</td><td>峰峰值</td><td>—</td><td>&lt; VOUT × 2%</td></tr><tr><td>缓起时间</td><td>0 → 90% VOUT</td><td>100 ~ 500μs</td><td>同 Normal</td></tr><tr><td>OCP 阈值</td><td>ILIMIT/I_rated</td><td>120% ~ 150%</td><td>同 Normal</td></tr><tr><td>静态电流 IQ</td><td>输入电流（空载）</td><td>5 ~ 50μA</td><td>0.5 ~ 5μA</td></tr></tbody></table></div>
+<h3 id="94-常见失效模式">9.4 常见失效模式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#94-常见失效模式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>典型失效模式</th><th>可能原因</th></tr></thead><tbody><tr><td>输出电压精度</td><td>VOUT 偏低/偏高</td><td>Trim 码加载失败、封装应力、电阻匹配偏差</td></tr><tr><td>负载调整率</td><td>带载后 VOUT 大幅下降</td><td>Pass FET 尺寸不足、ESR 过大、环路增益低</td></tr><tr><td>LSW Ron</td><td>Ron 偏大</td><td>封装 bond 线缺陷、Pass FET 栅极驱动不足</td></tr><tr><td>Ramp 反向调压</td><td>切换时 VOUT 过冲/振荡</td><td>环路稳定性不足、Ramp Slew Rate 设置不当</td></tr><tr><td>ECO VOUT</td><td>纹波过大</td><td>Cout 偏小、比较器迟滞过大</td></tr><tr><td>缓起时间</td><td>时间超规格</td><td>缓起电容偏差、轻载偏大情况</td></tr><tr><td>OCP</td><td>ILIMIT 偏低/偏高</td><td>Sense FET 比例偏差、VREF_OCP 偏移</td></tr><tr><td>OCP</td><td>误触发</td><td>启动浪涌电流过大、负载瞬态过冲</td></tr><tr><td>静态电流</td><td>IQ 偏大</td><td>偏置电路异常、漏电路径、温度过高</td></tr></tbody></table></div>
+<h3 id="95-与其他模块的关联">9.5 与其他模块的关联<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#95-与其他模块的关联" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>关联模块</th><th>相互影响</th><th>测试注意事项</th></tr></thead><tbody><tr><td>VREF1P0 / VBG</td><td>LDO 输出电压依赖参考电压</td><td>先测 VREF1P0/VBG 再测 LDO</td></tr><tr><td>IREF</td><td>LDO 偏置电流来自 IREF</td><td>IREF 偏差会导致 LDO 行为变化</td></tr><tr><td>系统控制接口（I2C/SPI）</td><td>LDO 配置通过数字接口</td><td>数字通信异常会导致 LDO 配置错误</td></tr><tr><td>OTP / Trim</td><td>LDO 输出电压精度依赖 Trim</td><td>Trim 加载失败影响 LDO 测试</td></tr><tr><td>热关断（OTP/TSD）</td><td>OCP 测试中芯片可能过热</td><td>大电流 OCP 测试需监控温度</td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>文件</th><th>描述</th></tr></thead><tbody><tr><td><a href="../../.././Trim" class="internal alias" data-slug="Trim">Trim.md — 修调总览</a></td><td>PMIC 各模块修调项说明</td></tr><tr><td><a href="../../.././FT" class="internal alias" data-slug="FT">FT.md — FT 测试总览</a></td><td>PMIC 各模块 FT 测试项的完整清单</td></tr><tr><td><a href="../../.././PMIC知识库/03_LDO低压差线性稳压器修调" class="internal alias" data-slug="PMIC知识库/03_LDO低压差线性稳压器修调">LDO 修调知识库</a></td><td>详细的 LDO CP Trim 原理</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/FT测试知识库/02_基准FT测试" class="internal alias" data-slug="PMIC/PMIC知识库/FT测试知识库/02_基准FT测试">基准 FT 测试</a></td><td>VREF1P0、VBG、IREF 测试</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/FT测试知识库/01_系统测试项" class="internal alias" data-slug="PMIC/PMIC知识库/FT测试知识库/01_系统测试项">系统测试项</a></td><td>FT 系统级测试</td></tr><tr><td>[[<em>index</em>.md|FT 测试知识库索引]]</td><td>全面 FT 知识索引</td></tr></tbody></table></div>
+<hr/>
+<blockquote>
+<p><strong>本文档是 PMIC FT 测试知识库的一部分，与 [[<em>index</em>.md|FT 测试知识库索引]] 配合使用。</strong></p>
+<p>最后更新: 2026-07-24</p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-83" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#ldo测试--pmic-低压差线性稳压器-ft-测试" data-for="ldo测试--pmic-低压差线性稳压器-ft-测试">LDO测试 — PMIC 低压差线性稳压器 FT 测试</a></li><li class="depth-1"><a href="#目录" data-for="目录">目录</a></li><li class="depth-1"><a href="#1-ldo-基础架构回顾" data-for="1-ldo-基础架构回顾">1. LDO 基础架构回顾</a></li><li class="depth-2"><a href="#11-核心架构" data-for="11-核心架构">1.1 核心架构</a></li><li class="depth-2"><a href="#12-输出电压公式" data-for="12-输出电压公式">1.2 输出电压公式</a></li><li class="depth-2"><a href="#13-normal-模式-vs-eco-模式" data-for="13-normal-模式-vs-eco-模式">1.3 Normal 模式 vs ECO 模式</a></li><li class="depth-1"><a href="#2-ldo-输出带载调压测试" data-for="2-ldo-输出带载调压测试">2. LDO 输出带载调压测试</a></li><li class="depth-2"><a href="#21-测试原理" data-for="21-测试原理">2.1 测试原理</a></li><li class="depth-2"><a href="#22-测试方法" data-for="22-测试方法">2.2 测试方法</a></li><li class="depth-2"><a href="#23-测试条件" data-for="23-测试条件">2.3 测试条件</a></li><li class="depth-2"><a href="#24-判定标准" data-for="24-判定标准">2.4 判定标准</a></li><li class="depth-2"><a href="#25-注意事项" data-for="25-注意事项">2.5 注意事项</a></li><li class="depth-1"><a href="#3-lsw-直通阻抗测试" data-for="3-lsw-直通阻抗测试">3. LSW 直通阻抗测试</a></li><li class="depth-2"><a href="#31-测试原理" data-for="31-测试原理">3.1 测试原理</a></li><li class="depth-2"><a href="#32-测试方法" data-for="32-测试方法">3.2 测试方法</a></li><li class="depth-2"><a href="#33-测试条件" data-for="33-测试条件">3.3 测试条件</a></li><li class="depth-2"><a href="#34-判定标准" data-for="34-判定标准">3.4 判定标准</a></li><li class="depth-2"><a href="#35-lsw-阻抗测试-vs-ldo-dropout-电压测试" data-for="35-lsw-阻抗测试-vs-ldo-dropout-电压测试">3.5 LSW 阻抗测试 vs LDO Dropout 电压测试</a></li><li class="depth-2"><a href="#36-注意事项" data-for="36-注意事项">3.6 注意事项</a></li><li class="depth-1"><a href="#4-ldo-ramp-过程反向调压及中断测试" data-for="4-ldo-ramp-过程反向调压及中断测试">4. LDO Ramp 过程反向调压及中断测试</a></li><li class="depth-2"><a href="#41-测试原理" data-for="41-测试原理">4.1 测试原理</a></li><li class="depth-2"><a href="#42-测试方法" data-for="42-测试方法">4.2 测试方法</a></li><li class="depth-2"><a href="#43-测试条件" data-for="43-测试条件">4.3 测试条件</a></li><li class="depth-2"><a href="#44-判定标准" data-for="44-判定标准">4.4 判定标准</a></li><li class="depth-2"><a href="#45-注意事项" data-for="45-注意事项">4.5 注意事项</a></li><li class="depth-1"><a href="#5-ldo-eco-vout-检测" data-for="5-ldo-eco-vout-检测">5. LDO ECO VOUT 检测</a></li><li class="depth-2"><a href="#51-测试原理" data-for="51-测试原理">5.1 测试原理</a></li><li class="depth-2"><a href="#52-测试方法" data-for="52-测试方法">5.2 测试方法</a></li><li class="depth-2"><a href="#53-测试条件" data-for="53-测试条件">5.3 测试条件</a></li><li class="depth-2"><a href="#54-判定标准" data-for="54-判定标准">5.4 判定标准</a></li><li class="depth-2"><a href="#55-注意事项" data-for="55-注意事项">5.5 注意事项</a></li><li class="depth-1"><a href="#6-ldo-缓起时间测试" data-for="6-ldo-缓起时间测试">6. LDO 缓起时间测试</a></li><li class="depth-2"><a href="#61-测试原理" data-for="61-测试原理">6.1 测试原理</a></li><li class="depth-2"><a href="#62-测试方法" data-for="62-测试方法">6.2 测试方法</a></li><li class="depth-2"><a href="#63-测试条件" data-for="63-测试条件">6.3 测试条件</a></li><li class="depth-2"><a href="#64-判定标准" data-for="64-判定标准">6.4 判定标准</a></li><li class="depth-2"><a href="#65-注意事项" data-for="65-注意事项">6.5 注意事项</a></li><li class="depth-1"><a href="#7-ldo-ocp-测试" data-for="7-ldo-ocp-测试">7. LDO OCP 测试</a></li><li class="depth-2"><a href="#71-测试原理" data-for="71-测试原理">7.1 测试原理</a></li><li class="depth-2"><a href="#72-测试方法" data-for="72-测试方法">7.2 测试方法</a></li><li class="depth-2"><a href="#73-测试条件" data-for="73-测试条件">7.3 测试条件</a></li><li class="depth-2"><a href="#74-判定标准" data-for="74-判定标准">7.4 判定标准</a></li><li class="depth-2"><a href="#75-ocp-与-scp-的区别" data-for="75-ocp-与-scp-的区别">7.5 OCP 与 SCP 的区别</a></li><li class="depth-2"><a href="#76-注意事项" data-for="76-注意事项">7.6 注意事项</a></li><li class="depth-1"><a href="#8-ldo-静态电流测试" data-for="8-ldo-静态电流测试">8. LDO 静态电流测试</a></li><li class="depth-2"><a href="#81-测试原理" data-for="81-测试原理">8.1 测试原理</a></li><li class="depth-2"><a href="#82-测试方法" data-for="82-测试方法">8.2 测试方法</a></li><li class="depth-2"><a href="#83-测试条件" data-for="83-测试条件">8.3 测试条件</a></li><li class="depth-2"><a href="#84-判定标准" data-for="84-判定标准">8.4 判定标准</a></li><li class="depth-2"><a href="#85-小电流测量技术" data-for="85-小电流测量技术">8.5 小电流测量技术</a></li><li class="depth-2"><a href="#86-注意事项" data-for="86-注意事项">8.6 注意事项</a></li><li class="depth-1"><a href="#9-总结与测试顺序建议" data-for="9-总结与测试顺序建议">9. 总结与测试顺序建议</a></li><li class="depth-2"><a href="#91-ldo-ft-测试执行顺序" data-for="91-ldo-ft-测试执行顺序">9.1 LDO FT 测试执行顺序</a></li><li class="depth-2"><a href="#92-测试时间估计" data-for="92-测试时间估计">9.2 测试时间估计</a></li><li class="depth-2"><a href="#93-各测试项关键规格汇总" data-for="93-各测试项关键规格汇总">9.3 各测试项关键规格汇总</a></li><li class="depth-2"><a href="#94-常见失效模式" data-for="94-常见失效模式">9.4 常见失效模式</a></li><li class="depth-2"><a href="#95-与其他模块的关联" data-for="95-与其他模块的关联">9.5 与其他模块的关联</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

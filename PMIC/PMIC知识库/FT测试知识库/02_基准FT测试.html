@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试"/><meta name="twitter:description" content="PMIC 基准与参考源模块在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖 VREF1P0、VBG、IREF、VPTAT 及温度传感器"/><meta property="og:description" content="PMIC 基准与参考源模块在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖 VREF1P0、VBG、IREF、VPTAT 及温度传感器"/><meta property="og:image:alt" content="PMIC 基准与参考源模块在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖 VREF1P0、VBG、IREF、VPTAT 及温度传感器"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/02_基准FT测试"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/02_基准FT测试"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 基准与参考源模块在 FT (Final Test) 阶段的详细测试原理、测试方法与判定标准，涵盖 VREF1P0、VBG、IREF、VPTAT 及温度传感器"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/02_基准FT测试-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/02_基准FT测试-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/02_基准FT测试-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/02_基准FT测试"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-217"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-217" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试</a></div></nav><h1 class="article-title">基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>33分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../../tags/reference" class="internal tag-link">reference</a></li><li><a href="../../../tags/bandgap" class="internal tag-link">bandgap</a></li><li><a href="../../../tags/vref" class="internal tag-link">vref</a></li><li><a href="../../../tags/vbg" class="internal tag-link">vbg</a></li><li><a href="../../../tags/iref" class="internal tag-link">iref</a></li><li><a href="../../../tags/vptat" class="internal tag-link">vptat</a></li><li><a href="../../../tags/temperature-sensor" class="internal tag-link">temperature-sensor</a></li><li><a href="../../../tags/knowledge-base" class="internal tag-link">knowledge-base</a></li></ul></div></div><article class="popover-hint"><h1 id="基准ft测试--pmic-基准电压电流温度传感器-ft-测试">基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#基准ft测试--pmic-基准电压电流温度传感器-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p><strong>基准与参考源是 PMIC 中所有模块正常工作的基石。FT 阶段的核心任务是验证 CP 阶段修调（Trim）码是否正确生效，以及封装过程是否引入了参数偏移。本文档详细论述五大基准测试项的原理、测试方法、条件设置及判定标准。</strong></p>
+<p>与 <a href="../../../PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调" class="internal alias" data-slug="PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调">基准与参考源修调知识库（侧重 CP Trim 原理）</a> 互补，本文聚焦于 <strong>FT 阶段的参数验证与功能确认</strong>。</p>
+</blockquote>
+<hr/>
+<h2 id="目录">目录<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#目录" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ol>
+<li><a href="#1-vref1p0-%E7%94%B5%E5%8E%8B%E6%B5%8B%E8%AF%95" class="internal alias">VREF1P0 电压测试</a></li>
+<li><a href="#2-vbg-%E7%94%B5%E5%8E%8B%E6%B5%8B%E8%AF%95" class="internal alias">VBG 电压测试</a></li>
+<li><a href="#3-iref-%E7%94%B5%E6%B5%81%E6%B5%8B%E8%AF%95" class="internal alias">IREF 电流测试</a></li>
+<li><a href="#4-vptat-%E7%94%B5%E5%8E%8B%E6%B5%8B%E8%AF%95" class="internal alias">VPTAT 电压测试</a></li>
+<li><a href="#5-vptat-sensor-%E7%94%B5%E5%8E%8B%E6%B5%8B%E8%AF%95" class="internal alias">VPTAT SENSOR 电压测试</a></li>
+<li><a href="#6-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95%E9%A1%BA%E5%BA%8F" class="internal alias">总结与基准测试顺序</a></li>
+</ol>
+<hr/>
+<h2 id="1-vref1p0-电压测试">1. VREF1P0 电压测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-vref1p0-电压测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-测试原理">1.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>VREF1P0 是 PMIC 内部 1.0V 参考电压输出，通常由 Bandgap 产生的 VBG（约 1.2V）经过电阻分压网络和缓冲器（Buffer）后生成。典型架构如下：</p>
+<pre><code>VBG (1.2V) --> Resistor Divider --> Buffer (OPA) --> VREF1P0 Output
+                     |
+              Trim Code Control
+</code></pre>
+<p><strong>核心电路机制</strong>：</p>
+<ul>
+<li><strong>Bandgap 基准源</strong>：产生与温度无关的稳定电压 VBG（约 1.2V），为整个 PMIC 提供参考基准。</li>
+<li><strong>电阻分压网络</strong>：将 VBG 按分压比 R2/(R1+R2) 降到 1.0V 附近。分压电阻通常采用高匹配度的多晶硅电阻（Poly Resistor）。</li>
+<li><strong>缓冲器（Buffer Amplifier）</strong>：轨到轨（Rail-to-Rail）运放，提供足够的驱动能力（通常 >1mA）并隔离负载对分压网络的影响。Buffer 的输入失调电压（Vos）会直接叠加到输出端。</li>
+<li><strong>修调机制</strong>：在分压电阻串上并联/串联可开关的修调电阻 Bank，通过 CP 阶段确定的 Trim Code 微调分压比，使输出精确校准到 1.000V。</li>
+</ul>
+<p><strong>VT 测试的目的</strong>：FT 阶段不重新修调 VREF1P0（除非设计支持 FT 补充修调），而是验证：</p>
+<ol>
+<li>CP 阶段写入 OTP 的 Trim Code 是否已正确加载并生效</li>
+<li>封装应力（Package Stress）是否导致 VREF1P0 偏移超出规格</li>
+<li>全温度范围（25°C / 高温 / 低温）下 VREF1P0 是否仍满足精度要求</li>
+</ol>
+<h3 id="12-测试方法">1.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="测试配置">测试配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>配置</th><th>说明</th></tr></thead><tbody><tr><td>测量仪器</td><td>高精度 DMM（如 Keysight 3458A，8.5位）或 ATE 板载高精度 ADC</td><td>精度需优于 0.1mV</td></tr><tr><td>连接方式</td><td>开尔文四线法（Kelvin / 4-Wire）</td><td>Force 线与 Sense 线分离，消除接触电阻和线阻压降</td></tr><tr><td>采样方式</td><td>平均采样 16~64 次</td><td>降低随机噪声，使测量精度达到 μV 级</td></tr><tr><td>加载条件</td><td>空载 或 轻载（如 100μA）</td><td>FT 阶段通常使用轻载验证，避免自热效应</td></tr></tbody></table></div>
+<h4 id="测试流程">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 系统上电
+  ├── 施加 VDD 与 VBAT（按 SPEC 标称值）
+  └── 等待系统电源就绪（POR 完成）
+
+Step 2: 使能 VREF1P0 模块
+  ├── 写入寄存器使能 VREF1P0 Buffer 输出
+  └── 等待输出稳定（500μs ~ 1ms）
+
+Step 3: 加载 Trim Code
+  ├── 确认 OTP 已自动加载至 Shadow Register
+  ├── 可选：回读 Trim Code 验证加载正确
+  └── 等待 Trim 生效（~100μs）
+
+Step 4: 测量 VREF1P0 电压
+  ├── 在 VREF1P0 引脚以 Kelvin 方式测量
+  ├── 采样 N 次取平均
+  └── 记录测量值 VREF1P0_meas
+
+Step 5: 判定
+  ├── VREF1P0_meas ∈ [VREF1P0_target - tolerance, VREF1P0_target + tolerance]
+  └── 若超规格，记录 Fail 并进入分析流程
+</code></pre>
+<h3 id="13-测试条件">1.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#13-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>25°C（常温）</th><th>高温（Hot）</th><th>低温（Cold）</th><th>说明</th></tr></thead><tbody><tr><td>环境温度</td><td>25°C ± 2°C</td><td>85°C / 125°C</td><td>-40°C / 0°C</td><td>视产品等级而定（消费/工业/汽车）</td></tr><tr><td>VDD</td><td>标称值 ± 5%</td><td>标称值 ± 5%</td><td>标称值 ± 5%</td><td>可在多个 VDD 点测试线调整率</td></tr><tr><td>VBAT</td><td>标称值</td><td>标称值</td><td>标称值</td><td>若 VREF1P0 使用 VBAT 供电</td></tr><tr><td>负载电流</td><td>0 / 100μA</td><td>0 / 100μA</td><td>0 / 100μA</td><td>验证负载调整率</td></tr><tr><td>热平衡时间</td><td>无需</td><td>≥ 2 分钟</td><td>≥ 3 分钟</td><td>大温差需保证结温稳定</td></tr><tr><td>测量精度</td><td>±0.05%</td><td>±0.05%</td><td>±0.05%</td><td>测量系统需优于 DUT 精度 10 倍</td></tr></tbody></table></div>
+<h3 id="14-判定标准">1.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#14-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>VREF1P0 目标值</td><td>1.000 V</td><td>设计标称值</td></tr><tr><td>精度要求</td><td>±1.0% ~ ±2.0%（即 ±10mV ~ ±20mV）</td><td>视具体产品 SPEC 而定</td></tr><tr><td>负载调整率</td><td>&lt; 0.5% / mA</td><td>从空载到满载的 VOUT 变化</td></tr><tr><td>线调整率</td><td>&lt; 0.1% / V</td><td>VDD 变化时的 VOUT 变化</td></tr><tr><td>全温漂移</td><td>&lt; ±0.5%</td><td>25°C → 125°C / -40°C 的 VOUT 变化</td></tr></tbody></table></div>
+<h3 id="15-与-cp-trim-的关系">1.5 与 CP Trim 的关系<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#15-与-cp-trim-的关系" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>阶段</th><th>测试温度</th><th>主要目标</th><th>是否修调</th></tr></thead><tbody><tr><td>CP</td><td>25°C（常温）</td><td>确定最佳 Trim Code 并写入 OTP</td><td>是</td></tr><tr><td>FT</td><td>25°C / Hot / Cold</td><td>验证 Trim Code 生效，检查封装应力影响</td><td>否（仅验证）</td></tr></tbody></table></div>
+<p><strong>关键关注点</strong>：若 FT 测试中 VREF1P0 偏离 CP 测量值超过预期（如 > 0.5%），可能原因包括：</p>
+<ul>
+<li>封装塑封应力改变了片上电阻值（Package Shift）</li>
+<li>OTP 存储单元数据丢失或加载失败（Data Retention Issue）</li>
+<li>测试条件差异（如负载不同、VDD 不同）</li>
+<li>ATE 与 CP 探针台之间的系统偏差</li>
+</ul>
+<h3 id="16-注意事项">1.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#16-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>Kelvin 连接必需</strong>：VREF1P0 测试中任何接触电阻引入的压降都会直接叠加到测量结果中，必须使用四线法。</li>
+<li><strong>去耦电容</strong>：VREF1P0 引脚在测试板上需加适当的去耦电容（通常 0.1μF || 1μF），防止 ATE 电源噪声耦合。</li>
+<li><strong>负载效应</strong>：测量时需注意 ATE 通道的输入漏电流。高精度 DMM 的输入阻抗通常在 >10GΩ，影响可忽略，但 ATE 板载 ADC 的输入阻抗可能较低。</li>
+<li><strong>温度均衡</strong>：高温/低温测试时，芯片与测试座（Socket）之间需要充分的温度平衡时间，避免因热梯度导致测量不准确。</li>
+<li><strong>Trim Code 回读</strong>：建议在测量 VREF1P0 之前先回读 Trim Code 寄存器，确认 CP 修调码已正确加载。</li>
+</ol>
+<hr/>
+<h2 id="2-vbg-电压测试">2. VBG 电压测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-vbg-电压测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-测试原理">2.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>VBG（Bandgap Voltage）是 PMIC 中最核心的基准电压源，一般为 1.200V（典型值，视设计而定）。经典 BJT 型 Bandgap 利用以下原理产生与温度无关的电压：</p>
+<p><strong>核心公式</strong>：</p>
+<pre><code>VBG = VBE + m × ΔVBE
+</code></pre>
+<ul>
+<li><strong>VBE</strong>：BJT 基极-发射极电压，具有负温度系数（CTAT），约 -2 mV/°C</li>
+<li><strong>ΔVBE</strong>：两个不同电流密度下 BJT 的 VBE 之差，具有正温度系数（PTAT），约为 (kT/q) × ln(N)</li>
+<li><strong>m</strong>：增益系数（由电阻比 R2/R1 决定），用于放大 PTAT 分量以恰好补偿 CTAT 分量</li>
+</ul>
+<p><strong>标准电路架构（Brokaw Cell）</strong>：</p>
+<pre><code>                        VDD
+                         |
+                     +---------+
+                     |   OPA   |
+                     +----+----+
+                          |
+            +-------------+-------------+
+            |                           |
+           [R1]                        [R2]
+            |                           |
+       +----+----+                +----+----+
+       |   Q1    |                |   Q2    |
+       |  (1x)   |                |  (Nx)   |
+       +----+----+                +----+----+
+            |                           |
+            +-------------+-------------+
+                          |
+                        [R3]
+                          |
+                         GND
+</code></pre>
+<ul>
+<li>Q1 与 Q2 的发射极面积比为 1:N</li>
+<li>OPA 迫使 Q1 与 Q2 集电极电压相等</li>
+<li>ΔVBE = VBE1 - VBE2 = (kT/q) × ln(N)</li>
+<li>PTAT 电流 I = ΔVBE / R1</li>
+<li>VBG = VBE1 + (R2/R1) × ΔVBE</li>
+</ul>
+<p><strong>温度补偿</strong>：通过调整 R2/R1 的比例 m，使 VBG 在室温附近呈现零温度系数（ZTC, Zero Temperature Coefficient）。</p>
+<h3 id="22-测试方法">2.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="温度系数tc验证原理">温度系数（TC）验证原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#温度系数tc验证原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>VBG 的 FT 测试与其他参数不同，核心在于<strong>验证温度漂移特性</strong>——即在不同温度下测量 VBG 的变化量，计算温度系数（Temperature Coefficient，单位为 ppm/°C）：</p>
+<pre><code>TC (ppm/°C) = (VBG_max - VBG_min) / (VBG_nom × ΔT) × 10^6
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>VBG_max：全温范围内的最大 VBG 值</li>
+<li>VBG_min：全温范围内的最小 VBG 值</li>
+<li>VBG_nom：标称 VBG 值（如 1.200V）</li>
+<li>ΔT：温度范围（如 165°C，从 -40°C 到 125°C）</li>
+</ul>
+<h4 id="测试流程-1">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 常温测量（25°C）
+  ├── 上电并开启 Bandgap 模块
+  ├── 等待 Bandgap 稳定（~500μs）
+  ├── 在 VBG 引脚（或通过内部测试 MUX 路由）测量电压
+  ├── 记录 VBG_25C
+  └── 确认与 CP 修调目标值的偏差 &lt; 预期
+
+Step 2: 高温测量（85°C / 125°C）
+  ├── 升温至目标温度
+  ├── 等待热平衡（Soak Time：2~5 分钟）
+  ├── 测量 VBG_Hot
+  └── 记录 VBG_Hot
+
+Step 3: 低温测量（-40°C / 0°C）
+  ├── 降温至目标温度
+  ├── 等待热平衡（Soak Time：3~5 分钟）
+  ├── 测量 VBG_Cold
+  └── 记录 VBG_Cold
+
+Step 4: 计算与分析
+  ├── 计算 ΔVBG_hot = VBG_Hot - VBG_25C
+  ├── 计算 ΔVBG_cold = VBG_Cold - VBG_25C
+  ├── 计算 TC (ppm/°C)
+  └── 判断是否满足规格
+</code></pre>
+<h4 id="测量方式">测量方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测量方式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>由于 VBG 节点通常在芯片内部，FT 阶段测量 VBG 有以下几种方式：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测量方式</th><th>实现方法</th><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td><strong>专用 VBG 引脚</strong></td><td>芯片设计时直接将 VBG 节点引出</td><td>直接、准确</td><td>占用封装引脚</td></tr><tr><td><strong>测试模式路由</strong></td><td>通过 DFT 电路将 VBG 路由到 GPIO 或测试引脚</td><td>不占用额外引脚</td><td>需 DFT 支持，可能引入额外误差</td></tr><tr><td><strong>内部 ADC 测量</strong></td><td>使用片上 HKADC 测量 VBG 并读取数字结果</td><td>无需测试引脚</td><td>精度受限于 ADC 精度</td></tr><tr><td><strong>间接法</strong></td><td>测量 VREF1P0 等已知比例的输出，反推 VBG</td><td>无需特殊路由</td><td>精度低，不推荐 FT 使用</td></tr></tbody></table></div>
+<h3 id="23-测试条件">2.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>常温</th><th>高温</th><th>低温</th><th>说明</th></tr></thead><tbody><tr><td>温度</td><td>25°C ± 2°C</td><td>85°C ~ 125°C</td><td>-40°C ~ 0°C</td><td>视产品等级确定</td></tr><tr><td>VDD</td><td>标称值 ± 5%</td><td>标称值 ± 5%</td><td>标称值 ± 5%</td><td>可选做 VDD sweep</td></tr><tr><td>负载</td><td>空载（高阻）</td><td>空载（高阻）</td><td>空载（高阻）</td><td>VBG 节点驱动能力弱</td></tr><tr><td>Soak Time</td><td>N/A</td><td>≥ 2 min</td><td>≥ 3 min</td><td>大温差需更长时间</td></tr><tr><td>测量精度</td><td>±0.05%</td><td>±0.05%</td><td>±0.05%</td><td>测量系统要求高</td></tr></tbody></table></div>
+<h3 id="24-判定标准">2.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#24-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>VBG 标称值</td><td>1.200 V</td><td>视具体设计而定，常见 1.20V / 1.25V</td></tr><tr><td>VBG 精度（25°C）</td><td>±0.5% ~ ±1.0%（即 ±6mV ~ ±12mV）</td><td>修调后的残余误差</td></tr><tr><td>温度系数（TC）</td><td>±20 ~ ±50 ppm/°C</td><td>一阶补偿典型值</td></tr><tr><td>高阶补偿 TC</td><td>±5 ~ ±15 ppm/°C</td><td>带曲率补偿的设计</td></tr><tr><td>全温范围漂移</td><td>&lt; ±0.5%</td><td>对应 -40°C ~ 125°C</td></tr></tbody></table></div>
+<h3 id="25-注意事项">2.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#25-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>高阻抗节点</strong>：VBG 节点的输出阻抗通常很高，ATE 通道的漏电流（如 pA ~ nA 级）可能造成可观的电压误差。必须使用高输入阻抗的测量设备。</li>
+<li><strong>热梯度（Thermal Gradient）</strong>：芯片内部功率耗散可能造成局部温度梯度，影响 VBG 的准确性。尤其当邻近的大电流模块（如 Buck、LDO）工作时，自热效应会扭曲 VBG 读数。</li>
+<li><strong>应力效应</strong>：封装塑封应力会改变 BJT 的 VBE 特性和片上电阻值，导致 FT 的 VBG 测量值与 CP 值存在系统偏移（Package Shift）。高精度设计需要在 CP 修调中预留补偿量。</li>
+<li><strong>启动验证</strong>：Bandgap 可能存在简并偏置点（Degenerate Bias Point），导致 VBG = 0 或 VBG = VDD。测试时需确认 VBG 已正常启动。</li>
+<li><strong>多温度测试顺序</strong>：建议按 25°C → Hot → Cold 的顺序进行，避免直接从高温跳到低温造成热冲击。</li>
+</ol>
+<hr/>
+<h2 id="3-iref-电流测试">3. IREF 电流测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-iref-电流测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-测试原理">3.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>IREF（Reference Current）是 PMIC 中用于偏置所有模块（LDO、Buck、Buckboost、ADC、OSC 等）的基准电流。其精度直接影响整个芯片的功耗、速度和噪声性能。</p>
+<p><strong>典型产生电路</strong>：</p>
+<pre><code>        VDD
+         |
+    +----+-----+
+    |   PMOS    |   &lt;- 电流镜
+    +----+-----+
+         |
+         +----------- IREF 输出（给各模块镜像）
+         |
+     +---+---+
+     |  OPA  |   &lt;- VREF 加在 Rref 两端
+     +---+---+
+         |
+         +---+---+
+             |
+        +---+---+
+        |  Rref  |   &lt;- 参考电阻
+        +---+---+
+             |
+            GND
+</code></pre>
+<p><strong>工作原理</strong>：</p>
+<pre><code>IREF = VREF / Rref
+</code></pre>
+<ol>
+<li>OPA 以负反馈方式将 VREF（或 VBG）精确施加在参考电阻 Rref 两端</li>
+<li>产生电流 IREF = VREF / Rref</li>
+<li>PMOS 电流镜将此基准电流按比例复制（Mirror）给各下游模块</li>
+</ol>
+<p><strong>电流镜分配示例</strong>：</p>
+<pre><code>IREF (Master)
+    +---> I_LDO（偏置电流，比例 1x）
+    +---> I_BUCK（偏置电流，比例 4x）
+    +---> I_OSC（充电电流，比例 2x）
+    +---> I_ADC（偏置电流，比例 0.5x）
+    +---> I_BIAS（全局偏置，比例 0.25x）
+</code></pre>
+<h3 id="32-测试方法">3.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="测试原理">测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>FT 阶段测量 IREF 有两种主要方法：</p>
+<p><strong>方法 A：直接测量法（有专用 IREF 引脚）</strong></p>
+<p>直接将 ATE 的电流表（pA 级精度）接入 IREF 引脚，或使用 ATE 的 PPMU 在 Force Voltage / Measure Current 模式下测量。</p>
+<p><strong>方法 B：电阻法（推荐）</strong></p>
+<pre><code>IREF pin ---[Rext（精密 0.1%）]--- GND
+              |
+            测量 V = IREF × Rext
+</code></pre>
+<p>选择合适的 Rext，使 V 在 50mV ~ 500mV 范围内，用 Kelvin 方式测量电压，再换算为电流。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>预期 IREF</th><th>推荐 Rext</th><th>预期 Vdrop</th></tr></thead><tbody><tr><td>1 μA</td><td>100 kΩ</td><td>100 mV</td></tr><tr><td>2 μA</td><td>50 kΩ</td><td>100 mV</td></tr><tr><td>5 μA</td><td>20 kΩ</td><td>100 mV</td></tr><tr><td>10 μA</td><td>10 kΩ</td><td>100 mV</td></tr></tbody></table></div>
+<h4 id="测试流程-2">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 连接测量路径
+  ├── 将精密电阻 Rext 连接到 IREF 引脚与 GND 之间
+  └── 以 Kelvin 方式连接电压测量线
+
+Step 2: 使能 IREF 模块
+  ├── 写入寄存器开启 IREF 输出
+  └── 等待电流稳定（~500μs）
+
+Step 3: 测量 IREF
+  ├── 测量 Rext 两端电压 Vmeas
+  ├── 计算 IREF = Vmeas / Rext
+  ├── 或使用 ATE 电流表直接测量
+  └── 记录 IREF_meas
+
+Step 4: 判定
+  ├── IREF_meas ∈ [IREF_target - tolerance, IREF_target + tolerance]
+  └── 超规格则记录 Fail
+</code></pre>
+<h3 id="33-测试条件">3.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型条件</th><th>说明</th></tr></thead><tbody><tr><td>VDD</td><td>标称值 ± 5%</td><td>验证电流的电源敏感性（PSRR）</td></tr><tr><td>温度</td><td>25°C / 85°C / -40°C</td><td>IREF 的温度系数取决于电阻 TCR</td></tr><tr><td>Rext 精度</td><td>0.1% 或更高</td><td>外部精密电阻，温度系数 &lt; 25 ppm/°C</td></tr><tr><td>测量精度</td><td>±0.5% ~ ±1%</td><td>综合电压测量精度 + 电阻精度</td></tr><tr><td>输出端电压</td><td>固定（如 0.5V）</td><td>电流镜输出阻抗有限，需固定电压</td></tr></tbody></table></div>
+<h3 id="34-判定标准">3.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>IREF 标称值</td><td>1 μA ~ 10 μA</td><td>视设计而定</td></tr><tr><td>修调后精度</td><td>±2% ~ ±5%</td><td>取决于修调位数和电阻精度</td></tr><tr><td>温度漂移</td><td>±5% ~ ±10%（全温）</td><td>电阻 TCR 主导</td></tr><tr><td>线调整率</td><td>&lt; 1% / V</td><td>VDD 变化 1V 时的电流变化</td></tr></tbody></table></div>
+<h3 id="35-注意事项">3.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#35-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>小电流测量注意事项</strong>：</p>
+<ul>
+<li>测量路径需使用 Guard 线（有源屏蔽），减少漏电流</li>
+<li>测试前需进行漏电流校准（减去背景漏电流）</li>
+<li>避免在 IREF 路径上使用多路复用器（MUX），其漏电流会引入显著误差</li>
+</ul>
+</li>
+<li>
+<p><strong>电流镜输出阻抗</strong>：IREF 电流源的输出阻抗有限，当 IREF 引脚电压变化时，沟道长度调制效应会导致电流变化。测试时应固定 IREF 引脚电压（Force Voltage）。</p>
+</li>
+<li>
+<p><strong>温度影响</strong>：片上参考电阻 Rref 的 TCR 直接决定 IREF 的温度系数。多晶硅电阻（Poly Resistor）的 TCR 通常为 100~300 ppm/°C，扩散电阻可达 1000+ ppm/°C。</p>
+</li>
+<li>
+<p><strong>与其他模块的耦合</strong>：IREF 修调改变后，所有依赖 IREF 的模块（OSC、LDO bias、Buck 控制电路）的行为都会变化。在 FT 验证中，若 IREF 超出规格，需要评估其对后续测试项的影响。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="4-vptat-电压测试">4. VPTAT 电压测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-vptat-电压测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-测试原理">4.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>VPTAT（Proportional To Absolute Temperature）电压是一个与绝对温度成正比的参考电压，广泛用于 PMIC 的温度监测和热管理。</p>
+<p><strong>物理原理</strong>：</p>
+<p>VPTAT 基于双极型晶体管（BJT）的 VBE 差值与温度的关系：</p>
+<pre><code>ΔVBE = VBE1 - VBE2 = (kT/q) × ln(N)
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>k = 1.38 × 10^(-23) J/K（玻尔兹曼常数）</li>
+<li>q = 1.602 × 10^(-19) C（电子电荷量）</li>
+<li>T = 绝对温度（单位：K）</li>
+<li>N = 两个 BJT 的电流密度比（或发射极面积比）</li>
+</ul>
+<p><strong>电路实现</strong>：</p>
+<pre><code>                   VDD
+                    |
+               +----+----+
+               |   OPA   |
+               +----+----+
+                    |
+       +------------+------------+
+       |                         |
+     [R1]                       [R2]
+       |                         |
+  +----+----+              +----+----+
+  |   Q1    |              |   Q2    |
+  |  (1x)   |              |  (Nx)   |
+  +----+----+              +----+----+
+       |                         |
+       +------------+------------+
+                    |
+               VPTAT 输出节点 ---> [Buffer] ---> VPTAT_PIN
+                    |
+                   GND
+</code></pre>
+<p><strong>电压-温度关系</strong>：</p>
+<pre><code>VPTAT = (R2/R1) × (kT/q) × ln(N)
+</code></pre>
+<p>VPTAT 呈线性正温度系数，典型斜率约 1~5 mV/°C（视 R2/R1 比值和 N 值而定）。</p>
+<h3 id="42-测试方法">4.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="核心原理利用已知温度标定-vptat-特性">核心原理：利用已知温度标定 VPTAT 特性<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#核心原理利用已知温度标定-vptat-特性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>FT 中 VPTAT 的测试利用外部已知温度（温箱控制）来验证芯片内部 VPTAT 电压的线性度和斜率。</p>
+<h4 id="测试流程-3">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 在已知温度 T1（如 25°C）下测量 VPTAT
+  ├── 上电，使能 VPTAT 模块
+  ├── 等待温度稳定（Soak）
+  ├── 测量 VPTAT 电压，记录 V1 @ T1
+  └── 系统记录 (T1, V1) 数据点
+
+Step 2: 在已知温度 T2（如 85°C）下测量 VPTAT
+  ├── 升温至 T2，等待热平衡
+  ├── 测量 VPTAT 电压，记录 V2 @ T2
+  └── 系统记录 (T2, V2) 数据点
+
+Step 3: 在已知温度 T3（如 -40°C）下测量 VPTAT
+  ├── 降温至 T3，等待热平衡
+  ├── 测量 VPTAT 电压，记录 V3 @ T3
+  └── 系统记录 (T3, V3) 数据点
+
+Step 4: 线性度与斜率计算
+  ├── 斜率 S = (V2 - V1) / (T2 - T1)    [mV/°C]
+  ├── 偏移量 V0 = V1 - S × T1           [mV]
+  ├── 非线性误差 = max|V_meas - (S × T + V0)|
+  └── 判断斜率、偏移量、非线性是否在规格内
+</code></pre>
+<h4 id="测量方式-1">测量方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测量方式-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>方式</th><th>描述</th><th>适用场景</th></tr></thead><tbody><tr><td>直接引脚测量</td><td>VPTAT 有专用输出引脚，外部 DMM 直接测量</td><td>精度最高，FT 首选</td></tr><tr><td>测试模式路由</td><td>通过 DFT 将 VPTAT 路由到 GPIO</td><td>节省引脚，需 DFT 支持</td></tr><tr><td>内部 ADC 读取</td><td>通过片上 HKADC 转换 VPTAT 并数字读出</td><td>适合系统级测试</td></tr></tbody></table></div>
+<h3 id="43-测试条件">4.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>说明</th></tr></thead><tbody><tr><td>温度点 T1</td><td>25°C ± 1°C</td><td>常温参考点</td></tr><tr><td>温度点 T2</td><td>85°C / 125°C</td><td>高温点</td></tr><tr><td>温度点 T3</td><td>-40°C / 0°C</td><td>低温点</td></tr><tr><td>VDD</td><td>标称值 ± 5%</td><td>可验证电源抑制能力</td></tr><tr><td>Soak Time</td><td>2~5 分钟/温度点</td><td>确保结温与温箱一致</td></tr><tr><td>测量精度</td><td>±0.1°C（等效温度）</td><td>电压测量精度需换算为温度精度</td></tr></tbody></table></div>
+<h3 id="44-判定标准">4.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型规格</th><th>说明</th></tr></thead><tbody><tr><td>VPTAT @ 25°C</td><td>设计值（如 0.5V ~ 0.8V）</td><td>随设计而异</td></tr><tr><td>斜率</td><td>1 ~ 5 mV/°C</td><td>由 R2/R1 和 N 决定</td></tr><tr><td>斜率容差</td><td>±5% ~ ±10%</td><td>工艺偏差导致的斜率变化</td></tr><tr><td>非线性误差</td><td>&lt; ±0.5% FS</td><td>VPTAT 的理想线性度</td></tr><tr><td>电压精度</td><td>±2% ~ ±5%</td><td>绝对电压精度（未修调时）</td></tr></tbody></table></div>
+<h3 id="45-注意事项">4.5 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#45-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>温度均衡</strong>：VPTAT 测试对温度精度非常敏感。芯片结温与温箱设置温度之间可能存在差异（特别是大电流测试时），需要足够的 Soak Time 确保温度平衡。</p>
+</li>
+<li>
+<p><strong>自热效应</strong>：当芯片内部其他模块（如 Buck、LDO）工作时，芯片结温会显著高于环境温度。VPTAT 测试应尽量在空载或轻载条件下进行。</p>
+</li>
+<li>
+<p><strong>斜率偏差的根源</strong>：VPTAT 斜率主要由 R2/R1 比值决定。片上电阻的匹配度通常很好（&lt; 0.5%），但绝对值的工艺角变化会影响电路工作点，间接影响斜率。</p>
+</li>
+<li>
+<p><strong>与温度传感器的配合</strong>：VPTAT 电压通常作为温度传感器（VPTAT SENSOR）的原始输入，传感器将其转换为数字温度读数。VPTAT 的精度直接影响温度传感器的精度。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="5-vptat-sensor-电压测试">5. VPTAT SENSOR 电压测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-vptat-sensor-电压测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-测试原理">5.1 测试原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-测试原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>VPTAT SENSOR（Temperature Sensor）是利用 VPTAT 原理实现片上温度检测的传感器模块。它将 VPTAT 电压通过 ADC 转换为数字温度值，或通过 Buffer 输出与温度成比例的模拟电压。</p>
+<p><strong>传感器架构</strong>：</p>
+<pre><code>VPTAT Core -----> [Buffer] -----> [MUX] -----> [ADC] -----> Digital Code
+      |                |              |
+   (BJT pair)   (驱动/隔离)   (多通道选择)  (HKADC/XOADC)
+</code></pre>
+<p><strong>核心关系</strong>：</p>
+<p>VPTAT SENSOR 的输出（模拟或数字）与温度呈线性关系：</p>
+<pre><code>DOUT = Gain × VPTAT + Offset
+     = Gain × (S × T + V0) + Offset
+     = K × T + B
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>K = 温度灵敏度（LSB/°C 或 mV/°C）</li>
+<li>B = 零点偏移（对应 0°C 或 25°C 时的输出值）</li>
+</ul>
+<h3 id="52-测试方法">5.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>FT 阶段对温度传感器的测试采用<strong>两点或多点校准验证法</strong>：</p>
+<h4 id="测试流程-4">测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#测试流程-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 传感器输出读取
+  ├── 使能温度传感器模块
+  ├── 配置 ADC 为温度传感器测量模式
+  └── 读取数字温度值或测量模拟输出电压
+
+Step 2: 常温校准点验证（25°C）
+  ├── 温箱设置为 25°C，等待热平衡
+  ├── 读取传感器输出 Tsen_25C
+  ├── 计算误差：Error = Tsen_25C - 25°C
+  └── 记录常温偏差
+
+Step 3: 高温验证（85°C / 125°C）
+  ├── 温箱升温至目标温度，等待热平衡
+  ├── 读取传感器输出 Tsen_Hot
+  ├── 计算误差：Error = Tsen_Hot - T_Hot
+  └── 记录高温偏差
+
+Step 4: 低温验证（-40°C / 0°C）
+  ├── 温箱降温至目标温度，等待热平衡
+  ├── 读取传感器输出 Tsen_Cold
+  ├── 计算误差：Error = Tsen_Cold - T_Cold
+  └── 记录低温偏差
+
+Step 5: 综合判定
+  ├── 最大温度误差 = max(|Error_25C|, |Error_Hot|, |Error_Cold|)
+  ├── 线性度评估（如有多于 2 个温度点）
+  └── 判断是否满足温度精度规格
+</code></pre>
+<h4 id="温度精度换算">温度精度换算<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#温度精度换算" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>传感器输出类型</th><th>测量方式</th><th>精度换算</th></tr></thead><tbody><tr><td>数字输出（℃）</td><td>直接读取寄存器</td><td>无需换算，直接比较</td></tr><tr><td>模拟电压输出</td><td>DMM 测电压，查表/公式转温度</td><td>V → T 换算公式需已知</td></tr><tr><td>ADC Code 输出</td><td>读取 ADC 数字码</td><td>Code → V → T 两步换算</td></tr></tbody></table></div>
+<h3 id="53-测试条件">5.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>说明</th></tr></thead><tbody><tr><td>校准温度点</td><td>25°C ± 1°C</td><td>常温参考点，通常在此做单点校准</td></tr><tr><td>高温验证点</td><td>85°C / 125°C</td><td>视产品等级确定</td></tr><tr><td>低温验证点</td><td>-40°C / 0°C</td><td>视产品等级确定</td></tr><tr><td>VDD</td><td>标称值 ± 5%</td><td>电源影响传感器精度</td></tr><tr><td>Soak Time</td><td>3~5 分钟/温度点</td><td>温度传感器对 Soak Time 要求较高</td></tr><tr><td>温度梯度</td><td>&lt; 5°C/min</td><td>避免热冲击和温度过冲</td></tr></tbody></table></div>
+<h3 id="54-判定标准">5.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>消费级规格</th><th>工业级规格</th><th>汽车级规格</th></tr></thead><tbody><tr><td>温度精度（25°C）</td><td>±2°C</td><td>±1.5°C</td><td>±1°C</td></tr><tr><td>温度精度（全温）</td><td>±5°C</td><td>±3°C</td><td>±2°C</td></tr><tr><td>分辨率</td><td>1°C（8 位）</td><td>0.5°C（9 位）</td><td>0.25°C（10 位）</td></tr><tr><td>长期稳定性</td><td>±1°C/年</td><td>±0.5°C/年</td><td>±0.3°C/年</td></tr></tbody></table></div>
+<h3 id="55-vptat-与-vptat-sensor-的关系">5.5 VPTAT 与 VPTAT SENSOR 的关系<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#55-vptat-与-vptat-sensor-的关系" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>对比项</th><th>VPTAT</th><th>VPTAT SENSOR</th></tr></thead><tbody><tr><td>输出类型</td><td>原始模拟电压</td><td>经 ADC 转换的数字温度值或缓冲后的模拟电压</td></tr><tr><td>测试内容</td><td>电压精度、斜率、线性度</td><td>温度读数精度、全温范围误差</td></tr><tr><td>测试温度点</td><td>2~3 个</td><td>2~3 个（多点更优）</td></tr><tr><td>判定依据</td><td>mV/°C 斜率偏差</td><td>°C 温度误差</td></tr><tr><td>校准方式</td><td>通常不校准</td><td>CP 中可做单点/两点校准</td></tr><tr><td>FT 重点</td><td>验证 CP 后参数稳定</td><td>验证实际温度测量精度</td></tr></tbody></table></div>
+<h3 id="56-温度传感器误差分析">5.6 温度传感器误差分析<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#56-温度传感器误差分析" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>温度传感器的总误差可分解为：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>误差来源</th><th>典型量值</th><th>说明</th></tr></thead><tbody><tr><td>VPTAT 核心误差</td><td>±1°C ~ ±2°C</td><td>BJT 对匹配、工艺角偏差</td></tr><tr><td>ADC 量化误差</td><td>±0.5 LSB</td><td>对应 ±0.5°C ~ ±1°C</td></tr><tr><td>ADC 偏移误差</td><td>±1 LSB ~ ±2 LSB</td><td>ADC 输入失调</td></tr><tr><td>ADC 增益误差</td><td>±1% ~ ±2%</td><td>ADC 参考电压偏差</td></tr><tr><td>封装应力</td><td>±0.5°C ~ ±1°C</td><td>塑封应力影响 BJT 特性</td></tr><tr><td>总误差（RSS）</td><td>±2°C ~ ±5°C</td><td>各分量平方和开根号</td></tr></tbody></table></div>
+<h3 id="57-注意事项">5.7 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#57-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>单点校准的有效性</strong>：许多 PMIC 仅在常温（25°C）做单点校准，利用 VPTAT 的固有线性度保证全温精度。但若 VPTAT 斜率偏离设计值，单点校准无法修正高温/低温偏差。</p>
+</li>
+<li>
+<p><strong>ADC 精度瓶颈</strong>：温度传感器的最终精度受限于 ADC 的转换精度。如果 ADC 的有效位数（ENOB）不足，即使 VPTAT 核心非常精确，最终温度读数也可能有较大误差。</p>
+</li>
+<li>
+<p><strong>温度梯度影响</strong>：芯片内部存在温度梯度时，BJT 传感器所在位置的温度可能与芯片外壳温度不一致。这在 FT 测试中需要关注：温箱控制的是环境温度，而传感器测量的是结温。</p>
+</li>
+<li>
+<p><strong>数字滤波</strong>：片上温度传感器通常包含数字滤波（如滑动平均、中值滤波），用于抑制噪声。测试时需注意滤波器建立时间，避免过早读数。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="6-总结与基准测试顺序">6. 总结与基准测试顺序<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6-总结与基准测试顺序" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-ft-基准测试顺序建议">6.1 FT 基准测试顺序建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-ft-基准测试顺序建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>在 FT 测试中，基准模块的测试建议按以下顺序执行：</p>
+<pre><code>Step 1: VREF1P0 电压测试
+  ├── 最先测试，验证系统基本参考电压是否正常
+  ├── 若 VREF1P0 异常，后续所有依赖参考电压的测试项均可能失效
+  └── 可及早停止测试，节省时间
+
+Step 2: VBG 电压测试
+  ├── 验证 Bandgap 基准源正常
+  └── 全温范围测试需在温度箱中进行
+
+Step 3: IREF 电流测试
+  ├── 验证全局偏置电流正常
+  └── IREF 偏差会影响后续模块测试（TC 等）
+
+Step 4: VPTAT 电压测试
+  ├── 验证温度传感前端正常
+  └── 需在多个温度点测量
+
+Step 5: VPTAT SENSOR 测试
+  ├── 最后测试，依赖 VPTAT 前端和 ADC 均正常
+  └── 全温范围综合验证
+</code></pre>
+<h3 id="62-各测试项关键规格汇总">6.2 各测试项关键规格汇总<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-各测试项关键规格汇总" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>关键参数</th><th>典型精度要求</th><th>温度依赖性</th><th>测试时间</th></tr></thead><tbody><tr><td>VREF1P0</td><td>1.000V 电压精度</td><td>±1% ~ ±2%</td><td>低</td><td>短（~10ms）</td></tr><tr><td>VBG</td><td>1.200V + TC</td><td>±0.5% ~ ±1%, TC &lt; 50 ppm/°C</td><td>高（需多温度点）</td><td>长（~数分钟含 Soak）</td></tr><tr><td>IREF</td><td>参考电流值</td><td>±2% ~ ±5%</td><td>中（TCR 影响）</td><td>短（~20ms）</td></tr><tr><td>VPTAT</td><td>斜率 mV/°C + 线性度</td><td>±5% 斜率, ±0.5% 线性度</td><td>高（需多温度点）</td><td>长（~数分钟含 Soak）</td></tr><tr><td>VPTAT SENSOR</td><td>温度读数精度</td><td>±2°C ~ ±5°C</td><td>高（需多温度点）</td><td>长（~数分钟含 Soak）</td></tr></tbody></table></div>
+<h3 id="63-cp-trim-与-ft-验证的对应关系">6.3 CP Trim 与 FT 验证的对应关系<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-cp-trim-与-ft-验证的对应关系" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>CP Trim 项</th><th>FT 验证项</th><th>验证目标</th></tr></thead><tbody><tr><td>VREF1P0 Trim</td><td>VREF1P0 电压测试</td><td>Trim 码生效，封装后未偏移</td></tr><tr><td>VBG Trim</td><td>VBG 电压测试 + TC</td><td>Trim 码生效，温漂在规格内</td></tr><tr><td>IREF Trim</td><td>IREF 电流测试</td><td>Trim 码生效，电流值准确</td></tr><tr><td>无（VPTAT 通常不 Trim）</td><td>VPTAT + VPTAT SENSOR</td><td>原始精度满足规格</td></tr></tbody></table></div>
+<h3 id="64-失效模式分析">6.4 失效模式分析<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#64-失效模式分析" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>典型失效模式</th><th>可能原因</th><th>后续处理</th></tr></thead><tbody><tr><td>VREF1P0</td><td>电压偏低/偏高</td><td>OTP 加载失败、封装应力、Trim 码偏移</td><td>回读 Trim 寄存器、尝试重载</td></tr><tr><td>VREF1P0</td><td>电压不稳定</td><td>Buffer 振荡、去耦不足</td><td>检查测试板去耦、负载条件</td></tr><tr><td>VBG</td><td>全温漂移过大</td><td>温度补偿失效、电阻 TCR 异常</td><td>分析 TC Trim 是否需要补充</td></tr><tr><td>VBG</td><td>常温偏差大</td><td>OTP 加载失败、封装应力</td><td>回读 Trim 寄存器、与 CP 数据对比</td></tr><tr><td>IREF</td><td>电流偏差大</td><td>电阻 Rref 偏差、VREF 偏差</td><td>检查 IREF Trim 寄存器</td></tr><tr><td>IREF</td><td>温度依赖性异常</td><td>电阻类型错误、TCR 异常</td><td>分析晶圆工艺角</td></tr><tr><td>VPTAT</td><td>斜率偏差</td><td>R2/R1 比例偏差</td><td>非 Trim 项，判断是否在 Accept 范围</td></tr><tr><td>VPTAT SENSOR</td><td>温度读数不准</td><td>ADC 偏差、VPTAT 核心偏差</td><td>综合判断是否需补充校准</td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>文件</th><th>描述</th></tr></thead><tbody><tr><td><a href="../../.././Trim" class="internal alias" data-slug="Trim">Trim.md — 修调总览</a></td><td>PMIC 各模块修调项说明</td></tr><tr><td><a href="../../.././FT" class="internal alias" data-slug="FT">FT.md — FT 测试总览</a></td><td>PMIC 各模块 FT 测试项的完整清单</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调" class="internal alias" data-slug="PMIC/PMIC知识库/Trim测试知识库/01_基准与参考源修调">基准与参考源修调知识库</a></td><td>详细的 CP 修调原理</td></tr><tr><td>[[../<em>index</em>.md|PMIC 修调知识库索引]]</td><td>全面修调知识索引</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/FT测试知识库/01_系统测试项" class="internal alias" data-slug="PMIC/PMIC知识库/FT测试知识库/01_系统测试项">系统测试项</a></td><td>FT 系统级测试（含 OS、漏电等）</td></tr></tbody></table></div>
+<hr/>
+<blockquote>
+<p><strong>本文档是 PMIC FT 测试知识库的一部分，与 [[PMIC/PMIC知识库/FT测试知识库/<em>index</em>|FT 测试知识库索引]] 配合使用。</strong></p>
+<p>最后更新: 2026-07-24</p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-82" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#基准ft测试--pmic-基准电压电流温度传感器-ft-测试" data-for="基准ft测试--pmic-基准电压电流温度传感器-ft-测试">基准FT测试 — PMIC 基准电压/电流/温度传感器 FT 测试</a></li><li class="depth-1"><a href="#目录" data-for="目录">目录</a></li><li class="depth-1"><a href="#1-vref1p0-电压测试" data-for="1-vref1p0-电压测试">1. VREF1P0 电压测试</a></li><li class="depth-2"><a href="#11-测试原理" data-for="11-测试原理">1.1 测试原理</a></li><li class="depth-2"><a href="#12-测试方法" data-for="12-测试方法">1.2 测试方法</a></li><li class="depth-2"><a href="#13-测试条件" data-for="13-测试条件">1.3 测试条件</a></li><li class="depth-2"><a href="#14-判定标准" data-for="14-判定标准">1.4 判定标准</a></li><li class="depth-2"><a href="#15-与-cp-trim-的关系" data-for="15-与-cp-trim-的关系">1.5 与 CP Trim 的关系</a></li><li class="depth-2"><a href="#16-注意事项" data-for="16-注意事项">1.6 注意事项</a></li><li class="depth-1"><a href="#2-vbg-电压测试" data-for="2-vbg-电压测试">2. VBG 电压测试</a></li><li class="depth-2"><a href="#21-测试原理" data-for="21-测试原理">2.1 测试原理</a></li><li class="depth-2"><a href="#22-测试方法" data-for="22-测试方法">2.2 测试方法</a></li><li class="depth-2"><a href="#23-测试条件" data-for="23-测试条件">2.3 测试条件</a></li><li class="depth-2"><a href="#24-判定标准" data-for="24-判定标准">2.4 判定标准</a></li><li class="depth-2"><a href="#25-注意事项" data-for="25-注意事项">2.5 注意事项</a></li><li class="depth-1"><a href="#3-iref-电流测试" data-for="3-iref-电流测试">3. IREF 电流测试</a></li><li class="depth-2"><a href="#31-测试原理" data-for="31-测试原理">3.1 测试原理</a></li><li class="depth-2"><a href="#32-测试方法" data-for="32-测试方法">3.2 测试方法</a></li><li class="depth-2"><a href="#33-测试条件" data-for="33-测试条件">3.3 测试条件</a></li><li class="depth-2"><a href="#34-判定标准" data-for="34-判定标准">3.4 判定标准</a></li><li class="depth-2"><a href="#35-注意事项" data-for="35-注意事项">3.5 注意事项</a></li><li class="depth-1"><a href="#4-vptat-电压测试" data-for="4-vptat-电压测试">4. VPTAT 电压测试</a></li><li class="depth-2"><a href="#41-测试原理" data-for="41-测试原理">4.1 测试原理</a></li><li class="depth-2"><a href="#42-测试方法" data-for="42-测试方法">4.2 测试方法</a></li><li class="depth-2"><a href="#43-测试条件" data-for="43-测试条件">4.3 测试条件</a></li><li class="depth-2"><a href="#44-判定标准" data-for="44-判定标准">4.4 判定标准</a></li><li class="depth-2"><a href="#45-注意事项" data-for="45-注意事项">4.5 注意事项</a></li><li class="depth-1"><a href="#5-vptat-sensor-电压测试" data-for="5-vptat-sensor-电压测试">5. VPTAT SENSOR 电压测试</a></li><li class="depth-2"><a href="#51-测试原理" data-for="51-测试原理">5.1 测试原理</a></li><li class="depth-2"><a href="#52-测试方法" data-for="52-测试方法">5.2 测试方法</a></li><li class="depth-2"><a href="#53-测试条件" data-for="53-测试条件">5.3 测试条件</a></li><li class="depth-2"><a href="#54-判定标准" data-for="54-判定标准">5.4 判定标准</a></li><li class="depth-2"><a href="#55-vptat-与-vptat-sensor-的关系" data-for="55-vptat-与-vptat-sensor-的关系">5.5 VPTAT 与 VPTAT SENSOR 的关系</a></li><li class="depth-2"><a href="#56-温度传感器误差分析" data-for="56-温度传感器误差分析">5.6 温度传感器误差分析</a></li><li class="depth-2"><a href="#57-注意事项" data-for="57-注意事项">5.7 注意事项</a></li><li class="depth-1"><a href="#6-总结与基准测试顺序" data-for="6-总结与基准测试顺序">6. 总结与基准测试顺序</a></li><li class="depth-2"><a href="#61-ft-基准测试顺序建议" data-for="61-ft-基准测试顺序建议">6.1 FT 基准测试顺序建议</a></li><li class="depth-2"><a href="#62-各测试项关键规格汇总" data-for="62-各测试项关键规格汇总">6.2 各测试项关键规格汇总</a></li><li class="depth-2"><a href="#63-cp-trim-与-ft-验证的对应关系" data-for="63-cp-trim-与-ft-验证的对应关系">6.3 CP Trim 与 FT 验证的对应关系</a></li><li class="depth-2"><a href="#64-失效模式分析" data-for="64-失效模式分析">6.4 失效模式分析</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/03_LDO测试" class="internal">LDO测试 — PMIC 低压差线性稳压器 FT 测试</a></li><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

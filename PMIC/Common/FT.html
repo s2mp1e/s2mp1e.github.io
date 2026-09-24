@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>FT 测试完整指南</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="FT 测试完整指南"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="FT 测试完整指南"/><meta name="twitter:description" content="FT 测试完整指南 / Final Test Complete Guide FT (Final Test / 成品测试) 是芯片封装的最后一道质量关口。本章节涵盖 PMIC FT 的完整测试流程、硬件方案、测试项目、Bin 策略和数据方法。 一、什么是 FT？ / What is FT? FT 在芯片封装完成 (Singulated &amp; Packaged) 后进行，通过 ATE + Handler 自动完成每颗芯片的全参数测试。 CP vs FT 对比 维度CP (Chip Probing)FT (Final Test)被测对象晶圆上的裸 Die封装好的成品 IC接触方式探针卡 (Pr..."/><meta property="og:description" content="FT 测试完整指南 / Final Test Complete Guide FT (Final Test / 成品测试) 是芯片封装的最后一道质量关口。本章节涵盖 PMIC FT 的完整测试流程、硬件方案、测试项目、Bin 策略和数据方法。 一、什么是 FT？ / What is FT? FT 在芯片封装完成 (Singulated &amp; Packaged) 后进行，通过 ATE + Handler 自动完成每颗芯片的全参数测试。 CP vs FT 对比 维度CP (Chip Probing)FT (Final Test)被测对象晶圆上的裸 Die封装好的成品 IC接触方式探针卡 (Pr..."/><meta property="og:image:alt" content="FT 测试完整指南 / Final Test Complete Guide FT (Final Test / 成品测试) 是芯片封装的最后一道质量关口。本章节涵盖 PMIC FT 的完整测试流程、硬件方案、测试项目、Bin 策略和数据方法。 一、什么是 FT？ / What is FT? FT 在芯片封装完成 (Singulated &amp; Packaged) 后进行，通过 ATE + Handler 自动完成每颗芯片的全参数测试。 CP vs FT 对比 维度CP (Chip Probing)FT (Final Test)被测对象晶圆上的裸 Die封装好的成品 IC接触方式探针卡 (Pr..."/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/Common/FT"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/Common/FT"/><link rel="icon" href="../../static/icon.png"/><meta name="description" content="FT 测试完整指南 / Final Test Complete Guide FT (Final Test / 成品测试) 是芯片封装的最后一道质量关口。本章节涵盖 PMIC FT 的完整测试流程、硬件方案、测试项目、Bin 策略和数据方法。 一、什么是 FT？ / What is FT? FT 在芯片封装完成 (Singulated &amp; Packaged) 后进行，通过 ATE + Handler 自动完成每颗芯片的全参数测试。 CP vs FT 对比 维度CP (Chip Probing)FT (Final Test)被测对象晶圆上的裸 Die封装好的成品 IC接触方式探针卡 (Pr..."/><meta name="generator" content="Quartz"/><link href="../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/Common/FT-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/Common/FT-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/Common/FT-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/Common/FT"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-197"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-197" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../PMIC/Common/">通用测试方法知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>FT 测试完整指南</a></div></nav><h1 class="article-title">FT 测试完整指南</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-18T00:00:00.000Z">2026年7月18日</time><span>17分钟阅读</span></p><ul class="tags"><li><a href="../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../tags/ate" class="internal tag-link">ate</a></li><li><a href="../../tags/reference" class="internal tag-link">reference</a></li></ul></div></div><article class="popover-hint"><h1 id="ft-测试完整指南--final-test-complete-guide">FT 测试完整指南 / Final Test Complete Guide<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ft-测试完整指南--final-test-complete-guide" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p>FT (Final Test / 成品测试) 是芯片封装的最后一道质量关口。本章节涵盖 PMIC FT 的完整测试流程、硬件方案、测试项目、Bin 策略和数据方法。</p>
+</blockquote>
+<hr/>
+<h2 id="一什么是-ft--what-is-ft">一、什么是 FT？ / What is FT?<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一什么是-ft--what-is-ft" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>FT 在芯片<strong>封装完成 (Singulated &amp; Packaged)</strong> 后进行，通过 ATE + Handler 自动完成每颗芯片的全参数测试。</p>
+<h3 id="cp-vs-ft-对比">CP vs FT 对比<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cp-vs-ft-对比" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>维度</th><th>CP (Chip Probing)</th><th>FT (Final Test)</th></tr></thead><tbody><tr><td><strong>被测对象</strong></td><td>晶圆上的裸 Die</td><td>封装好的成品 IC</td></tr><tr><td><strong>接触方式</strong></td><td>探针卡 (Probe Card)</td><td>Socket + Handler</td></tr><tr><td><strong>电流能力</strong></td><td>受限 (探针电阻/电感)</td><td>大电流 OK (焊接/弹片接触)</td></tr><tr><td><strong>可测温度</strong></td><td>25°C, Hot (80~110°C)</td><td>-40°C, 25°C, 85°C~150°C</td></tr><tr><td><strong>测试重点</strong></td><td>DC, Trim, 基础功能</td><td>全参数 AC/DC/Timing/Protection</td></tr><tr><td><strong>Throughput</strong></td><td>低速 (机械探针)</td><td>高速 (Handler 自动化)</td></tr><tr><td><strong>Burn-in 关联</strong></td><td>无 (Die 无法 Burn-in)</td><td>BI 后 FT (高可靠性芯片)</td></tr><tr><td><strong>Bin 动作</strong></td><td>墨点标记 + 地图记录</td><td>Handler 分 Bin</td></tr><tr><td><strong>测试时间约束</strong></td><td>较宽松</td><td>严格 (成本驱动)</td></tr></tbody></table></div>
+<hr/>
+<h2 id="二ft-硬件架构--ft-hardware">二、FT 硬件架构 / FT Hardware<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二ft-硬件架构--ft-hardware" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>┌────────────────────────────────────────┐
+│  ATE Tester (UltraFLEX/V93000/etc.)    │
+│  [SMU] [Digitizer] [TMU] [Digital]     │
+──── Cable / Pogo Tower ──────────────────│
+│  Performance Board (PB) / DIB          │
+│  ┌─────────────────────────────────┐   │
+│  │ Decoupling Caps / Relay Matrix ││   │
+│  │ ┌──────────────┐               ││   │
+│  │ │ DUT Socket   │               ││   │
+│  │ │  ┌───┐       │               ││   │
+│  │ │  │DUT│       │               ││   │
+│  │ │  └───┘       │               ││   │
+│  │ └──────────────┘               ││   │
+│  └─────────────────────────────────┘   │
+├─────────────────────────────────────────┤
+│  Handler (Plunger/Placer/Rotary)       │
+│  [Input Tray] → [Soak/Hot/Cold] →      │
+│  [Test Site] → [Bin Out]              │
+└────────────────────────────────────────┘
+</code></pre>
+<h3 id="21-handler-类型">2.1 Handler 类型<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-handler-类型" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>类型</th><th>原理</th><th style="text-align:center;">速度 (UPH)</th><th>PMC 适用场景</th></tr></thead><tbody><tr><td><strong>Pick &amp; Place</strong></td><td>机械臂拾放</td><td style="text-align:center;">2000~8000</td><td>小型封装 (QFN/WLCSP)</td></tr><tr><td><strong>Gravity</strong></td><td>重力下滑</td><td style="text-align:center;">10000~40000</td><td>DIP/SOP 等插件</td></tr><tr><td><strong>Turret</strong></td><td>旋转塔</td><td style="text-align:center;">30000~80000</td><td>超高速，小型封装</td></tr><tr><td><strong>Strip</strong></td><td>排测 / 并测</td><td style="text-align:center;">极高 (并测)</td><td>QFN Strip, 多 Site</td></tr></tbody></table></div>
+<h3 id="22-socket-类型">2.2 Socket 类型<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-socket-类型" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>类型</th><th>特点</th><th>适用</th></tr></thead><tbody><tr><td><strong>Pogo Pin Socket</strong></td><td>弹簧针、可更换</td><td>QFN/QFP</td></tr><tr><td><strong>Elastomer Socket</strong></td><td>导电橡胶、低电感</td><td>WLCSP/BGA</td></tr><tr><td><strong>Kelvin Socket</strong></td><td>4-Wire 到引脚</td><td>大电流需要</td></tr><tr><td><strong>Open-Top Socket</strong></td><td>Handler 直接接触</td><td>量产主流</td></tr></tbody></table></div>
+<hr/>
+<h2 id="三ft-测试流程--ft-test-flow">三、FT 测试流程 / FT Test Flow<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三ft-测试流程--ft-test-flow" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-完整流程图">3.1 完整流程图<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-完整流程图" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>Handler Input
+    ↓
+Temp Soak (温控平衡: Cold/25°C/Hot)
+    ↓
+┌── Socket Insert ──┐
+│   ↓               │
+│ ① Continuity       │  开短路测试 (所有引脚)
+│   ↓               │
+│ ② Leakage          │  漏电流测试 (输入/输出引脚)
+│   ↓               │
+│ ③ OTP Readback     │  读回 OTP Trim Code
+│   ↓               │
+│ ④ Power-On / SRAM  │  上电、加载寄存器默认值
+│   ↓               │
+│ ⑤ Digital I/F      │  I2C/SPI 读写验证
+│   ↓               │
+│ ⑥ DC Static        │  VOUT, Iq, Isd, Load/Line Reg
+│   ↓               │
+│ ⑦ Timing           │  Fsw, Ton, Startup, Dead Time
+│   ↓               │
+│ ⑧ Dynamic          │  Load Transient, Ripple
+│   ↓               │
+│ ⑨ Protection       │  OCP, SCP, OVP, UVLO, OTP func
+│   ↓               │
+│ ⑩ Efficiency       │  Spot Check (1~3 点)
+│   ↓               │
+│ ⑪ Trim Verify       │  验证 Trim 生效 (关键参数)
+│   ↓               │
+│ ⑫ Functional       │  系统级功能 (Sequencing, Mode)
+│   ↓               │
+│ Bin Decision       │
+│   ↓               │
+└── Socket Eject ────┘
+    ↓
+Handler Bin Out
+</code></pre>
+<h3 id="32-测试顺序设计原则">3.2 测试顺序设计原则<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试顺序设计原则" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>原则</th><th>说明</th></tr></thead><tbody><tr><td><strong>Fail-Fast</strong></td><td>Continuity > Leakage > Power-On → 快速筛掉坏品</td></tr><tr><td><strong>低成本优先</strong></td><td>DC 在 Timing 前 (DC 测试时间短)</td></tr><tr><td><strong>依赖前置</strong></td><td>OTP Readback 必须在所有参数测试前</td></tr><tr><td><strong>状态独立</strong></td><td>每项测试后恢复默认状态</td></tr><tr><td><strong>Bin 分级</strong></td><td>致命缺陷 → Bin1/2/3; 参数偏差 → Bin4</td></tr></tbody></table></div>
+<hr/>
+<h2 id="四ft-测试项详解--test-items-by-category">四、FT 测试项详解 / Test Items by Category<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四ft-测试项详解--test-items-by-category" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-continuity-test--开短路测试">4.1 Continuity Test / 开短路测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-continuity-test--开短路测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>目的</strong>: 确认封装引脚没有开路或短路。</p>
+<pre><code>方法: Force Current → Measure Voltage (FIMV)
+
+测试:
+  ① 每根引脚 Force 100μA → 测电压
+  ② 电压 ≈ 0.7V (封装的 ESD 保护二极管)
+  ③ 若电压 ~0V → 引脚短路到地
+  ④ 若电压 ~Clamp → 引脚开路
+  ⑤ GND 引脚再单独验证 (Force -100μA)
+
+Pass Limit: 0.3V &lt; V_pin &lt; 1.5V (典型值，取决于 ESD 结构)
+</code></pre>
+<h3 id="42-leakage-test--漏电流测试">4.2 Leakage Test / 漏电流测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-leakage-test--漏电流测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>目的</strong>: 确认输入/输出引脚在高阻态下的漏电流在规格内。</p>
+<pre><code>方法:
+  ① 输入引脚: Force VIN_max → Measure IIN
+  ② 输出引脚: Force VOUT_max → Measure IOUT
+  ③ 高阻态 / 关断状态下测量
+
+典型 Limit: Ileak &lt; 1μA (高可靠性 &lt; 100nA)
+</code></pre>
+<h3 id="43-otp-readback--trim-code-加载">4.3 OTP Readback / Trim Code 加载<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-otp-readback--trim-code-加载" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>目的</strong>: 确认 OTP Trim Code 正确加载。</p>
+<pre><code>流程:
+  ① 芯片上电 (POR)
+  ② 读取 OTP 区域寄存器 (通过 I2C/SPI 或 Test Mode)
+  ③ 验证:
+     - 已烧录: Trim Code ≠ 0x00 / ≠ 0xFF
+     - 校验和: OTP 校验正确
+     - Redundancy: 主位和冗余位逻辑正确
+  ④ 确认 Trim Code 加载到的目标寄存器
+</code></pre>
+<p>详见: <a href="../../30.areas/PMIC/Common/Trim" class="internal alias" data-slug="30.areas/PMIC/Common/Trim">PMIC Trim 完整指南</a></p>
+<h3 id="44-dc-static-tests">4.4 DC Static Tests<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-dc-static-tests" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="vout-accuracy">VOUT Accuracy<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#vout-accuracy" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>每个电源轨 (Buck1/2/3, LDO1/2, etc.):
+
+条件:
+  VIN = Nominal
+  IOUT = 中载 (如 50% of max)
+  
+测量: VOUT
+
+判断: VOUT_target ± 2% (Trim 后 ± 0.5%~±1%)
+</code></pre>
+<h4 id="quiescent-current-iq">Quiescent Current (Iq)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#quiescent-current-iq" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件:
+  所有模块使能、空载
+  PWM mode / PSM mode 分别测
+
+测量: IIN_total
+
+注意:
+  • 不同模式下 Iq 不同 (PWM vs PSM)
+  • 需要高精度 SMU (μA 级别)
+</code></pre>
+<h4 id="shutdown-current-isd">Shutdown Current (Isd)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#shutdown-current-isd" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件:
+  EN = LOW (芯片完全关断)
+  VIN = Max (最大输入电压)
+
+测量: IIN
+
+判断: Isd &lt; 1μA (典型)
+</code></pre>
+<h4 id="load-regulation">Load Regulation<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#load-regulation" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: VIN固定, IOUT从0→100%调
+测量: VOUT_MAX - VOUT_MIN
+判断: ΔVOUT &lt; 1% ~ 3%
+</code></pre>
+<h4 id="line-regulation">Line Regulation<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#line-regulation" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: IOUT固定, VIN从MIN→MAX调
+测量: VOUT_MAX - VOUT_MIN
+判断: ΔVOUT &lt; 0.5%/V
+</code></pre>
+<h3 id="45-timing-tests">4.5 Timing Tests<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#45-timing-tests" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="switching-frequency-fsw">Switching Frequency (Fsw)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#switching-frequency-fsw" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>每个 Buck/Boost:
+条件: 额定 VIN/VOUT/IOUT
+测量: 用 TMU 测量 SW 波形周期
+判断: Fsw_target ± 10% (Trim 后 ± 5%)
+</code></pre>
+<h4 id="ton--duty-cycle">Ton / Duty Cycle<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ton--duty-cycle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 同上
+测量: SW 脉冲宽度 (TMU)
+判断: 对应 Fsw 计算的目标 Duty
+</code></pre>
+<p>详见: <a href="../../30.areas/PMIC/Buck/Buck_Ton与ACT_TIME测试" class="internal alias" data-slug="30.areas/PMIC/Buck/Buck_Ton与ACT_TIME测试">Buck Ton 与 ACT TIME 测试</a></p>
+<h4 id="startup-time-act-time">Startup Time (ACT TIME)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#startup-time-act-time" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: EN=LOW → HIGH, 监测 VOUT
+测量: EN 上升沿 → VOUT 达到 90% 的时间
+判断: &lt; ACT_TIME_MAX
+</code></pre>
+<h4 id="dead-time">Dead Time<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#dead-time" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 正常开关
+测量: HS Gate ↓ → LS Gate ↑ 之间的时间
+判断: 不能为 0 (直通保护), 不能太大 (效率低)
+</code></pre>
+<h4 id="pg-delay">PG Delay<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#pg-delay" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: EN 上升
+测量: PG 上升沿相对于 VOUT 建立后的延迟
+</code></pre>
+<h3 id="46-dynamic-tests">4.6 Dynamic Tests<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#46-dynamic-tests" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="load-transient-可选的-ft-测项">Load Transient (可选的 FT 测项)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#load-transient-可选的-ft-测项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: IOUT 从 10% → 90% 跳变 (Handler 内置电子负载)
+测量: VOUT 过冲幅度、恢复时间
+
+量产 FT 中可能不测全 Load Transient (耗时长)
+→ 只在 Sample Level 或 QA Gate 测
+</code></pre>
+<h4 id="output-ripple">Output Ripple<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#output-ripple" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 额定负载
+测量: AC 耦合测量 VOUT 纹波 (mVpp)
+判断: Ripple &lt; Spec (如 30mVpp)
+</code></pre>
+<h3 id="47-protection-tests">4.7 Protection Tests<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#47-protection-tests" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>在 FT 中保护功能<strong>全部测试</strong> (CP 阶段通常不测)：</p>
+<h4 id="ocp-test">OCP Test<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ocp-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 逐步增加负载电流
+触发: IOUT > OCP_TH → VOUT 下降/限流
+判断: OCP 触发点在规格内
+
+循环: 撤掉过载 → 确认恢复 (Hiccup/Auto-Recovery)
+</code></pre>
+<h4 id="scp-test">SCP Test<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#scp-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 通过 Relay 将 VOUT 直接短路
+触发: 短路电流 &lt; SCP_TH
+判断: 芯片进入安全模式
+
+循环: 短路移除 → 确认恢复
+</code></pre>
+<h4 id="ovp-test">OVP Test<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ovp-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 通过 SMU 强行抬高 VOUT 电压
+触发: VOUT > OVP_TH → HS 关断
+判断: OVP 触发电压在规格内
+</code></pre>
+<h4 id="uvlo-test">UVLO Test<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#uvlo-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: VIN 从高到低 Sweep
+触发: VIN &lt; UVLO_TH → 芯片关断
+判断: UVLO 阈值和迟滞在规格内
+</code></pre>
+<h4 id="otp-functional-test">OTP Functional Test<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#otp-functional-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>FT 中通常只测 OTP 功能 (PASS/FAIL), 不测精确阈值
+
+方法:
+  ① 芯片正常工作
+  ② 热板/风枪加热芯片
+  ③ OTP 触发 → 芯片关断
+  ④ 冷却 → 自动恢复
+</code></pre>
+<h4 id="pg-test">PG Test<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#pg-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 所有 Rails 正常
+测量: PG 引脚高电平
+
+单路故障时 PG 低电平 (AND logic)
+</code></pre>
+<p>详见: <a href="../../30.areas/PMIC/Protection/OVP_OCP_OTP_UVLO" class="internal alias" data-slug="30.areas/PMIC/Protection/OVP_OCP_OTP_UVLO">保护功能测试详述</a></p>
+<h3 id="48-digital-interface-tests">4.8 Digital Interface Tests<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#48-digital-interface-tests" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="i2c--spi-protocol">I2C / SPI Protocol<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#i2c--spi-protocol" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 连接数字接口
+测试:
+  ① I2C: Slave Addr 验证
+  ② I2C: 关键寄存器 Write/Read
+  ③ SPI: Mode (CPOL/CPHA) 验证
+  ④ SPI: 关键寄存器 Write/Read
+
+全地址 R/W: 遍历所有寄存器确认功能
+</code></pre>
+<p>详见: <a href="../../30.areas/PMIC/Digital_Interface/I2C_SPI_测试" class="internal alias" data-slug="30.areas/PMIC/Digital_Interface/I2C_SPI_测试">SPI 接口测试</a></p>
+<h4 id="otp-read-verify">OTP Read Verify<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#otp-read-verify" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>条件: 上电后自动加载 OTP
+测试:
+  ① 读回 OTP 区域所有位
+  ② 确认 Trim Code 正确
+  ③ 确认 OTP 数据完整性 (Checksum)
+</code></pre>
+<h3 id="49-efficiency-spot-check">4.9 Efficiency Spot Check<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#49-efficiency-spot-check" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>条件: 典型负载点 (如 25%, 50%, 100%)
+计算: Eff = (VOUT × IOUT) / (VIN × IIN) × 100%
+判断: > 效率下限
+
+FT 通常只测 1~3 个典型点而非全负载曲线
+</code></pre>
+<h3 id="410-trim-verification">4.10 Trim Verification<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#410-trim-verification" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>FT 必须验证 Trim 生效:
+
+① VREF Trim → 读 VREF/测 VOUT
+② OSC Trim → 测 Fsw
+③ Ton Trim → 测 Ton
+④ VOUT Trim → 测 VOUT
+⑤ ILIM Trim → 测 OCP 点
+⑥ Charger Trim → 测 VREG/ICHG
+
+若 Trim 验证失败 → 无法通过 FT (潜在 Bin 分级)
+</code></pre>
+<h3 id="411-functional-test">4.11 Functional Test<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#411-functional-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>完整系统级功能验证:
+
+① Power-Up Sequence 验证
+   - 各 Rail 上电时序是否合规
+② Mode Switching
+   - PWM ↔ PSM ↔ PFM 切换是否正常
+③ Multi-Rail Interaction
+   - 交叉影响在规格内
+④ Fault Handling
+   - OCP/OVP 后各 Rail 行为
+</code></pre>
+<hr/>
+<h2 id="五ft-bin-策略--bin-strategy">五、FT Bin 策略 / Bin Strategy<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五ft-bin-策略--bin-strategy" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>┌────────┐
+│ Input  │  所有封装好的 IC
+└───┬────┘
+    ↓
+┌───────────────┐
+│ FT Test Flow  │
+└───┬───────────┘
+    ↓
+    ├── Bin 1 (Good)              → 出货 / 编带
+    ├── Bin 2 (Retest Fail)       → 复测
+    ├── Bin 3 (Parametric Fail)   → QA 分析/降级销售
+    ├── Bin 4 (Hard Fail)         → 报废
+    ├── Bin 5 (Leakage/Cont)      → 封装问题
+    ├── Bin 6 (Protection Fail)   → 设计/工艺问题
+    ├── Bin 7 (Trim Fail)         → CP 或烧录问题
+    └── Bin 8 (QA Sample)         → 抽检 (QA Gate)
+</code></pre>
+<h3 id="bin-命名惯例">Bin 命名惯例<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#bin-命名惯例" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">Bin</th><th>含义</th><th>后续处理</th></tr></thead><tbody><tr><td style="text-align:center;"><strong>Bin 1</strong></td><td>良品</td><td>编带出货</td></tr><tr><td style="text-align:center;"><strong>Bin 2~3</strong></td><td>重测品</td><td>再次 FT (排除接触/偶然问题)</td></tr><tr><td style="text-align:center;"><strong>Bin 4+</strong></td><td>不良品</td><td>分析/报废</td></tr><tr><td style="text-align:center;"><strong>Bin N (QA)</strong></td><td>QA 抽检</td><td>第三方复测或更严格测试</td></tr></tbody></table></div>
+<hr/>
+<h2 id="六三温-ft--triple-temp-ft">六、三温 FT / Triple Temp FT<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六三温-ft--triple-temp-ft" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-三温测试策略">6.1 三温测试策略<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-三温测试策略" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>温度</th><th>典型值</th><th>测试重点</th><th>Handler 方式</th></tr></thead><tbody><tr><td><strong>Cold</strong></td><td>-40°C / 0°C</td><td>低温启动、低温参数偏移</td><td>Cold Handler / LN2</td></tr><tr><td><strong>Room</strong></td><td>25°C</td><td>基准参数、Trim Verify</td><td>Ambient Handler</td></tr><tr><td><strong>Hot</strong></td><td>85°C / 125°C</td><td>高温参数、OTP、Q100</td><td>Hot Handler</td></tr></tbody></table></div>
+<h3 id="62-三温实现方式">6.2 三温实现方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-三温实现方式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>方式 A (最常用): 分站式
+  Handler 1 (Cold) → Test → Handler 2 (Room) → Test → Handler 3 (Hot) → Test
+  
+方式 B: 单机循环
+  一台 ATE + Handler, 循环切换温度 (速度慢)
+
+方式 C: 只测两温
+  Room + Hot, Cold 只做 Sample
+</code></pre>
+<h3 id="63-全温参数-trim-3-temp-trim">6.3 全温参数 Trim (3-Temp Trim)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-全温参数-trim-3-temp-trim" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>对于高精度 PMIC:
+  • CP 在 25°C 完成基础 Trim
+  • FT 在 Hot/Cold 下测量参数漂移
+  • 平均误差: Code @ 25°C 可能不是最优 @ Hot/Cold
+  • 可能需要在 CP 同时考虑全温优化
+</code></pre>
+<hr/>
+<h2 id="七ft-测试时间优化--test-time-optimization">七、FT 测试时间优化 / Test Time Optimization<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七ft-测试时间优化--test-time-optimization" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-优化策略">7.1 优化策略<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-优化策略" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>策略</th><th>说明</th><th>收益</th></tr></thead><tbody><tr><td><strong>Parallel Test</strong></td><td>多路电源同时测 DC</td><td>50%~70% 节省</td></tr><tr><td><strong>Scan Mode</strong></td><td>多 Rail 轮流快速采样</td><td>30%~40% 节省</td></tr><tr><td><strong>Spot Check</strong></td><td>效率、谐波等只测少量点</td><td>10%~20% 节省</td></tr><tr><td><strong>Adaptive Test</strong></td><td>通过则跳过后续详细测试</td><td>视良率而定</td></tr><tr><td><strong>Site Parallel</strong></td><td>多 Site 同时测</td><td>线性提升</td></tr><tr><td><strong>Relay Optimization</strong></td><td>减少 Relay 切换时间</td><td>5%~10% 节省</td></tr></tbody></table></div>
+<h3 id="72-典型-ft-时间分配">7.2 典型 FT 时间分配<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-典型-ft-时间分配" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>PMIC (4 Buck + 4 LDO + Charger) FT 时间预估:
+
+Continuity/Leakage:    200ms    (5%)
+Power-On + OTP Read:   300ms    (8%)
+Digital I/F:           400ms    (10%)
+DC Tests (all rails):  800ms    (20%)
+Timing Tests:          600ms    (15%)
+Protection Tests:      600ms    (15%)
+Dynamic:               300ms    (8%)
+Efficiency:            300ms    (8%)
+Trim Verify:           200ms    (5%)
+Functional:            250ms    (6%)
+─────────────────────────────────
+Total:               ~4.0s / DUT
+</code></pre>
+<hr/>
+<h2 id="八ft-dib-设计关键--ft-dib-design">八、FT DIB 设计关键 / FT DIB Design<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#八ft-dib-设计关键--ft-dib-design" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="81-kelvin-connection-4-wire">8.1 Kelvin Connection (4-Wire)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#81-kelvin-connection-4-wire" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>Force 线: 大电流供电 (不测电压)
+Sense 线: 高阻测量 (不通过大电流)
+
+原理:
+  大电流在 Force 线上产生压降
+  Sense 线直接从引脚端测量 (不流过电流)
+  → 消除线阻压降对测量的影响
+  
+PMIC 中所有 VOUT 测量和 ILIM 测试都需要 Kelvin
+</code></pre>
+<h3 id="82-relay-matrix">8.2 Relay Matrix<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#82-relay-matrix" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>场景: PMIC 有 10+ 路输出, ATE SMU 只有 4 路
+
+Relay Matrix:
+  10路 DUT 输出 → 4路 SMU
+  通过 Relay 切换, 分时测量
+
+设计要点:
+  • 每次切换后等待稳定 (几 ms)
+  • Relay 数量 × 切换次数 = 测试时间
+  • 控制信号的 Relay 避免引入噪声
+</code></pre>
+<h3 id="83-电源去耦">8.3 电源去耦<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#83-电源去耦" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>典型 DIB 去耦方案:
+
+VIN 引脚:
+  10μF (Bulk) + 1μF (Ceramic) + 0.1μF (HF) 
+  → 放置在离 DUT Socket 尽可能近的地方
+
+VOUT 引脚:
+  1μF + 0.1μF (近 Socket)
+  → 也可以利用芯片外部推荐电容值
+
+去耦不良的后果:
+  • 纹波测量不准确
+  • 开关噪声干扰其他测试
+  • 不稳定/振荡 (LDO)
+</code></pre>
+<h3 id="84-特殊考虑-pmic-大电流供电">8.4 特殊考虑: PMIC 大电流供电<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#84-特殊考虑-pmic-大电流供电" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>For PMIC with BUCK @ 5A:
+
+VIN 走线: 至少 2oz 铜皮 + 多层并联
+Socket 端子: 至少 2 pins 并联 (电流分摊)
+Connector: 使用 Power 专用连接器
+
+连续大电流测试时:
+  DIB 温度上升 → 电阻增加 → 测量漂移
+  需要散热设计 (加散热片, 风冷)
+</code></pre>
+<hr/>
+<h2 id="九ft-数据与质量管理--data--quality">九、FT 数据与质量管理 / Data &amp; Quality<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#九ft-数据与质量管理--data--quality" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="91-关键数据指标">9.1 关键数据指标<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#91-关键数据指标" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>指标</th><th>公式</th><th>目标</th></tr></thead><tbody><tr><td><strong>Yield</strong></td><td>Good / Total × 100%</td><td>> 95%</td></tr><tr><td><strong>Retest Rate</strong></td><td>Retested / Total</td><td>&lt; 5%</td></tr><tr><td><strong>Cpk</strong></td><td>(USL-μ)/(3σ) 或 (μ-LSL)/(3σ)</td><td>> 1.33</td></tr><tr><td><strong>First Pass Yield</strong></td><td>一次过 FT 的比例</td><td>> 90%</td></tr></tbody></table></div>
+<h3 id="92-sbl-statistical-bin-limit--pbl">9.2 SBL (Statistical Bin Limit) / PBL<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#92-sbl-statistical-bin-limit--pbl" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>SBL: 基于统计分布的 Bin 判断
+  → 参数需在 Mean ± K × σ 内
+  → 动态调整 Spec Limit (不适用固定 Limit 的产线)
+
+PBL (Part Average Test):
+  → 对参数进行 Part Average 判断
+  → 检测异常离群值 (Outlier)
+</code></pre>
+<h3 id="93-qa-gate">9.3 QA Gate<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#93-qa-gate" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>FT Line 最后一步:
+  从 Bin 1 (Good) 中抽样 (如 200/ Lot)
+  → 在这批抽样上运行 QA Test Program
+  → QA Program 通常比 Production 更严格 (更多测点)
+  → 若 QA Gate Fail → Lot Hold → 分析
+</code></pre>
+<hr/>
+<h2 id="十常见-ft-问题--common-ft-issues">十、常见 FT 问题 / Common FT Issues<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十常见-ft-问题--common-ft-issues" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>问题</th><th>可能原因</th><th>调查方向</th></tr></thead><tbody><tr><td><strong>Continuity Fail (高失效率)</strong></td><td>Socket 接触不良</td><td>检查 Socket 清洁/Pin 状态</td></tr><tr><td><strong>Yield 突变</strong></td><td>Wafer Lot 变异 / 测试漂移</td><td>Lot 追踪、Golden Unit 验证</td></tr><tr><td><strong>OTP Read Fail (一定比例)</strong></td><td>烧录问题</td><td>复测、检查 OTP 完整性</td></tr><tr><td><strong>I2C/SPI Fail</strong></td><td>通信时序 / Socket 阻抗</td><td>检查 SCK/SCL 波形</td></tr><tr><td><strong>VOUT 偏高/偏低</strong></td><td>Trim Issue</td><td>检查 VREF Trim</td></tr><tr><td><strong>Fsw 偏差</strong></td><td>OSC Trim Issue</td><td>检查 OSC Trim</td></tr><tr><td><strong>高温 FT Yield 低</strong></td><td>热问题 / 参数 TC</td><td>分析高温参数偏移</td></tr><tr><td><strong>Retest Rate 高</strong></td><td>接触问题 / 测试边界</td><td>检查 Socket 设计/测试 Limit</td></tr><tr><td><strong>多 Site 间 Yield 差异</strong></td><td>DIB Site 不均衡</td><td>各 Site 交叉验证</td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li><a href="../../30.areas/PMIC/Common/ATE测试基础" class="internal alias" data-slug="30.areas/PMIC/Common/ATE测试基础">ATE 测试基础</a> — ATE 平台和资源</li>
+<li><a href="../../30.areas/PMIC/Common/时序测试" class="internal alias" data-slug="30.areas/PMIC/Common/时序测试">时序测试方法</a> — Timing 测量原理</li>
+<li><a href="../../30.areas/PMIC/Common/Trim" class="internal alias" data-slug="30.areas/PMIC/Common/Trim">PMIC Trim 完整指南</a> — Trim 全流程</li>
+<li><a href="../../30.areas/PMIC/Buck/Buck_测试项目总览" class="internal alias" data-slug="30.areas/PMIC/Buck/Buck_测试项目总览">Buck 测试项目总览</a> — Buck 完整测试清单</li>
+<li><a href="../../30.areas/PMIC/Protection/OVP_OCP_OTP_UVLO" class="internal alias" data-slug="30.areas/PMIC/Protection/OVP_OCP_OTP_UVLO">保护功能测试详述</a> — 保护测试方法</li>
+<li><a href="../../30.areas/PMIC/PMU/PMU_架构与测试" class="internal alias" data-slug="30.areas/PMIC/PMU/PMU_架构与测试">PMU 架构与测试</a> — 多路 PMU FT 策略</li>
+<li><a href="../../30.areas/PMIC/Thermal/Thermal_原理与测试" class="internal alias" data-slug="30.areas/PMIC/Thermal/Thermal_原理与测试">Thermal 热管理</a> — 三温策略</li>
+</ul></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-73" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#ft-测试完整指南--final-test-complete-guide" data-for="ft-测试完整指南--final-test-complete-guide">FT 测试完整指南 / Final Test Complete Guide</a></li><li class="depth-1"><a href="#一什么是-ft--what-is-ft" data-for="一什么是-ft--what-is-ft">一、什么是 FT？ / What is FT?</a></li><li class="depth-2"><a href="#cp-vs-ft-对比" data-for="cp-vs-ft-对比">CP vs FT 对比</a></li><li class="depth-1"><a href="#二ft-硬件架构--ft-hardware" data-for="二ft-硬件架构--ft-hardware">二、FT 硬件架构 / FT Hardware</a></li><li class="depth-2"><a href="#21-handler-类型" data-for="21-handler-类型">2.1 Handler 类型</a></li><li class="depth-2"><a href="#22-socket-类型" data-for="22-socket-类型">2.2 Socket 类型</a></li><li class="depth-1"><a href="#三ft-测试流程--ft-test-flow" data-for="三ft-测试流程--ft-test-flow">三、FT 测试流程 / FT Test Flow</a></li><li class="depth-2"><a href="#31-完整流程图" data-for="31-完整流程图">3.1 完整流程图</a></li><li class="depth-2"><a href="#32-测试顺序设计原则" data-for="32-测试顺序设计原则">3.2 测试顺序设计原则</a></li><li class="depth-1"><a href="#四ft-测试项详解--test-items-by-category" data-for="四ft-测试项详解--test-items-by-category">四、FT 测试项详解 / Test Items by Category</a></li><li class="depth-2"><a href="#41-continuity-test--开短路测试" data-for="41-continuity-test--开短路测试">4.1 Continuity Test / 开短路测试</a></li><li class="depth-2"><a href="#42-leakage-test--漏电流测试" data-for="42-leakage-test--漏电流测试">4.2 Leakage Test / 漏电流测试</a></li><li class="depth-2"><a href="#43-otp-readback--trim-code-加载" data-for="43-otp-readback--trim-code-加载">4.3 OTP Readback / Trim Code 加载</a></li><li class="depth-2"><a href="#44-dc-static-tests" data-for="44-dc-static-tests">4.4 DC Static Tests</a></li><li class="depth-2"><a href="#45-timing-tests" data-for="45-timing-tests">4.5 Timing Tests</a></li><li class="depth-2"><a href="#46-dynamic-tests" data-for="46-dynamic-tests">4.6 Dynamic Tests</a></li><li class="depth-2"><a href="#47-protection-tests" data-for="47-protection-tests">4.7 Protection Tests</a></li><li class="depth-2"><a href="#48-digital-interface-tests" data-for="48-digital-interface-tests">4.8 Digital Interface Tests</a></li><li class="depth-2"><a href="#49-efficiency-spot-check" data-for="49-efficiency-spot-check">4.9 Efficiency Spot Check</a></li><li class="depth-2"><a href="#410-trim-verification" data-for="410-trim-verification">4.10 Trim Verification</a></li><li class="depth-2"><a href="#411-functional-test" data-for="411-functional-test">4.11 Functional Test</a></li><li class="depth-1"><a href="#五ft-bin-策略--bin-strategy" data-for="五ft-bin-策略--bin-strategy">五、FT Bin 策略 / Bin Strategy</a></li><li class="depth-2"><a href="#bin-命名惯例" data-for="bin-命名惯例">Bin 命名惯例</a></li><li class="depth-1"><a href="#六三温-ft--triple-temp-ft" data-for="六三温-ft--triple-temp-ft">六、三温 FT / Triple Temp FT</a></li><li class="depth-2"><a href="#61-三温测试策略" data-for="61-三温测试策略">6.1 三温测试策略</a></li><li class="depth-2"><a href="#62-三温实现方式" data-for="62-三温实现方式">6.2 三温实现方式</a></li><li class="depth-2"><a href="#63-全温参数-trim-3-temp-trim" data-for="63-全温参数-trim-3-temp-trim">6.3 全温参数 Trim (3-Temp Trim)</a></li><li class="depth-1"><a href="#七ft-测试时间优化--test-time-optimization" data-for="七ft-测试时间优化--test-time-optimization">七、FT 测试时间优化 / Test Time Optimization</a></li><li class="depth-2"><a href="#71-优化策略" data-for="71-优化策略">7.1 优化策略</a></li><li class="depth-2"><a href="#72-典型-ft-时间分配" data-for="72-典型-ft-时间分配">7.2 典型 FT 时间分配</a></li><li class="depth-1"><a href="#八ft-dib-设计关键--ft-dib-design" data-for="八ft-dib-设计关键--ft-dib-design">八、FT DIB 设计关键 / FT DIB Design</a></li><li class="depth-2"><a href="#81-kelvin-connection-4-wire" data-for="81-kelvin-connection-4-wire">8.1 Kelvin Connection (4-Wire)</a></li><li class="depth-2"><a href="#82-relay-matrix" data-for="82-relay-matrix">8.2 Relay Matrix</a></li><li class="depth-2"><a href="#83-电源去耦" data-for="83-电源去耦">8.3 电源去耦</a></li><li class="depth-2"><a href="#84-特殊考虑-pmic-大电流供电" data-for="84-特殊考虑-pmic-大电流供电">8.4 特殊考虑: PMIC 大电流供电</a></li><li class="depth-1"><a href="#九ft-数据与质量管理--data--quality" data-for="九ft-数据与质量管理--data--quality">九、FT 数据与质量管理 / Data &amp; Quality</a></li><li class="depth-2"><a href="#91-关键数据指标" data-for="91-关键数据指标">9.1 关键数据指标</a></li><li class="depth-2"><a href="#92-sbl-statistical-bin-limit--pbl" data-for="92-sbl-statistical-bin-limit--pbl">9.2 SBL (Statistical Bin Limit) / PBL</a></li><li class="depth-2"><a href="#93-qa-gate" data-for="93-qa-gate">9.3 QA Gate</a></li><li class="depth-1"><a href="#十常见-ft-问题--common-ft-issues" data-for="十常见-ft-问题--common-ft-issues">十、常见 FT 问题 / Common FT Issues</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../postscript.js" type="module"></script></html>

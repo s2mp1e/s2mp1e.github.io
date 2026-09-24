@@ -1,0 +1,2603 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）"/><meta name="twitter:description" content="PMIC 电压模式降压变换器（Voltage-Mode Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准，覆盖单相及多相配置"/><meta property="og:description" content="PMIC 电压模式降压变换器（Voltage-Mode Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准，覆盖单相及多相配置"/><meta property="og:image:alt" content="PMIC 电压模式降压变换器（Voltage-Mode Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准，覆盖单相及多相配置"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 电压模式降压变换器（Voltage-Mode Buck Converter）FT 阶段各项测试的原理、方法、条件与判定标准，覆盖单相及多相配置"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/07_电压模Buck测试"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-228"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-228" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）</a></div></nav><h1 class="article-title">电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>48分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/PMIC" class="internal tag-link">PMIC</a></li><li><a href="../../../tags/FT" class="internal tag-link">FT</a></li><li><a href="../../../tags/Final-Test" class="internal tag-link">Final-Test</a></li><li><a href="../../../tags/Voltage-Mode-Buck" class="internal tag-link">Voltage-Mode-Buck</a></li><li><a href="../../../tags/Multiphase" class="internal tag-link">Multiphase</a></li><li><a href="../../../tags/Loadline" class="internal tag-link">Loadline</a></li><li><a href="../../../tags/ECO" class="internal tag-link">ECO</a></li><li><a href="../../../tags/COT" class="internal tag-link">COT</a></li><li><a href="../../../tags/EA-Clamp" class="internal tag-link">EA-Clamp</a></li><li><a href="../../../tags/TSENSOR" class="internal tag-link">TSENSOR</a></li></ul></div></div><article class="popover-hint"><h1 id="电压模buck测试--pmic-电压模式降压变换器-ft-测试含多相">电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#电压模buck测试--pmic-电压模式降压变换器-ft-测试含多相" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p>本文档覆盖电压模式降压变换器（Voltage-Mode Buck Converter）在 FT（Final Test）阶段的所有测试项，涵盖单相与多相配置的完整测试方案，包括原理说明、测试方法、条件配置与判定标准。</p>
+</blockquote>
+<hr/>
+<h2 id="一电压模buck变换器概述">一、电压模Buck变换器概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一电压模buck变换器概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-电压模式控制基本原理">1.1 电压模式控制基本原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-电压模式控制基本原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>电压模式控制（Voltage-Mode Control）是 PWM 降压变换器中最经典的控制方式。其核心结构如下：</p>
+<ul>
+<li><strong>误差放大器（EA, Error Amplifier）</strong>：将反馈电压 VFB 与参考电压 VREF 的误差放大</li>
+<li><strong>补偿网络（Compensation Network）</strong>：Type-II 或 Type-III 补偿，保证环路稳定性和足够的相位裕度</li>
+<li><strong>PWM 比较器</strong>：将 EA 的输出（补偿后的误差信号）与周期性斜坡信号（Ramp）比较，生成 PWM 脉冲</li>
+<li><strong>功率级</strong>：HS-FET 和 LS-FET 根据 PWM 占空比开关</li>
+</ul>
+<pre><code>VREF ---|+\
+        |  >---[Compensation]---|+\
+VFB ----|-/                     |  >--- PWM ---> Driver ---> Power Stage ---> L/C ---> VOUT
+                           Ramp -|-/
+</code></pre>
+<p><strong>电压模式控制的关键特征：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>特征</th><th>描述</th></tr></thead><tbody><tr><td>控制方式</td><td>电压环 EA + PWM 比较器</td></tr><tr><td>开关频率</td><td>固定频率（由内部或外部时钟决定）</td></tr><tr><td>调制方式</td><td>固定频率 PWM</td></tr><tr><td>补偿需求</td><td>Type-II / Type-III 补偿（需外部或片上补偿）</td></tr><tr><td>瞬态响应</td><td>中等（受 EA 带宽限制）</td></tr><tr><td>抗噪性</td><td>较弱（PWM 比较器对噪声敏感）</td></tr><tr><td>多相扩展</td><td>适合多相并联（同频率，相位交错）</td></tr></tbody></table></div>
+<h3 id="12-三种工作模式">1.2 三种工作模式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-三种工作模式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>电压模Buck通常支持三种工作模式：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>全称</th><th>适用负载</th><th>效率</th><th>纹波</th></tr></thead><tbody><tr><td><strong>CCM</strong></td><td>Continuous Conduction Mode</td><td>重载</td><td>高（导通损耗为主）</td><td>低</td></tr><tr><td><strong>COT</strong></td><td>Constant-On-Time Mode</td><td>中载</td><td>中等</td><td>中</td></tr><tr><td><strong>ECO</strong></td><td>Efficiency Optimization Mode</td><td>轻载</td><td>极高（开关损耗极小）</td><td>较高</td></tr></tbody></table></div>
+<h3 id="13-多相buck原理">1.3 多相Buck原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#13-多相buck原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>多相Buck将 N 个相同的Buck功率级并联，各相的 PWM 时钟相位错开 360°/N，实现交错运行（Phase Interleaving）。</p>
+<p><strong>多相化的核心收益：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>收益</th><th>量化说明</th></tr></thead><tbody><tr><td>纹波抵消</td><td>输出纹波降低至单相的 ≈ 1/N（理想情况）</td></tr><tr><td>等效频率提高</td><td>等效开关频率 = N × fsw</td></tr><tr><td>输出电容减少</td><td>同纹波要求下，输出电容可减少 50%+</td></tr><tr><td>热分布</td><td>每相承担 1/N 的电流，热分布均匀</td></tr><tr><td>瞬态响应</td><td>等效频率提高，环路带宽可设计更高</td></tr></tbody></table></div>
+<hr/>
+<h2 id="二多相lx频率测试">二、多相LX频率测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二多相lx频率测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-原理">2.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>多相Buck的 LX 频率测试需要验证两方面的指标：</p>
+<ol>
+<li><strong>各相开关频率</strong>：每相的 PWM 频率应等于系统时钟频率</li>
+<li><strong>相间相位关系</strong>：各相之间的相位差应为 360°/N</li>
+</ol>
+<p>以 4 相Buck为例，相位关系为：</p>
+<pre><code>Phase 1:  ___|‾‾‾‾‾|___|‾‾‾‾‾|___  (0°)
+Phase 2:  ___|‾‾‾‾‾|___|‾‾‾‾‾|___  (90°)
+Phase 3:  ___|‾‾‾‾‾|___|‾‾‾‾‾|___  (180°)
+Phase 4:  ___|‾‾‾‾‾|___|‾‾‾‾‾|___  (270°)
+</code></pre>
+<h3 id="22-测试方法">2.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>ILOAD</td><td>重载（确保所有相均在 CCM 下工作）</td></tr><tr><td>测量节点</td><td>每相的 LX 引脚</td></tr><tr><td>测量仪器</td><td>多通道示波器 / 频率计</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能多相Buck输出至目标 VOUT</li>
+<li>施加足够的负载（确保所有相均处于 CCM，无相被关闭）</li>
+<li>用多通道示波器同时探测每一相的 LX 引脚</li>
+<li>测量每一相的开关频率 fsw_Pn</li>
+<li>测量相邻相之间的相位差 Δφ</li>
+<li>验证频率一致性：各相频率差异 &lt; ±2%</li>
+<li>验证相位差：Δφ ≈ 360°/N ± 允差</li>
+</ol>
+<h3 id="23-判定标准">2.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型限值</th></tr></thead><tbody><tr><td>各相频率一致性</td><td>±2%</td></tr><tr><td>相位差误差（2相）</td><td>180° ± 10°</td></tr><tr><td>相位差误差（3相）</td><td>120° ± 10°</td></tr><tr><td>相位差误差（4相）</td><td>90° ± 10°</td></tr></tbody></table></div>
+<h3 id="24-测试注意事项">2.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#24-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>多相Buck在轻载时会自动关闭部分相（Phase Shedding），测试时需施加足够负载确保所有相工作</li>
+<li>探头需使用短接地弹簧，减少环路电感耦合引起的测量误差</li>
+<li>相位差测量需同时触发所有通道，避免使用滚动模式</li>
+</ul>
+<hr/>
+<h2 id="三多相buck输出下拉电阻测试">三、多相Buck输出下拉电阻测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三多相buck输出下拉电阻测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-原理">3.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>多相Buck中，每一相都包含一个输出下拉（Output Discharge）通路。当 Buck 被禁用时：</p>
+<ul>
+<li>每一相的下拉电阻 Rpd_n 并联连接在 VOUT 与 GND 之间</li>
+<li>总下拉电阻 Rpd_total = Rpd_1 || Rpd_2 || … || Rpd_N</li>
+<li>N 相并联后，总下拉电阻是单相的 1/N</li>
+</ul>
+<p>因此，测试多相Buck的下拉电阻时，需要结合相数来推断单相的下拉电阻值。</p>
+<h3 id="32-测试方法">3.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>Buck 状态</td><td>禁用（Disabled）</td></tr><tr><td>VOUT 施加电压</td><td>如 1.0V</td></tr><tr><td>测量</td><td>流出 VOUT 的电流</td></tr><tr><td>测量仪器</td><td>SMU</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>禁用所有相的 Buck 输出</li>
+<li>在 VOUT 引脚施加测试电压 Vforce</li>
+<li>测量流出 VOUT 的电流 Imeas</li>
+<li>计算总下拉电阻：Rpd_total = Vforce / Imeas</li>
+<li>若已知相数为 N，单相下拉电阻为：Rpd_single = Rpd_total × N</li>
+</ol>
+<h3 id="33-判定标准">3.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>单位</th></tr></thead><tbody><tr><td>单相下拉电阻</td><td>100 ~ 500</td><td>Ω</td></tr><tr><td>4 相总下拉电阻</td><td>25 ~ 125</td><td>Ω</td></tr><tr><td>允差</td><td>±20%</td><td>—</td></tr></tbody></table></div>
+<h3 id="34-测试注意事项">3.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>确保所有相的下拉开关都正常导通（某些设计在禁用时部分相的下拉不激活）</li>
+<li>施加的测试电压不应超过 Buck 的额定输出电压</li>
+</ul>
+<hr/>
+<h2 id="四硬线eco一步调压">四、硬线ECO一步调压<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四硬线eco一步调压" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-原理">4.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>ECO 模式（Efficiency Optimization Mode）</strong> 是电压模Buck在轻载时采用的节能模式。</p>
+<p><strong>硬线一步调压</strong>是指通过硬件引脚控制输出电压在 ECO 模式下快速跳变的机制：</p>
+<ul>
+<li>通过一个专用硬件引脚（如 VSEL、VID 等）的电平切换</li>
+<li>使 VOUT 直接从当前值跳变到另一个预设值</li>
+<li>该过程不依赖数字接口（I2C/SPI），响应速度更快</li>
+<li>需要在跳变过程中无输出扰动（Glitch-less Transition）</li>
+</ul>
+<p><strong>典型应用场景：</strong></p>
+<ul>
+<li>CPU 休眠/唤醒时的快速电压切换</li>
+<li>在 I2C/SPI 不可用时通过 GPIO 紧急调整电压</li>
+</ul>
+<h3 id="42-测试方法">4.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>Buck 模式</td><td>ECO 模式</td></tr><tr><td>控制引脚</td><td>硬件调压引脚（如 VSEL）</td></tr><tr><td>VOUT 初始值</td><td>VOUT_LOW</td></tr><tr><td>VOUT 目标值</td><td>VOUT_HIGH</td></tr><tr><td>负载</td><td>轻载（确保 ECO 模式工作）</td></tr><tr><td>测量仪器</td><td>示波器 / 数字化仪</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 在 ECO 模式下工作，设置初始输出电压 VOUT_LOW</li>
+<li>等待输出稳定</li>
+<li>切换硬件调压引脚电平（如从低到高）</li>
+<li>用示波器捕获 VOUT 从 VOUT_LOW 到 VOUT_HIGH 的跳变波形</li>
+<li>检查以下指标：
+<ul>
+<li><strong>跳变幅度</strong>：ΔVOUT = VOUT_HIGH_MEAS - VOUT_LOW_MEAS</li>
+<li><strong>跳变时间</strong>：从控制引脚变化到 VOUT 稳定的时间</li>
+<li><strong>过冲/下冲</strong>：跳变过程中的最大/最小 VOUT</li>
+<li><strong>稳定时间</strong>：VOUT 进入目标值 ± 1% 范围内的时间</li>
+</ul>
+</li>
+<li>反向再测一次（从 VOUT_HIGH 到 VOUT_LOW）</li>
+</ol>
+<h3 id="43-判定标准">4.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>限值</th></tr></thead><tbody><tr><td>一步调压幅度精度</td><td>±2%</td></tr><tr><td>跳变过程过冲</td><td>&lt; 50mV</td></tr><tr><td>跳变过程中下冲</td><td>&lt; 50mV</td></tr><tr><td>稳定时间</td><td>&lt; 20us</td></tr><tr><td>Glitch 检查</td><td>不允许出现反向瞬态</td></tr></tbody></table></div>
+<h3 id="44-测试注意事项">4.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>ECO 模式下 Buck 可能进入脉冲跳跃（Pulse Skipping），需确保跳变时 Buck 处于活跃开关状态</li>
+<li>控制引脚的上升/下降时间会影响测试结果，需使用特性良好的信号源驱动</li>
+</ul>
+<hr/>
+<h2 id="五ramp-过程反向调压及中断">五、Ramp 过程反向调压及中断<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五ramp-过程反向调压及中断" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-原理">5.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>电压模Buck支持 DVS（动态电压调节），通过寄存器顺序写入目标电压，实现 VOUT 的线性斜坡调节。</p>
+<p><strong>Ramp 反向调压及中断测试</strong>覆盖以下场景：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>场景</th><th>操作</th><th>预期行为</th></tr></thead><tbody><tr><td>正向 Ramp</td><td>VOUT 从 Low → High</td><td>VOUT 线性上升</td></tr><tr><td>反向 Ramp</td><td>VOUT 从 High → Low</td><td>VOUT 线性下降</td></tr><tr><td>Ramp 中断</td><td>在 ramp 中写入新的目标电压</td><td>从当前值开始向新目标调节</td></tr><tr><td>Ramp 反向</td><td>正向 ramp 中突然转为反向</td><td>VOUT 停止上升开始下降</td></tr></tbody></table></div>
+<p><strong>与迟滞Buck的区别：</strong></p>
+<ul>
+<li>电压模Buck的 ramp 由 DAC 和寄存器控制，精度更高</li>
+<li>电压模Buck的 ramp 速率通常可配置（通过寄存器设置 slew rate）</li>
+<li>电压模Buck的闭环控制使 ramp 过程更平滑，但仍需验证极端条件</li>
+</ul>
+<h3 id="52-测试方法">5.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>Ramp 速率</td><td>规格值（如 5/10/20mV/us）</td></tr><tr><td>负载</td><td>空载 + 轻载 + 满载</td></tr><tr><td>测量仪器</td><td>高速数字化仪</td></tr></tbody></table></div>
+<p>测试步骤（以 ramp 中断为例）：</p>
+<ol>
+<li>设置 Buck 输出为 VOUT_LOW（如 0.6V）</li>
+<li>发起正向 ramp，目标 VOUT_HIGH（如 1.2V）</li>
+<li>在 ramp 进行到 30% ~ 50% 时，写入一个新的目标电压（如 1.0V 或 0.8V）</li>
+<li>捕获完整的 VOUT 波形</li>
+<li>分析 ramp 连续性、单调性、过冲/下冲</li>
+</ol>
+<h3 id="53-判定标准">5.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>限值</th></tr></thead><tbody><tr><td>Ramp 过程过冲</td><td>&lt; 50mV</td></tr><tr><td>Ramp 过程中下冲</td><td>&lt; 50mV</td></tr><tr><td>最终电压精度</td><td>±2%</td></tr><tr><td>Ramp 斜率偏差</td><td>±20%</td></tr><tr><td>单调性</td><td>强制单调</td></tr></tbody></table></div>
+<h3 id="54-测试注意事项">5.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>需覆盖多种负载组合（空载、轻载、满载），因为 EA 的驱动能力在不同负载下不同</li>
+<li>建议使用高分辨率数字化仪（16-bit 以上）来检测 ramp 过程中的微小台阶（ramp step）</li>
+</ul>
+<hr/>
+<h2 id="六loadline-精度测试">六、Loadline 精度测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六loadline-精度测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-原理">6.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>Loadline（负载线/下垂控制）</strong> 是电压模Buck中一种重要的电压定位技术：</p>
+<ul>
+<li>通过有意引入输出阻抗 Rdroop，使 VOUT 随负载电流增加而线性下降</li>
+<li>VOUT(ILOAD) = VOUT_0 - ILOAD × Rdroop</li>
+<li>其中 VOUT_0 是空载输出电压，Rdroop 是 loadline 电阻</li>
+</ul>
+<p><strong>Loadline 的核心优势：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>优势</th><th>说明</th></tr></thead><tbody><tr><td>改善瞬态响应</td><td>VOUT 的 DC 电平随负载变化，减少了瞬态电压变化幅度</td></tr><tr><td>减少输出电容</td><td>相同的瞬态电压容限下，所需输出电容更小</td></tr><tr><td>电压定位</td><td>空载时 VOUT 较高（效率优），满载时 VOUT 较低（减少功耗）</td></tr></tbody></table></div>
+<p><strong>Loadline 的实现方式：</strong></p>
+<ul>
+<li>检测输出电流（通过电感 DCR 检测、下管 Rds(on) 检测或 Sense FET）</li>
+<li>将电流信号转换为电压偏移量，叠加到 EA 的参考电压或反馈电压上</li>
+</ul>
+<h3 id="62-测试方法">6.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>ILOAD</td><td>0mA → IMAX（逐步增加）</td></tr><tr><td>测量</td><td>每个负载点下的 VOUT</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出至目标电压（空载）</li>
+<li>测量空载输出电压 VOUT_0</li>
+<li>逐步增加负载电流至 IMAX（建议 5~10 个步进点）</li>
+<li>在每个负载点，等待 VOUT 稳定后测量</li>
+<li>绘制 VOUT vs. ILOAD 曲线</li>
+<li>计算 loadline 电阻：
+<ul>
+<li>Rdroop = (VOUT_0 - VOUT_IMAX) / (IMAX - 0)</li>
+<li>或通过线性拟合获取斜率</li>
+</ul>
+</li>
+<li>验证 loadline 精度</li>
+</ol>
+<pre><code>VOUT
+  |← VOUT_0（空载）
+  |  ↘
+  |    ↘
+  |      ↘    ← ΔVOUT = ILOAD × Rdroop
+  |        ↘
+  |         VOUT_IMAX（满载）
+  |___________________________ ILOAD
+              IMAX
+</code></pre>
+<h3 id="63-判定标准">6.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型限值</th></tr></thead><tbody><tr><td>Loadline 电阻精度</td><td>±15% （目标值）</td></tr><tr><td>Loadline 线性度</td><td>R² > 0.98</td></tr><tr><td>空载 VOUT 精度</td><td>±2%</td></tr></tbody></table></div>
+<h3 id="64-测试注意事项">6.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#64-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>使用 4-Wire Kelvin 连接测量 VOUT，避免线阻压降影响 loadline 测量结果</li>
+<li>负载电流步进需足够慢，确保每个负载点 VOUT 已稳定</li>
+<li>热效应影响：大电流下 DUT 自热影响 Rds(on)，可能改变 loadline 特性</li>
+<li>Loadline 测试需在常温（25°C）和高温（85°C 或 125°C）下分别验证</li>
+</ul>
+<hr/>
+<h2 id="七ovp-测试开环">七、OVP 测试（开环）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七ovp-测试开环" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-原理">7.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>开环 OVP 测试</strong>是指在开环或输出高阻抗条件下测试过压保护功能。电压模Buck的 OVP 检测通过独立比较器实现：</p>
+<ul>
+<li>开环条件意味着 Buck 的反馈环路不参与控制（或输出被外部强制驱动）</li>
+<li>测试目的是验证 OVP 比较器本身的触发阈值精度</li>
+<li>开环测试可以消除环路调节对 OVP 阈值测量的影响</li>
+</ul>
+<h3 id="72-测试方法">7.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>Buck 状态</td><td>开环 / 输出高阻（Hi-Z）或禁用</td></tr><tr><td>VOUT 强制电压</td><td>从 VOUT_TARGET 逐步升高</td></tr><tr><td>测量仪器</td><td>SMU（Force V, Measure I）</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>将 Buck 设置为开环状态或 Hi-Z 输出（禁用输出开关）</li>
+<li>使用 SMU 在 VOUT 引脚强制施加电压</li>
+<li>从 VOUT_TARGET 开始，缓慢升高电压</li>
+<li>监测内部 OVP 标志位（寄存器读取）或 FAULT 引脚状态</li>
+<li>记录 OVP 触发时的 VOUT 电压值</li>
+<li>降低 VOUT 电压，记录 OVP 恢复阈值（如果存在迟滞）</li>
+</ol>
+<h3 id="73-判定标准">7.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>单位</th></tr></thead><tbody><tr><td>OVP 触发阈值</td><td>VOUT_TARGET × 115% ~ 130%</td><td>—</td></tr><tr><td>OVP 迟滞</td><td>50 ~ 200</td><td>mV</td></tr></tbody></table></div>
+<h3 id="74-测试注意事项">7.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#74-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>开环 OVP 测试中，SMU 应设置电流钳位（如 50mA）以避免过流损坏</li>
+<li>部分 OVP 比较器在开环测试时可能受内部偏置影响，需确认测试条件</li>
+</ul>
+<hr/>
+<h2 id="八scp-测试开环">八、SCP 测试（开环）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#八scp-测试开环" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="81-原理">8.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#81-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>开环 SCP 测试</strong>是在开环条件下测试短路电流限制能力。与闭环 SCP 测试的区别：</p>
+<ul>
+<li>开环条件下，EA 的输出可能被强制到某个固定值</li>
+<li>测试的是功率级在最大占空比或固定占空比下的短路电流能力</li>
+<li>更直接地评估功率管的电流限制机制</li>
+</ul>
+<h3 id="82-测试方法">8.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#82-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>Buck 状态</td><td>开环（EA 输出固定）</td></tr><tr><td>VOUT</td><td>短接到 GND</td></tr><tr><td>测量</td><td>短路电流（VIN 电流或输出电流）</td></tr><tr><td>测量仪器</td><td>SMU + 电流探头</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>设置 Buck 为开环状态（HS-FET 强制导通或固定占空比）</li>
+<li>将 VOUT 引脚通过低阻抗路径短接到 GND</li>
+<li>测量 VIN 电流或输出电流</li>
+<li>记录短路电流峰值和稳态值</li>
+<li>观察是否触发 OCP 保护（电流限制）</li>
+<li>验证限流值在规格范围内</li>
+</ol>
+<h3 id="83-判定标准">8.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#83-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th></tr></thead><tbody><tr><td>短路电流峰值</td><td>&lt; OCP 阈值 × 120%</td></tr><tr><td>稳态短路电流</td><td>&lt; OCP 阈值 × 110%</td></tr></tbody></table></div>
+<h3 id="84-测试注意事项">8.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#84-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>开环 SCP 测试可能导致大电流损坏 DUT，测试时间必须严格控制</li>
+<li>建议使用高功率 SMU 或通过外部 MOSFET 控制短路开关</li>
+<li>必须在 DUT 工作温度范围内测试（高温下电流限制可能漂移）</li>
+</ul>
+<hr/>
+<h2 id="九缓起时间测试">九、缓起时间测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#九缓起时间测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="91-原理">9.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#91-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>电压模Buck的软启动（Soft-Start）通过控制 EA 参考电压 VREF 的上升速率来限制启动电流。软启动电路的核心是：</p>
+<ul>
+<li>内部电流源对软启动电容充电，产生线性上升的 VREF</li>
+<li>VREF = (ISS / CSS) × t，其中 ISS 为充电电流，CSS 为软启动电容</li>
+<li>EA 通过反馈环路使 VOUT 跟随 VREF 上升</li>
+</ul>
+<p><strong>多软启动时间设计：</strong>
+部分电压模Buck支持多个可选的软启动时间，以适应不同输出电容和负载要求：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>配置</th><th>适用场景</th></tr></thead><tbody><tr><td>快速软启动（~100us）</td><td>小输出电容、快速开关机</td></tr><tr><td>标准软启动（~500us）</td><td>常规输出电容</td></tr><tr><td>慢速软启动（~1ms）</td><td>大输出电容、预偏置启动</td></tr></tbody></table></div>
+<h3 id="92-测试方法">9.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#92-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载</td><td>空载</td></tr><tr><td>测量仪器</td><td>数字化仪 / 示波器</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>确保 VOUT 已放电至接近 0V</li>
+<li>发送使能命令</li>
+<li>用数字化仪捕获 VOUT 从 0V 上升至目标值的完整波形</li>
+<li>测量 10% 到 90% VOUT 的上升时间</li>
+<li>如果支持多软启动时间配置，切换配置后重复测试</li>
+</ol>
+<h3 id="93-判定标准">9.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#93-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th></tr></thead><tbody><tr><td>软启动时间（快速）</td><td>100us ± 30%</td></tr><tr><td>软启动时间（标准）</td><td>500us ± 30%</td></tr><tr><td>软启动时间（慢速）</td><td>1ms ± 30%</td></tr><tr><td>单调性</td><td>强制单调上升</td></tr><tr><td>启动过冲</td><td>&lt; 3% VOUT</td></tr></tbody></table></div>
+<h3 id="94-测试注意事项">9.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#94-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>启动前务必确认 VOUT 已完全放电</li>
+<li>若存在输出预偏置（Pre-bias），软启动行为可能不同（VOUT 从预偏置电压继续上升）</li>
+</ul>
+<hr/>
+<h2 id="十空载静态电流测试">十、空载静态电流测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十空载静态电流测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="101-原理">10.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#101-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>静态电流（Quiescent Current, IQ）</strong> 是 Buck 变换器在空载（IOUT = 0）时从输入消耗的电流。</p>
+<p>在电压模Buck中，IQ 由以下部分组成：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>组成部分</th><th>说明</th><th>在不同模式下的行为</th></tr></thead><tbody><tr><td>带隙参考 VREF</td><td>内部基准</td><td>始终存在</td></tr><tr><td>误差放大器 EA</td><td>环路调节</td><td>始终工作</td></tr><tr><td>PWM 比较器</td><td>脉冲调制</td><td>COT/CCM 模式下持续工作</td></tr><tr><td>振荡器</td><td>时钟产生</td><td>CCM 固定频率工作</td></tr><tr><td>驱动级损耗</td><td>开关</td><td>ECO 模式下开关频率极低</td></tr><tr><td>保护电路</td><td>OVP/SCP/TSD 监测</td><td>始终存在</td></tr></tbody></table></div>
+<p><strong>三种不同模式下的 IQ 差异：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>IQ 大小</th><th>说明</th></tr></thead><tbody><tr><td>ECO 模式</td><td>最低（~10uA）</td><td>大部分电路关闭，仅维持输出</td></tr><tr><td>COT 模式</td><td>中等（~50uA）</td><td>Ton 控制电路工作，频率随负载变化</td></tr><tr><td>CCM 模式</td><td>最高（~几百 uA）</td><td>所有电路持续工作</td></tr></tbody></table></div>
+<h3 id="102-测试方法">10.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#102-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载</td><td>空载 (IOUT = 0mA)</td></tr><tr><td>模式</td><td>ECO / COT / CCM</td></tr><tr><td>测量</td><td>VIN 输入电流</td></tr><tr><td>测量仪器</td><td>高精度 SMU</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出，空载运行</li>
+<li>切换到待测模式（ECO / COT / CCM）</li>
+<li>等待输出稳定</li>
+<li>测量 VIN 输入电流 IIN</li>
+<li>记录 IQ = IIN（空载时无输出电流）</li>
+<li>切换模式，重复测量</li>
+</ol>
+<h3 id="103-判定标准">10.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#103-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>IQ 典型值</th><th>上限</th></tr></thead><tbody><tr><td>ECO</td><td>10 uA</td><td>20 uA</td></tr><tr><td>COT</td><td>50 uA</td><td>80 uA</td></tr><tr><td>CCM</td><td>200 uA</td><td>300 uA</td></tr></tbody></table></div>
+<h3 id="104-测试注意事项">10.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#104-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>空载时 Buck 可能进入脉冲跳跃模式，IQ 测量需在足够长的时间内取平均</li>
+<li>使用 SMU 的自动量程功能，从低电流量程开始测量</li>
+<li>建议在测试系统上增加滤波电容，避免噪声影响低电流测量精度</li>
+<li>IQ 测试对环境温度敏感，建议在恒温条件下进行</li>
+</ul>
+<hr/>
+<h2 id="十一delay-loop-on-time-和-rc-on-time-测试">十一、Delay-Loop On-Time 和 RC On-Time 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十一delay-loop-on-time-和-rc-on-time-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="111-原理">11.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#111-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1111-constant-on-timecot控制原理">11.1.1 Constant-On-Time（COT）控制原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1111-constant-on-timecot控制原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>COT（恒定导通时间）控制是一种在电压模和迟滞Buck中广泛使用的控制方式，其特点为：</p>
+<ul>
+<li>上管导通时间（TON）由定时电路决定，基本恒定</li>
+<li>开关频率通过调节关断时间（TOFF）来调节</li>
+<li>负载变重时，TOFF 缩短，频率升高以提供更多能量</li>
+</ul>
+<h4 id="1112-ton-产生方式">11.1.2 TON 产生方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1112-ton-产生方式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>TON 的产生有两种常见方式：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>方式</th><th>原理</th><th>精度</th><th>工艺敏感性</th></tr></thead><tbody><tr><td><strong>Delay-Loop TON</strong></td><td>数字延迟链（Delay Chain）计数产生固定TON</td><td>高</td><td>低（数字逻辑）</td></tr><tr><td><strong>RC TON</strong></td><td>RC 定时电路：TON = k × R × C</td><td>中等</td><td>高（R、C 随工艺变化）</td></tr></tbody></table></div>
+<p><strong>Delay-Loop TON 原理：</strong></p>
+<pre><code>EN ----> 延迟链（可调抽头）
+         |→ D1 → D2 → ... → Dn →|
+         |______ 比较器 ________|
+                   |
+                  TON 结束信号
+</code></pre>
+<p>延迟链由多个门延迟单元串联，总延迟 = TON。通常可以通过 trim 调整延迟链的抽头位置来校准 TON。</p>
+<p><strong>RC TON 原理：</strong></p>
+<pre><code>VIN ----> R ----> C ----|+\
+                        |  >---> TON 结束
+VREF ----|-/
+</code></pre>
+<p>电流源给电容充电，电容电压达到阈值时触发 TON 结束。TON = (C × VTH) / ICHARGE。</p>
+<h3 id="112-测试方法">11.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#112-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标值（影响占空比进而影响 TON）</td></tr><tr><td>模式</td><td>COT 模式</td></tr><tr><td>测量节点</td><td>LX 引脚</td></tr><tr><td>测量仪器</td><td>示波器 / TMU</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 在 COT 模式下运行</li>
+<li>设置 VOUT 为指定值</li>
+<li>施加负载（确保工作在 COT 模式）</li>
+<li>用示波器捕获 LX 波形</li>
+<li>测量 HS-FET 导通时间（TON）</li>
+<li>对于 Delay-Loop TON：
+<ul>
+<li>在不同 VIN/VOUT/负载下验证 TON 的一致性</li>
+<li>TON 基本不随工况变化</li>
+</ul>
+</li>
+<li>对于 RC TON：
+<ul>
+<li>在不同 VIN 下验证 TON 变化</li>
+<li>验证 TON 是否符合 RC 时间常数</li>
+</ul>
+</li>
+</ol>
+<h3 id="113-判定标准">11.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#113-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>允差</th></tr></thead><tbody><tr><td>Delay-Loop TON</td><td>如 100ns</td><td>±10%</td></tr><tr><td>RC TON</td><td>如 150ns</td><td>±20%</td></tr><tr><td>TON 在不同 VIN 下的变化</td><td>—</td><td>&lt; 5% (Delay-Loop)</td></tr></tbody></table></div>
+<h3 id="114-测试注意事项">11.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#114-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>TON 时间通常很短（几十到几百 ns），需要高带宽示波器（≥ 500MHz）</li>
+<li>多次测量取平均以降低随机误差</li>
+<li>需区分 TON 是天然变化还是测试误差</li>
+</ul>
+<hr/>
+<h2 id="十二大电流上报测试">十二、大电流上报测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十二大电流上报测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="121-原理">12.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#121-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>大电流上报（High Current Report）</strong> 是指 Buck 变换器在检测到输出电流超过设定阈值时，通过中断引脚或状态寄存器通知系统的功能。</p>
+<ul>
+<li>内部电流检测电路持续监测输出电流</li>
+<li>可编程的电流阈值寄存器设定上报触发点</li>
+<li>当 IOUT > Ith 时，置位状态位并触发中断（INT_N 拉低）</li>
+<li>常用于 CPU 供电中的电流告警</li>
+</ul>
+<h3 id="122-测试方法">12.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#122-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>电流阈值</td><td>寄存器设定值</td></tr><tr><td>负载</td><td>从低于阈值逐步增加到高于阈值</td></tr><tr><td>测量</td><td>中断引脚状态 / 寄存器状态位</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出至目标 VOUT</li>
+<li>设定电流检测阈值寄存器（如 1A）</li>
+<li>施加负载 ILOAD 从 0 逐步增加</li>
+<li>在各负载点监测：
+<ul>
+<li>状态寄存器中的电流标志位</li>
+<li>INT_N 引脚状态（如有）</li>
+</ul>
+</li>
+<li>记录电流触发阈值（标志位从 0 → 1 的负载电流）</li>
+<li>反向测试：降低负载，记录阈值恢复点</li>
+<li>验证阈值精度和在允差范围内</li>
+</ol>
+<h3 id="123-判定标准">12.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#123-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>限值</th></tr></thead><tbody><tr><td>电流触发阈值精度</td><td>±15%</td></tr><tr><td>迟滞</td><td>5% ~ 10% of 阈值</td></tr></tbody></table></div>
+<h3 id="124-测试注意事项">12.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#124-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>电流基准源需经过校准，确保参考电流值的准确性</li>
+<li>大电流测试时注意 PCB 散热和 DUT 自热</li>
+<li>若同时有 OCP 保护，需确保测试电流不触发 OCP</li>
+</ul>
+<hr/>
+<h2 id="十三ramp-step-幅度测试">十三、Ramp Step 幅度测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十三ramp-step-幅度测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="131-原理">13.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#131-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>电压模Buck的 DVS（动态电压调节）通过<strong>离散电压台阶（Ramp Step）</strong> 实现：</p>
+<ul>
+<li>内部 VID DAC 在每个时钟周期递增/递减一个固定步长</li>
+<li>步长 = VSTEP（如 5mV、10mV）</li>
+<li>步进间隔 = TSTEP（如 1us、2us）</li>
+<li>Ramp 速率 = VSTEP / TSTEP</li>
+</ul>
+<p><strong>Ramp Step 示意图：</strong></p>
+<pre><code>VOUT
+  |      _  _  _  _  _  _
+  |    _| |_| |_| |_| |_| |_
+  |  _|                   | |_
+  |_|                        |_
+  |_____________________________ t
+     ↑ 每个台阶 = VSTEP
+     ←→ 台阶间间隔 = TSTEP
+</code></pre>
+<h3 id="132-测试方法">13.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#132-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT 起始</td><td>VOUT_LOW</td></tr><tr><td>VOUT 目标</td><td>VOUT_HIGH</td></tr><tr><td>负载</td><td>空载</td></tr><tr><td>测量仪器</td><td>高分辨率数字化仪</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>设置 Buck 输出为 VOUT_LOW</li>
+<li>发起正向 ramp 到 VOUT_HIGH</li>
+<li>使用高分辨率数字化仪（≥ 16-bit）连续采样 VOUT</li>
+<li>对 VOUT 波形进行差分处理，检测每个台阶</li>
+<li>测量：
+<ul>
+<li><strong>台阶幅度</strong>：VSTEP（相邻台阶之间的电压差）</li>
+<li><strong>台阶间隔</strong>：TSTEP</li>
+<li><strong>台阶数量</strong>：NRAMP = (VOUT_HIGH - VOUT_LOW) / VSTEP</li>
+<li><strong>单调性</strong>：每个台阶的电压方向是否一致</li>
+</ul>
+</li>
+<li>反向 ramp 重复测试</li>
+</ol>
+<p><strong>台阶检测算法：</strong></p>
+<pre><code>对 VOUT 采样序列做微分：
+  dV/dt = (V[n] - V[n-1]) / Ts
+
+检测 dV/dt 的显著变化：
+  |dV/dt| > 阈值 → 检测到台阶
+
+台阶幅度 = 相邻稳态值之差
+</code></pre>
+<h3 id="133-判定标准">13.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#133-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>允差</th></tr></thead><tbody><tr><td>台阶幅度</td><td>5mV / 10mV</td><td>±30%</td></tr><tr><td>台阶间隔</td><td>1us / 2us</td><td>±20%</td></tr><tr><td>台阶数量</td><td>(VHIGH - VLOW) / VSTEP</td><td>±1</td></tr><tr><td>单调性</td><td>强制单调</td><td>—</td></tr><tr><td>台阶间纹波</td><td>&lt; 5mV</td><td>—</td></tr></tbody></table></div>
+<h3 id="134-测试注意事项">13.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#134-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>需要高分辨率数字化仪（推荐 16-bit 以上）以分辨小幅度台阶（5mV）</li>
+<li>台阶幅度越小，对噪声越敏感。建议使用平均功能降低随机噪声</li>
+<li>示波器的垂直分辨率通常为 8-bit，可能不足以分辨 5mV 台阶，优先使用高分辨率数字化仪</li>
+</ul>
+<hr/>
+<h2 id="十四ea-clamp-下钳位上升压测">十四、EA Clamp 下钳位上升压测<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十四ea-clamp-下钳位上升压测" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="141-原理">14.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#141-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>误差放大器（EA）的钳位电压（Clamp Voltage）</strong> 决定了 PWM 比较器输入的变化范围，进而控制占空比的极限。</p>
+<p><strong>EA Clamp 的作用：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>钳位</th><th>对应条件</th><th>影响</th></tr></thead><tbody><tr><td>上钳位（High Clamp）</td><td>EA 输出最高电压</td><td>对应最大占空比（DMAX）</td></tr><tr><td>下钳位（Low Clamp）</td><td>EA 输出最低电压</td><td>对应最小占空比（DMIN）</td></tr></tbody></table></div>
+<p><strong>EA 输出与占空比的关系：</strong></p>
+<ul>
+<li>EA 输出与斜坡信号（Ramp）在 PWM 比较器比较</li>
+<li>EA 输出越高 → 占空比越大</li>
+<li>EA 输出被钳位至 VCLAMP_HIGH → 占空比达到 DMAX</li>
+<li>EA 输出被钳位至 VCLAMP_LOW → 占空比达到 DMIN</li>
+</ul>
+<p><strong>下钳位上升压测（EEA Clamp Low-Side Clamp Rising Test）</strong> 测试：</p>
+<ul>
+<li>强制 EA 输出达到下钳位（通过设置 VOUT 远高于目标值）</li>
+<li>测量 EA 下钳位电压 VCLAMP_LOW</li>
+<li>验证钳位电压是否在预期范围内</li>
+<li>间接验证系统的最小占空比能力</li>
+</ul>
+<h3 id="142-测试方法">14.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#142-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值（较高，如 5V）</td></tr><tr><td>VOUT</td><td>设置远低于目标（使 EA 饱和为低）</td></tr><tr><td>负载</td><td>空载或轻载</td></tr><tr><td>测量</td><td>EA 输出引脚电压（如可引出）或间接推断</td></tr></tbody></table></div>
+<p>直接测量法（EA 输出可引出）：</p>
+<ol>
+<li>设置 VIN 为高值，VOUT_TARGET 设置为低值（如 0.6V）</li>
+<li>使能 Buck</li>
+<li>由于 VOUT 远低于目标，EA 输出驱动到低电平</li>
+<li>在 PWM 比较器输出处观察占空比是否达到 DMIN</li>
+<li>直接测量 EA 输出引脚电压 = VCLAMP_LOW</li>
+</ol>
+<p>间接推断法（EA 输出不可引出）：</p>
+<ol>
+<li>逐步降低 VOUT_TARGET，同时监测 VOUT 实际值</li>
+<li>当 VOUT 实际值不再随目标值降低而降低时</li>
+<li>说明 EA 已经达到下钳位</li>
+<li>此时的 VOUT_TARGET 可以推断钳位状态</li>
+</ol>
+<h3 id="143-判定标准">14.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#143-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>单位</th></tr></thead><tbody><tr><td>EA 下钳位电压</td><td>0.3 ~ 0.6</td><td>V</td></tr><tr><td>对应最小占空比 DMIN</td><td>&lt; 5%</td><td>—</td></tr></tbody></table></div>
+<h3 id="144-测试注意事项">14.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#144-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>如果 EA 输出不是外部引脚，无法直接测量，需通过寄存器调试接口间接读回</li>
+<li>EA 钳位电压和对应的占空比边界与 trim 相关，需结合 trim 文档分析</li>
+<li>温度变化会影响 EA 的钳位电压</li>
+</ul>
+<hr/>
+<h2 id="十五输出电压精度纹波测试三种模式ecocotccm">十五、输出电压精度/纹波测试（三种模式：ECO/COT/CCM）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十五输出电压精度纹波测试三种模式ecocotccm" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="151-原理">15.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#151-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>电压模Buck在不同工作模式下具有不同的输出电压特性和纹波表现：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>控制方式</th><th>工作负载</th><th>输出纹波</th><th>效率</th></tr></thead><tbody><tr><td><strong>ECO 模式</strong></td><td>脉冲跳跃（Pulse Skipping），轻载时跳过多余开关周期</td><td>轻载（&lt; 50mA）</td><td><strong>最高</strong>（跳跃时电压恢复）</td><td>最高</td></tr><tr><td><strong>COT 模式</strong></td><td>恒定导通时间，TON 固定，TOFF 调节</td><td>中载（50mA ~ 500mA）</td><td>中等</td><td>中等</td></tr><tr><td><strong>CCM 模式</strong></td><td>固定频率 PWM</td><td>重载（> 500mA）</td><td><strong>最低</strong>（连续导通）</td><td>高</td></tr></tbody></table></div>
+<p><strong>ECO 模式的高纹波原因：</strong></p>
+<ul>
+<li>在 ECO 模式下，Buck 仅在 VOUT 下降到下限阈值时才开启一个开关周期</li>
+<li>开关周期之间间隔长（数十到数百个时钟周期），VOUT 在间隔期间自然下降</li>
+<li>这导致较大的输出电压波动（纹波）</li>
+</ul>
+<p><strong>CCM 模式低纹波原因：</strong></p>
+<ul>
+<li>每个开关周期连续导通，电感电流连续</li>
+<li>输出电容持续充放电，电压变化幅度小</li>
+<li>纹波频率 = 开关频率（高），滤波效果好</li>
+</ul>
+<h3 id="152-测试方法">15.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#152-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>目标输出电压</td></tr><tr><td>负载</td><td>各模式下对应的负载点</td></tr><tr><td>测量</td><td>DC 平均值 + AC 纹波 Vpp</td></tr><tr><td>测量仪器</td><td>DMM（DC）+ 示波器/数字化仪（AC）</td></tr></tbody></table></div>
+<p><strong>DC 精度测试：</strong></p>
+<ol>
+<li>使能 Buck 输出</li>
+<li>设置工作模式（ECO/COT/CCM）</li>
+<li>设置对应模式的负载电流</li>
+<li>使用 DMM（4-Wire）测量 VOUT DC 平均值</li>
+<li>计算精度误差</li>
+</ol>
+<p><strong>AC 纹波测试：</strong></p>
+<ol>
+<li>在相同条件下，将示波器设为 AC 耦合</li>
+<li>带宽限制设为 20MHz</li>
+<li>测量 VOUT 纹波峰峰值 Vpp</li>
+<li>计算纹波幅度与 VOUT 的百分比</li>
+</ol>
+<h3 id="153-判定标准">15.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#153-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>DC 精度</th><th>纹波 Vpp 典型值</th><th>纹波 Vpp 上限</th></tr></thead><tbody><tr><td>ECO</td><td>±2%</td><td>&lt; 25mV</td><td>&lt; 40mV</td></tr><tr><td>COT</td><td>±1.5%</td><td>&lt; 15mV</td><td>&lt; 25mV</td></tr><tr><td>CCM</td><td>±1%</td><td>&lt; 8mV</td><td>&lt; 15mV</td></tr></tbody></table></div>
+<h3 id="154-测试注意事项">15.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#154-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>ECO 模式纹波测量时，示波器时基需设置为较长时间（ms 级）以捕获完整的跳跃周期</li>
+<li>CCM 模式纹波测量时，时基应设置为较短时间（us 级）</li>
+<li>DC 精度测试使用 DMM 多次平均，减少随机噪声影响</li>
+<li>探头的接地要使用短弹簧地线，避免地环路引入额外噪声</li>
+</ul>
+<hr/>
+<h2 id="十六buck-小占空比输出电压精度测试">十六、BUCK 小占空比输出电压精度测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十六buck-小占空比输出电压精度测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="161-原理">16.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#161-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>小占空比条件</strong>：当 VIN 远高于 VOUT 时，Buck 变换器工作在小占空比（Small Duty Cycle）条件下。</p>
+<pre><code>D = VOUT / VIN （理想情况，CCM 下）
+
+VIN = 5V, VOUT = 0.6V → D = 12%
+VIN = 12V, VOUT = 0.6V → D = 5%
+</code></pre>
+<p><strong>最小导通时间限制（Minimum TON, TON_MIN）：</strong></p>
+<ul>
+<li>PWM 控制器能够产生的最窄导通脉冲宽度受限于电路内部延迟</li>
+<li>当占空比要求小于 DMIN = TON_MIN × fsw 时，Buck 无法准确调节</li>
+<li>表现为 <strong>Droop（电压跌落）</strong>——VOUT 实际值低于目标值</li>
+</ul>
+<p><strong>小占空比下的典型影响：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>影响</th><th>说明</th></tr></thead><tbody><tr><td>输出电压偏低（Droop）</td><td>无法精确输出所需占空比</td></tr><tr><td>多脉冲现象</td><td>控制器跳过多个周期后输出一个脉冲</td></tr><tr><td>频率调制</td><td>实际开关频率降低</td></tr><tr><td>纹波增大</td><td>因为脉冲跳过/聚集导致输出波纹增大</td></tr></tbody></table></div>
+<h3 id="162-测试方法">16.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#162-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>最高值（如 5.5V 或 12V）</td></tr><tr><td>VOUT</td><td>最低值（如 0.6V 或 0.3V）</td></tr><tr><td>负载</td><td>中载（确保工作在 CCM）</td></tr><tr><td>测量</td><td>VOUT DC 精度</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>设置 VIN 为最高值，VOUT_TARGET 为最低值</li>
+<li>使能 Buck 输出</li>
+<li>施加中载（CCM 条件）</li>
+<li>使用 DMM 测量 VOUT 实际值</li>
+<li>计算精度误差</li>
+<li>若误差超出规格（如 > 3%），可能指示 TON_MIN 限制</li>
+</ol>
+<p><strong>输出精度与 VIN 的关系曲线（Shmoo 测试）：</strong></p>
+<pre><code>VOUT_ACCURACY
+  |
+  | +2% ──────┬──────────────────
+  |           │ 正常调节区域
+  |  0% ──────┼─────┬────────────
+  |           │     │  Droop 区域
+  | -5% ──────┼─────┴────────────
+  |           │     │
+  |          2.5V  5.0V  VIN
+</code></pre>
+<h3 id="163-判定标准">16.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#163-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>限值</th></tr></thead><tbody><tr><td>输出电压精度</td><td>常规占空比（D > 10%）</td><td>±2%</td></tr><tr><td>输出电压精度</td><td>小占空比（D &lt; 5%）</td><td>±3%</td></tr><tr><td>最小占空比 DMIN</td><td>—</td><td>&lt; 3%</td></tr></tbody></table></div>
+<h3 id="164-测试注意事项">16.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#164-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>小占空比条件容易与负载调整和线调整条件耦合，需确保 VIN 和负载的稳定性</li>
+<li>测试前需确认 TON_MIN 修调已完成</li>
+<li>若输出精度超出规格，需要确认是否为 TON_MIN 限制还是其他原因（如 EA 偏移）</li>
+</ul>
+<hr/>
+<h2 id="十七tsensor-功能正常上报测试">十七、TSENSOR 功能正常上报测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十七tsensor-功能正常上报测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="171-原理">17.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#171-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>TSENSOR（温度传感器）</strong> 集成在 PMIC 芯片内部，用于监测芯片的结温：</p>
+<ul>
+<li>通常使用寄生的 PNP/BJT 管的 VBE 随温度变化来感测温度</li>
+<li>VPTAT（Proportional To Absolute Temperature）电压随温度线性变化</li>
+<li>TSENSOR 输出被 ADC 采样转换为数字温度值</li>
+</ul>
+<p><strong>温度传感器的主要功能：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>功能</th><th>描述</th></tr></thead><tbody><tr><td>温度监测</td><td>实时读取芯片温度</td></tr><tr><td>温度告警（Thermal Warning）</td><td>超过告警阈值时产生中断</td></tr><tr><td>热关断（Thermal Shutdown, TSD）</td><td>超过安全阈值时关闭芯片</td></tr><tr><td>散热控制</td><td>根据温度调整工作模式</td></tr></tbody></table></div>
+<h3 id="172-测试方法">17.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#172-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>环境温度</td><td>25°C（室温）</td></tr><tr><td>VIN</td><td>标称值</td></tr><tr><td>DUT 状态</td><td>使能，轻载</td></tr><tr><td>加热方式</td><td>内部加热器或外部热源</td></tr></tbody></table></div>
+<p><strong>方法一：内部加热器法</strong></p>
+<ol>
+<li>使能 TSENSOR 和内部加热器</li>
+<li>以一定功率开启加热器</li>
+<li>连续读取温度寄存器值</li>
+<li>观察寄存器值随加热时间的上升曲线</li>
+<li>关闭加热器，观察降温曲线</li>
+<li>验证温度报告值的变化趋势正确</li>
+</ol>
+<p><strong>方法二：外部温度箱法</strong></p>
+<ol>
+<li>将 DUT 放置在温度试验箱中</li>
+<li>分别在 25°C / 85°C / -40°C 下稳态后读取温度寄存器</li>
+<li>验证温度读数 vs. 实际环境温度的误差</li>
+</ol>
+<h3 id="173-判定标准">17.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#173-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>限值</th></tr></thead><tbody><tr><td>温度读数精度（25°C）</td><td>±5°C</td></tr><tr><td>温度读数精度（85°C）</td><td>±5°C</td></tr><tr><td>温度告警触发</td><td>在规格温度 ±10°C 内触发</td></tr><tr><td>热关断触发</td><td>在规格温度 ±10°C 内触发</td></tr></tbody></table></div>
+<h3 id="174-测试注意事项">17.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#174-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>内部加热器法只能做定性功能验证，不能替代温度箱的精度标定</li>
+<li>温度箱法需确保 DUT 在设定温度下充分热稳定（通常需 5~10 分钟）</li>
+<li>芯片自热效应可能影响温度读数（大电流测试时需注意）</li>
+<li>多颗 DUT 需在同一温度箱中确保温度一致性</li>
+</ul>
+<hr/>
+<h2 id="十八eco-模式电压精度影响测试">十八、ECO 模式电压精度影响测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十八eco-模式电压精度影响测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="181-原理">18.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#181-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>ECO（Efficiency Optimization）模式通过降低开关频率来减少开关损耗，但可能对电压精度产生影响：</p>
+<p><strong>ECO 模式下电压精度下降的原因：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>原因</th><th>说明</th></tr></thead><tbody><tr><td>不同控制路径</td><td>ECO 模式使用独立的控制比较器，与 CCM 模式的 EA 路径不同</td></tr><tr><td>比较器偏移</td><td>ECO 比较器可能存在额外失调，影响调节点</td></tr><tr><td>纹波影响</td><td>ECO 模式下较大的输出纹波导致电压采样点变化</td></tr><tr><td>负载调节</td><td>ECO 模式下瞬态响应较慢，负载变化时电压调节滞后</td></tr></tbody></table></div>
+<h3 id="182-测试方法">18.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#182-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT</td><td>多电压点测试</td></tr><tr><td>负载</td><td>轻载（ECO 模式），从 1mA 到 ECO 模式下限</td></tr><tr><td>模式</td><td>ECO 模式</td></tr><tr><td>测量</td><td>VOUT DC 精度</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>使能 Buck 输出至目标 VOUT</li>
+<li>设置为 ECO 模式</li>
+<li>施加轻载（如 1mA, 10mA）</li>
+<li>使用 DMM 测量 VOUT</li>
+<li>记录 DC 精度误差</li>
+<li>逐点扫描负载，绘制 ECO 模式下 VOUT 精度 vs. 负载曲线</li>
+<li>在相同负载条件下切换至 CCM 模式，对比精度差异</li>
+</ol>
+<h3 id="183-判定标准">18.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#183-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>VOUT 精度</th></tr></thead><tbody><tr><td>ECO 模式</td><td>±2.5%</td></tr><tr><td>CCM 模式</td><td>±1.5%</td></tr><tr><td>ECO vs. CCM 精度差</td><td>&lt; 1%</td></tr></tbody></table></div>
+<h3 id="184-测试注意事项">18.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#184-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>ECO 模式下 VOUT 纹波较大，DMM 测量需设置足够的积分时间（如 100 PLC）获取稳定的平均值</li>
+<li>需在 ECO 模式的整个负载范围内测试，不同负载下精度可能不同</li>
+<li>若 ECO 精度超出规格，需检查 ECO 比较器的 trim 是否正常</li>
+</ul>
+<hr/>
+<h2 id="十九rampdown-过程输出异常筛选">十九、RampDown 过程输出异常筛选<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十九rampdown-过程输出异常筛选" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="191-原理">19.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#191-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>在电压模Buck的 RampDown（DVS 向下调节）过程中，VOUT 从高电压下降到低电压。可能出现的异常与迟滞Buck类似：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>异常类型</th><th>描述</th><th>对负载（CPU/GPU）的影响</th></tr></thead><tbody><tr><td>下冲（Undershoot）</td><td>VOUT 跌至目标值以下</td><td>可能导致逻辑电路时序违规</td></tr><tr><td>非单调（Non-Monotonic）</td><td>VOUT 下降过程中出现局部上升</td><td>可能导致核心电压异常升高</td></tr><tr><td>台阶异常</td><td>某个 ramp step 缺失或重叠</td><td>导致 VOUT 曲线异常</td></tr><tr><td>振铃</td><td>下降过程后的振荡</td><td>延长稳定时间</td></tr></tbody></table></div>
+<p>由于 CPU/GPU 核心电压对 ramp 质量要求极高，RampDown 异常筛选是 FT 中的关键质量筛选项。</p>
+<h3 id="192-测试方法">19.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#192-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th></tr></thead><tbody><tr><td>VIN</td><td>标称值</td></tr><tr><td>VOUT 起始</td><td>VOUT_HIGH（如 1.2V）</td></tr><tr><td>VOUT 目标</td><td>VOUT_LOW（如 0.6V）</td></tr><tr><td>Ramp 速率</td><td>规格值</td></tr><tr><td>负载</td><td>空载 + 满载</td></tr><tr><td>测量仪器</td><td>高速高分辨率数字化仪</td></tr></tbody></table></div>
+<p>测试步骤：</p>
+<ol>
+<li>
+<p>设置 Buck 输出为 VOUT_HIGH，稳定运行</p>
+</li>
+<li>
+<p>发起 ramp-down 命令（目标 VOUT_LOW）</p>
+</li>
+<li>
+<p>使用数字化仪连续采样 VOUT（采样率 ≥ 10MS/s，分辨率 ≥ 16-bit）</p>
+</li>
+<li>
+<p>捕获完整 ramp-down 过程波形</p>
+</li>
+<li>
+<p>执行以下异常检测：</p>
+<p><strong>下冲检测：</strong></p>
+<ul>
+<li>计算 VOUT 与目标值的偏差</li>
+<li>标记 VOUT &lt; VOUT_TARGET - VTH 的时段</li>
+</ul>
+<p><strong>非单调检测：</strong></p>
+<ul>
+<li>计算 VOUT 的微分（差分）：dV[n] = V[n] - V[n-1]</li>
+<li>在 ramp 期间，dV[n] 应为负值（下降）</li>
+<li>任何正值表示非单调行为</li>
+</ul>
+<p><strong>台阶异常检测：</strong></p>
+<ul>
+<li>识别 ramp 台阶</li>
+<li>检查台阶幅度和间隔的一致性</li>
+</ul>
+<p><strong>振铃检测：</strong></p>
+<ul>
+<li>在 ramp 完成后检查 VOUT 的波动幅度</li>
+</ul>
+</li>
+</ol>
+<p><strong>检测算法伪代码：</strong></p>
+<pre><code>// 下冲检测
+for each sample V[n]:
+    if V[n] &lt; VOUT_TARGET - UNDERSHOOT_LIMIT:
+        flag_undershoot = true
+
+// 非单调检测
+for each sample V[n] during ramp:
+    if V[n] > V[n-1] + NOISE_TH:
+        flag_non_monotonic = true
+
+// 振铃检测
+samples_after_ramp = V[n_settled ... n_end]
+if peak_to_peak(samples_after_ramp) > RINGING_LIMIT:
+    flag_ringing = true
+</code></pre>
+<h3 id="193-判定标准">19.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#193-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>限值</th></tr></thead><tbody><tr><td>下冲幅度</td><td>&lt; 目标 VOUT - 50mV</td></tr><tr><td>非单调检测</td><td>零容忍（不允许）</td></tr><tr><td>稳定后振铃</td><td>&lt; 5mVp</td></tr><tr><td>Ramp 斜率偏差</td><td>±25%</td></tr><tr><td>台阶缺失</td><td>零容忍</td></tr></tbody></table></div>
+<h3 id="194-测试注意事项">19.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#194-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>数字化仪的采样率需要足够高，台阶间隔通常在 us 级，需要至少 10 倍过采样</li>
+<li>高分辨率（≥ 16-bit）是检测微小非单调异常的必要条件</li>
+<li>空载和满载下的 ramp-down 行为不同：空载时输出电容放电慢，可能更平缓；满载时负载协助放电，可能更快</li>
+<li>RampDown 异常属于零容忍缺陷，任何异常的 DUT 必须标记为 Fail</li>
+</ul>
+<hr/>
+<h2 id="二十测试条件汇总">二十、测试条件汇总<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二十测试条件汇总" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="201-测试条件矩阵">20.1 测试条件矩阵<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#201-测试条件矩阵" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>VIN</th><th>VOUT</th><th>ILOAD</th><th>模式</th><th>温度</th><th>仪器</th></tr></thead><tbody><tr><td>多相 LX 频率</td><td>Typ</td><td>Target</td><td>满载</td><td>CCM</td><td>25°C</td><td>Scope (多通道)</td></tr><tr><td>多相下拉电阻</td><td>0V(Dis)</td><td>Force 1V</td><td>—</td><td>—</td><td>25°C</td><td>SMU</td></tr><tr><td>硬线 ECO 一步调压</td><td>Typ</td><td>Low→High</td><td>轻载</td><td>ECO</td><td>25°C</td><td>Scope</td></tr><tr><td>Ramp 中断</td><td>Typ</td><td>Low↔High</td><td>多负载</td><td>—</td><td>25°C</td><td>Digitizer</td></tr><tr><td>Loadline 精度</td><td>Typ</td><td>Target</td><td>Sweep</td><td>CCM</td><td>25/85°C</td><td>DMM + E-Load</td></tr><tr><td>OVP（开环）</td><td>Typ</td><td>Target+</td><td>Hi-Z</td><td>—</td><td>25°C</td><td>SMU</td></tr><tr><td>SCP（开环）</td><td>Typ</td><td>短路</td><td>—</td><td>开环</td><td>25°C</td><td>SMU</td></tr><tr><td>缓起时间</td><td>Typ</td><td>Target</td><td>0mA</td><td>—</td><td>25/85°C</td><td>Digitizer</td></tr><tr><td>空载 IQ</td><td>Typ</td><td>Target</td><td>0mA</td><td>ECO/COT/CCM</td><td>25°C</td><td>SMU</td></tr><tr><td>Delay-Loop/RC TON</td><td>Typ</td><td>Target</td><td>中载</td><td>COT</td><td>25°C</td><td>Scope/TMU</td></tr><tr><td>大电流上报</td><td>Typ</td><td>Target</td><td>Sweep</td><td>CCM</td><td>25°C</td><td>SMU</td></tr><tr><td>Ramp Step</td><td>Typ</td><td>Low→High</td><td>0mA</td><td>—</td><td>25°C</td><td>Digitizer</td></tr><tr><td>EA Clamp</td><td>Max</td><td>Min</td><td>轻载</td><td>—</td><td>25°C</td><td>Scope</td></tr><tr><td>输出精度/纹波</td><td>Typ</td><td>Target</td><td>按模式</td><td>ECO/COT/CCM</td><td>25/85°C</td><td>DMM + Scope</td></tr><tr><td>小占空比精度</td><td>Max</td><td>Min</td><td>中载</td><td>CCM</td><td>25°C</td><td>DMM</td></tr><tr><td>TSENSOR</td><td>Typ</td><td>Target</td><td>轻载</td><td>—</td><td>25/85°C</td><td>Temp Chamber</td></tr><tr><td>ECO 精度</td><td>Typ</td><td>Target</td><td>Sweep</td><td>ECO/CCM</td><td>25°C</td><td>DMM</td></tr><tr><td>RampDown 异常</td><td>Typ</td><td>High→Low</td><td>0/满载</td><td>—</td><td>25°C</td><td>Digitizer</td></tr></tbody></table></div>
+<h3 id="202-推荐仪器配置">20.2 推荐仪器配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#202-推荐仪器配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>仪器</th><th>配置</th><th>用途</th></tr></thead><tbody><tr><td>SMU</td><td>双通道（VIN + 辅助），带自动量程</td><td>供电、IQ、OVP/SCP</td></tr><tr><td>E-Load</td><td>动态模式，支持 CC/CR/CV</td><td>负载模拟</td></tr><tr><td>DMM</td><td>8.5 位，4-Wire 模式（如 3458A）</td><td>VOUT 精度主测</td></tr><tr><td>Digitizer</td><td>16-bit, 10~50MS/s</td><td>DVS ramp 波形分析</td></tr><tr><td>Scope</td><td>4 通道, ≥ 500MHz, 2.5GS/s</td><td>LX 波形、频率、相位</td></tr><tr><td>频率计</td><td>分辨率 0.1Hz</td><td>LX 频率精确测量</td></tr><tr><td>温度箱</td><td>-40°C ~ 125°C</td><td>TSENSOR 标定</td></tr></tbody></table></div>
+<hr/>
+<h2 id="二十一常见失效模式与排查">二十一、常见失效模式与排查<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二十一常见失效模式与排查" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>失效现象</th><th>可能原因</th><th>排查方法</th></tr></thead><tbody><tr><td>多相频率不一致</td><td>时钟分配路径故障</td><td>检查时钟缓冲器和分频器</td></tr><tr><td>相位差错误</td><td>时钟相位配置错误</td><td>检查相位配置寄存器</td></tr><tr><td>ECO 调压幅度异常</td><td>ECO 参考通路偏移</td><td>检查 ECO trim</td></tr><tr><td>Ramp 中断过冲</td><td>环路响应过冲</td><td>检查补偿参数</td></tr><tr><td>Loadline 不准确</td><td>电流检测偏移</td><td>检查电流检测 trim</td></tr><tr><td>OVP 阈值偏移</td><td>比较器失调</td><td>检查 OVP trim</td></tr><tr><td>缓起时间异常</td><td>SS 电容/电流偏差</td><td>检查 SS trim</td></tr><tr><td>IQ 过高</td><td>非正常开关或漏电</td><td>检查开关波形</td></tr><tr><td>TON 偏差大</td><td>RC 工艺角偏差</td><td>检查 TON trim</td></tr><tr><td>大电流上报不触发</td><td>电流检测偏移</td><td>检查电流检测电路</td></tr><tr><td>Ramp step 缺失</td><td>VID DAC 故障</td><td>检查 VID 时序</td></tr><tr><td>EA 钳位异常</td><td>EA 输出偏移</td><td>检查 EA trim</td></tr><tr><td>纹波过大（ECO）</td><td>比较器迟滞设置偏大</td><td>检查 ECO 阈值</td></tr><tr><td>小占空比 droop</td><td>TON_MIN 限制</td><td>检查 TON_MIN trim</td></tr><tr><td>TSENSOR 读数异常</td><td>ADC 偏移或 PNP 管失效</td><td>检查 TSENSOR trim</td></tr><tr><td>ECO 精度差</td><td>ECO 比较器偏移</td><td>检查 ECO trim</td></tr><tr><td>RampDown 非单调</td><td>负载变化或环路不稳定</td><td>检查环路稳定性</td></tr></tbody></table></div>
+<hr/>
+<h2 id="二十二参考与关联文档">二十二、参考与关联文档<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二十二参考与关联文档" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>文档</th><th>关联说明</th></tr></thead><tbody><tr><td><a href="../../.././FT" class="internal alias" data-slug="FT">FT.md — FT 测试总览</a></td><td>FT 测试项的完整清单与结构</td></tr><tr><td><a href="../../.././Trim" class="internal alias" data-slug="Trim">Trim.md — 修调总览</a></td><td>多相Buck 各修调项的说明</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调" class="internal alias" data-slug="PMIC/PMIC知识库/Trim测试知识库/05_多相Buck变换器修调">多相Buck变换器修调</a></td><td>多相电压模Buck CP 修调原理</td></tr><tr><td><a href="../../../PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试" class="internal alias" data-slug="PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试">迟滞Buck测试</a></td><td>迟滞Buck FT 测试的对照参考</td></tr><tr><td>[[<em>index</em>.md|FT 测试知识库索引]]</td><td>FT 测试知识库总索引</td></tr></tbody></table></div>
+<hr/>
+<blockquote>
+<p><strong>版本历史</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>日期</th><th>版本</th><th>变更内容</th></tr></thead><tbody><tr><td>2026-07-24</td><td>V1.0</td><td>初始版本，覆盖电压模Buck 全部 FT 测试项（含多相）</td></tr></tbody></table></div>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-87" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#电压模buck测试--pmic-电压模式降压变换器-ft-测试含多相" data-for="电压模buck测试--pmic-电压模式降压变换器-ft-测试含多相">电压模Buck测试 — PMIC 电压模式降压变换器 FT 测试（含多相）</a></li><li class="depth-1"><a href="#一电压模buck变换器概述" data-for="一电压模buck变换器概述">一、电压模Buck变换器概述</a></li><li class="depth-2"><a href="#11-电压模式控制基本原理" data-for="11-电压模式控制基本原理">1.1 电压模式控制基本原理</a></li><li class="depth-2"><a href="#12-三种工作模式" data-for="12-三种工作模式">1.2 三种工作模式</a></li><li class="depth-2"><a href="#13-多相buck原理" data-for="13-多相buck原理">1.3 多相Buck原理</a></li><li class="depth-1"><a href="#二多相lx频率测试" data-for="二多相lx频率测试">二、多相LX频率测试</a></li><li class="depth-2"><a href="#21-原理" data-for="21-原理">2.1 原理</a></li><li class="depth-2"><a href="#22-测试方法" data-for="22-测试方法">2.2 测试方法</a></li><li class="depth-2"><a href="#23-判定标准" data-for="23-判定标准">2.3 判定标准</a></li><li class="depth-2"><a href="#24-测试注意事项" data-for="24-测试注意事项">2.4 测试注意事项</a></li><li class="depth-1"><a href="#三多相buck输出下拉电阻测试" data-for="三多相buck输出下拉电阻测试">三、多相Buck输出下拉电阻测试</a></li><li class="depth-2"><a href="#31-原理" data-for="31-原理">3.1 原理</a></li><li class="depth-2"><a href="#32-测试方法" data-for="32-测试方法">3.2 测试方法</a></li><li class="depth-2"><a href="#33-判定标准" data-for="33-判定标准">3.3 判定标准</a></li><li class="depth-2"><a href="#34-测试注意事项" data-for="34-测试注意事项">3.4 测试注意事项</a></li><li class="depth-1"><a href="#四硬线eco一步调压" data-for="四硬线eco一步调压">四、硬线ECO一步调压</a></li><li class="depth-2"><a href="#41-原理" data-for="41-原理">4.1 原理</a></li><li class="depth-2"><a href="#42-测试方法" data-for="42-测试方法">4.2 测试方法</a></li><li class="depth-2"><a href="#43-判定标准" data-for="43-判定标准">4.3 判定标准</a></li><li class="depth-2"><a href="#44-测试注意事项" data-for="44-测试注意事项">4.4 测试注意事项</a></li><li class="depth-1"><a href="#五ramp-过程反向调压及中断" data-for="五ramp-过程反向调压及中断">五、Ramp 过程反向调压及中断</a></li><li class="depth-2"><a href="#51-原理" data-for="51-原理">5.1 原理</a></li><li class="depth-2"><a href="#52-测试方法" data-for="52-测试方法">5.2 测试方法</a></li><li class="depth-2"><a href="#53-判定标准" data-for="53-判定标准">5.3 判定标准</a></li><li class="depth-2"><a href="#54-测试注意事项" data-for="54-测试注意事项">5.4 测试注意事项</a></li><li class="depth-1"><a href="#六loadline-精度测试" data-for="六loadline-精度测试">六、Loadline 精度测试</a></li><li class="depth-2"><a href="#61-原理" data-for="61-原理">6.1 原理</a></li><li class="depth-2"><a href="#62-测试方法" data-for="62-测试方法">6.2 测试方法</a></li><li class="depth-2"><a href="#63-判定标准" data-for="63-判定标准">6.3 判定标准</a></li><li class="depth-2"><a href="#64-测试注意事项" data-for="64-测试注意事项">6.4 测试注意事项</a></li><li class="depth-1"><a href="#七ovp-测试开环" data-for="七ovp-测试开环">七、OVP 测试（开环）</a></li><li class="depth-2"><a href="#71-原理" data-for="71-原理">7.1 原理</a></li><li class="depth-2"><a href="#72-测试方法" data-for="72-测试方法">7.2 测试方法</a></li><li class="depth-2"><a href="#73-判定标准" data-for="73-判定标准">7.3 判定标准</a></li><li class="depth-2"><a href="#74-测试注意事项" data-for="74-测试注意事项">7.4 测试注意事项</a></li><li class="depth-1"><a href="#八scp-测试开环" data-for="八scp-测试开环">八、SCP 测试（开环）</a></li><li class="depth-2"><a href="#81-原理" data-for="81-原理">8.1 原理</a></li><li class="depth-2"><a href="#82-测试方法" data-for="82-测试方法">8.2 测试方法</a></li><li class="depth-2"><a href="#83-判定标准" data-for="83-判定标准">8.3 判定标准</a></li><li class="depth-2"><a href="#84-测试注意事项" data-for="84-测试注意事项">8.4 测试注意事项</a></li><li class="depth-1"><a href="#九缓起时间测试" data-for="九缓起时间测试">九、缓起时间测试</a></li><li class="depth-2"><a href="#91-原理" data-for="91-原理">9.1 原理</a></li><li class="depth-2"><a href="#92-测试方法" data-for="92-测试方法">9.2 测试方法</a></li><li class="depth-2"><a href="#93-判定标准" data-for="93-判定标准">9.3 判定标准</a></li><li class="depth-2"><a href="#94-测试注意事项" data-for="94-测试注意事项">9.4 测试注意事项</a></li><li class="depth-1"><a href="#十空载静态电流测试" data-for="十空载静态电流测试">十、空载静态电流测试</a></li><li class="depth-2"><a href="#101-原理" data-for="101-原理">10.1 原理</a></li><li class="depth-2"><a href="#102-测试方法" data-for="102-测试方法">10.2 测试方法</a></li><li class="depth-2"><a href="#103-判定标准" data-for="103-判定标准">10.3 判定标准</a></li><li class="depth-2"><a href="#104-测试注意事项" data-for="104-测试注意事项">10.4 测试注意事项</a></li><li class="depth-1"><a href="#十一delay-loop-on-time-和-rc-on-time-测试" data-for="十一delay-loop-on-time-和-rc-on-time-测试">十一、Delay-Loop On-Time 和 RC On-Time 测试</a></li><li class="depth-2"><a href="#111-原理" data-for="111-原理">11.1 原理</a></li><li class="depth-2"><a href="#112-测试方法" data-for="112-测试方法">11.2 测试方法</a></li><li class="depth-2"><a href="#113-判定标准" data-for="113-判定标准">11.3 判定标准</a></li><li class="depth-2"><a href="#114-测试注意事项" data-for="114-测试注意事项">11.4 测试注意事项</a></li><li class="depth-1"><a href="#十二大电流上报测试" data-for="十二大电流上报测试">十二、大电流上报测试</a></li><li class="depth-2"><a href="#121-原理" data-for="121-原理">12.1 原理</a></li><li class="depth-2"><a href="#122-测试方法" data-for="122-测试方法">12.2 测试方法</a></li><li class="depth-2"><a href="#123-判定标准" data-for="123-判定标准">12.3 判定标准</a></li><li class="depth-2"><a href="#124-测试注意事项" data-for="124-测试注意事项">12.4 测试注意事项</a></li><li class="depth-1"><a href="#十三ramp-step-幅度测试" data-for="十三ramp-step-幅度测试">十三、Ramp Step 幅度测试</a></li><li class="depth-2"><a href="#131-原理" data-for="131-原理">13.1 原理</a></li><li class="depth-2"><a href="#132-测试方法" data-for="132-测试方法">13.2 测试方法</a></li><li class="depth-2"><a href="#133-判定标准" data-for="133-判定标准">13.3 判定标准</a></li><li class="depth-2"><a href="#134-测试注意事项" data-for="134-测试注意事项">13.4 测试注意事项</a></li><li class="depth-1"><a href="#十四ea-clamp-下钳位上升压测" data-for="十四ea-clamp-下钳位上升压测">十四、EA Clamp 下钳位上升压测</a></li><li class="depth-2"><a href="#141-原理" data-for="141-原理">14.1 原理</a></li><li class="depth-2"><a href="#142-测试方法" data-for="142-测试方法">14.2 测试方法</a></li><li class="depth-2"><a href="#143-判定标准" data-for="143-判定标准">14.3 判定标准</a></li><li class="depth-2"><a href="#144-测试注意事项" data-for="144-测试注意事项">14.4 测试注意事项</a></li><li class="depth-1"><a href="#十五输出电压精度纹波测试三种模式ecocotccm" data-for="十五输出电压精度纹波测试三种模式ecocotccm">十五、输出电压精度/纹波测试（三种模式：ECO/COT/CCM）</a></li><li class="depth-2"><a href="#151-原理" data-for="151-原理">15.1 原理</a></li><li class="depth-2"><a href="#152-测试方法" data-for="152-测试方法">15.2 测试方法</a></li><li class="depth-2"><a href="#153-判定标准" data-for="153-判定标准">15.3 判定标准</a></li><li class="depth-2"><a href="#154-测试注意事项" data-for="154-测试注意事项">15.4 测试注意事项</a></li><li class="depth-1"><a href="#十六buck-小占空比输出电压精度测试" data-for="十六buck-小占空比输出电压精度测试">十六、BUCK 小占空比输出电压精度测试</a></li><li class="depth-2"><a href="#161-原理" data-for="161-原理">16.1 原理</a></li><li class="depth-2"><a href="#162-测试方法" data-for="162-测试方法">16.2 测试方法</a></li><li class="depth-2"><a href="#163-判定标准" data-for="163-判定标准">16.3 判定标准</a></li><li class="depth-2"><a href="#164-测试注意事项" data-for="164-测试注意事项">16.4 测试注意事项</a></li><li class="depth-1"><a href="#十七tsensor-功能正常上报测试" data-for="十七tsensor-功能正常上报测试">十七、TSENSOR 功能正常上报测试</a></li><li class="depth-2"><a href="#171-原理" data-for="171-原理">17.1 原理</a></li><li class="depth-2"><a href="#172-测试方法" data-for="172-测试方法">17.2 测试方法</a></li><li class="depth-2"><a href="#173-判定标准" data-for="173-判定标准">17.3 判定标准</a></li><li class="depth-2"><a href="#174-测试注意事项" data-for="174-测试注意事项">17.4 测试注意事项</a></li><li class="depth-1"><a href="#十八eco-模式电压精度影响测试" data-for="十八eco-模式电压精度影响测试">十八、ECO 模式电压精度影响测试</a></li><li class="depth-2"><a href="#181-原理" data-for="181-原理">18.1 原理</a></li><li class="depth-2"><a href="#182-测试方法" data-for="182-测试方法">18.2 测试方法</a></li><li class="depth-2"><a href="#183-判定标准" data-for="183-判定标准">18.3 判定标准</a></li><li class="depth-2"><a href="#184-测试注意事项" data-for="184-测试注意事项">18.4 测试注意事项</a></li><li class="depth-1"><a href="#十九rampdown-过程输出异常筛选" data-for="十九rampdown-过程输出异常筛选">十九、RampDown 过程输出异常筛选</a></li><li class="depth-2"><a href="#191-原理" data-for="191-原理">19.1 原理</a></li><li class="depth-2"><a href="#192-测试方法" data-for="192-测试方法">19.2 测试方法</a></li><li class="depth-2"><a href="#193-判定标准" data-for="193-判定标准">19.3 判定标准</a></li><li class="depth-2"><a href="#194-测试注意事项" data-for="194-测试注意事项">19.4 测试注意事项</a></li><li class="depth-1"><a href="#二十测试条件汇总" data-for="二十测试条件汇总">二十、测试条件汇总</a></li><li class="depth-2"><a href="#201-测试条件矩阵" data-for="201-测试条件矩阵">20.1 测试条件矩阵</a></li><li class="depth-2"><a href="#202-推荐仪器配置" data-for="202-推荐仪器配置">20.2 推荐仪器配置</a></li><li class="depth-1"><a href="#二十一常见失效模式与排查" data-for="二十一常见失效模式与排查">二十一、常见失效模式与排查</a></li><li class="depth-1"><a href="#二十二参考与关联文档" data-for="二十二参考与关联文档">二十二、参考与关联文档</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试" class="internal">迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试</a></li><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>HKADC_XOADC测试 — PMIC 模数转换器 FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="HKADC_XOADC测试 — PMIC 模数转换器 FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="HKADC_XOADC测试 — PMIC 模数转换器 FT 测试"/><meta name="twitter:description" content="PMIC 内部 HKADC（Housekeeping ADC）和 XOADC（Crystal Oscillator ADC / 辅助 ADC）的 FT 测试详细指南，涵盖漏电测试、转码精度、INL/DNL、上拉电阻等测试项目"/><meta property="og:description" content="PMIC 内部 HKADC（Housekeeping ADC）和 XOADC（Crystal Oscillator ADC / 辅助 ADC）的 FT 测试详细指南，涵盖漏电测试、转码精度、INL/DNL、上拉电阻等测试项目"/><meta property="og:image:alt" content="PMIC 内部 HKADC（Housekeeping ADC）和 XOADC（Crystal Oscillator ADC / 辅助 ADC）的 FT 测试详细指南，涵盖漏电测试、转码精度、INL/DNL、上拉电阻等测试项目"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/09_HKADC_XOADC"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/09_HKADC_XOADC"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 内部 HKADC（Housekeeping ADC）和 XOADC（Crystal Oscillator ADC / 辅助 ADC）的 FT 测试详细指南，涵盖漏电测试、转码精度、INL/DNL、上拉电阻等测试项目"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/09_HKADC_XOADC-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/09_HKADC_XOADC-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/09_HKADC_XOADC-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/09_HKADC_XOADC"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-232"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-232" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>HKADC_XOADC测试 — PMIC 模数转换器 FT 测试</a></div></nav><h1 class="article-title">HKADC_XOADC测试 — PMIC 模数转换器 FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>31分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../../tags/adc" class="internal tag-link">adc</a></li><li><a href="../../../tags/hkadc" class="internal tag-link">hkadc</a></li><li><a href="../../../tags/xoadc" class="internal tag-link">xoadc</a></li><li><a href="../../../tags/inl" class="internal tag-link">inl</a></li><li><a href="../../../tags/dnl" class="internal tag-link">dnl</a></li></ul></div></div><article class="popover-hint"><h1 id="hkadc--xoadc-测试--pmic-模数转换器-ft-测试">HKADC / XOADC 测试 — PMIC 模数转换器 FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#hkadc--xoadc-测试--pmic-模数转换器-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p><strong>本文档详细阐述 PMIC 内部 HKADC（Housekeeping ADC，监测用模数转换器）和 XOADC（Crystal Oscillator ADC / 辅助模数转换器）在 FT 阶段的测试原理与测试方法。涵盖管脚漏电测试、转码精度测试、INL/DNL 测试、上拉电阻测试等关键测试项目。</strong></p>
+</blockquote>
+<hr/>
+<h2 id="第一部分hkadc-housekeeping-adc">第一部分：HKADC (Housekeeping ADC)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#第一部分hkadc-housekeeping-adc" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h2 id="1-hkadc-概述">1. HKADC 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-hkadc-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p><strong>HKADC (Housekeeping ADC)</strong> 是 PMIC 内部用于监测各种电压、电流和温度信号的模数转换器。它不需要高速转换，但需要足够的精度和通道数来监控 PMIC 的各个工作状态。</p>
+<h3 id="11-典型架构">1.1 典型架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-典型架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>HKADC 通常采用以下架构之一：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>架构类型</th><th style="text-align:center;">分辨率</th><th style="text-align:center;">采样率</th><th>特点</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>SAR ADC</strong></td><td style="text-align:center;">8~12-bit</td><td style="text-align:center;">1~10Msps</td><td>低功耗、中等速度</td><td>通用监测</td></tr><tr><td><strong>Sigma-Delta ADC</strong></td><td style="text-align:center;">12~16-bit</td><td style="text-align:center;">10~100sps</td><td>高精度、低带宽</td><td>精密监测</td></tr><tr><td><strong>逐次逼近寄存器型</strong></td><td style="text-align:center;">10~12-bit</td><td style="text-align:center;">100ksps~1Msps</td><td>平衡性能</td><td>常规 PMIC</td></tr></tbody></table></div>
+<h4 id="典型内部结构">典型内部结构：<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#典型内部结构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>                    ┌──────────┐
+  CH0 (VBAT_SENSE)─┤          │
+  CH1 (VOUT1_SENSE)┤          │
+  CH2 (VOUT2_SENSE)┤  MUX     ├──→ PGA ──→ ADC Core ──→ Digital Filter ──→ Register
+  CH3 (TEMP_SENSE)─┤          │
+  CH4 (I_SENSE)────┤          │
+  ...              │          │
+                    └──────────┘
+                         │
+                    Channel Select
+                    (I2C/SPI Control)
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模块</th><th>功能</th><th>说明</th></tr></thead><tbody><tr><td><strong>输入 MUX</strong></td><td>多通道选择器</td><td>选择当前需要转换的模拟输入通道</td></tr><tr><td><strong>PGA (可编程增益放大器)</strong></td><td>信号调理</td><td>将小信号放大到 ADC 满量程范围</td></tr><tr><td><strong>ADC Core</strong></td><td>模数转换核心</td><td>将模拟电压转换为数字码</td></tr><tr><td><strong>数字滤波器</strong></td><td>噪声抑制</td><td>对转换结果进行平均/滤波</td></tr><tr><td><strong>结果寄存器</strong></td><td>存储转换结果</td><td>通过 I2C/SPI 读取</td></tr></tbody></table></div>
+<h3 id="12-hkadc-的典型应用">1.2 HKADC 的典型应用<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-hkadc-的典型应用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>监测对象</th><th>输入通道</th><th>测量范围</th><th style="text-align:center;">精度要求</th></tr></thead><tbody><tr><td>电池电压 (VBAT)</td><td>CH0</td><td>2.7V ~ 4.5V</td><td style="text-align:center;">±1%</td></tr><tr><td>充电电流 (ICHG)</td><td>CH1</td><td>0 ~ 5A</td><td style="text-align:center;">±2%</td></tr><tr><td>系统电压 (VSYS)</td><td>CH2</td><td>3.0V ~ 5.0V</td><td style="text-align:center;">±1%</td></tr><tr><td>芯片温度 (TEMP)</td><td>CH3</td><td>-40°C ~ 125°C</td><td style="text-align:center;">±3°C</td></tr><tr><td>输入电流 (IIN)</td><td>CH4</td><td>0 ~ 3A</td><td style="text-align:center;">±2%</td></tr></tbody></table></div>
+<hr/>
+<h2 id="2-管脚漏电测试-hkadc-pin-leakage-test">2. 管脚漏电测试 (HKADC Pin Leakage Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-管脚漏电测试-hkadc-pin-leakage-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-原理">2.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>ADC 输入引脚的漏电测试用于验证输入缓冲区（Input Buffer / MUX）在高阻抗状态下的漏电流是否在规格范围内。对于 HKADC 这类监测输入而言，过大的引脚漏电会导致：</p>
+<ul>
+<li>外部测量信号被分压，引入系统性测量误差</li>
+<li>高阻抗传感器（如 NTC 热敏电阻、高阻分压网络）的读数偏差</li>
+<li>多个通道之间的串扰（通过 MUX 漏电路径耦合）</li>
+</ul>
+<h3 id="22-测试方法">2.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="221-基本漏电测试">2.2.1 基本漏电测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#221-基本漏电测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>方法: Force Voltage → Measure Current (FVMI)
+
+测试条件:
+  - DUT 上电正常 (Power ON)
+  - HKADC 模块使能 (Enabled)
+  - ADC 输入引脚设置为 High-Z / Input 模式
+  - 所有 MUX 通道关闭（无通道被选通）
+
+测试步骤:
+  Step 1: 将 ATE SMU 连接到待测 ADC 输入引脚
+  Step 2: Force 电压 V_force = VDD × 0.9 (接近供电电压)
+  Step 3: 等待稳定时间 t_settle = 500μs
+  Step 4: 测量该引脚的漏电流 I_leak
+  Step 5: 切换 Force 电压 V_force = VSS + 0.1V (接近地电位)
+  Step 6: 再次测量漏电流 I_leak
+  Step 7: 验证 I_leak &lt; I_leak_max
+
+注意: 需分别在正电压和低电压条件下测试，以覆盖漏电的方向性。
+</code></pre>
+<h4 id="222-测试条件与规范">2.2.2 测试条件与规范<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#222-测试条件与规范" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th style="text-align:center;">典型规格</th></tr></thead><tbody><tr><td>强制电压 (高)</td><td>VDD × 0.9</td><td style="text-align:center;">1.8V / 3.3V (视 VDD 而定)</td></tr><tr><td>强制电压 (低)</td><td>VSS + 0.1V</td><td style="text-align:center;">0.1V</td></tr><tr><td>引脚模式</td><td>输入 / 高阻</td><td style="text-align:center;">—</td></tr><tr><td>稳定时间</td><td>500μs ~ 1ms</td><td style="text-align:center;">—</td></tr><tr><td><strong>漏电流规格 (典型)</strong></td><td>高电压条件</td><td style="text-align:center;">&lt; ±100nA</td></tr><tr><td><strong>漏电流规格 (高可靠)</strong></td><td>高电压条件</td><td style="text-align:center;">&lt; ±10nA</td></tr><tr><td>测试温度</td><td>25°C / 85°C</td><td style="text-align:center;">高温下漏电增大</td></tr></tbody></table></div>
+<h4 id="223-每引脚测试矩阵">2.2.3 每引脚测试矩阵<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#223-每引脚测试矩阵" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">引脚编号</th><th>引脚名称</th><th style="text-align:center;">V_force (高)</th><th style="text-align:center;">V_force (低)</th><th style="text-align:center;">I_leak_max</th></tr></thead><tbody><tr><td style="text-align:center;">1</td><td>VBAT_SENSE</td><td style="text-align:center;">4.2V</td><td style="text-align:center;">0.1V</td><td style="text-align:center;">100nA</td></tr><tr><td style="text-align:center;">2</td><td>VSYS_SENSE</td><td style="text-align:center;">5.0V</td><td style="text-align:center;">0.1V</td><td style="text-align:center;">100nA</td></tr><tr><td style="text-align:center;">3</td><td>I_SENSE+</td><td style="text-align:center;">3.6V</td><td style="text-align:center;">0.1V</td><td style="text-align:center;">100nA</td></tr><tr><td style="text-align:center;">4</td><td>I_SENSE-</td><td style="text-align:center;">3.6V</td><td style="text-align:center;">0.1V</td><td style="text-align:center;">100nA</td></tr><tr><td style="text-align:center;">5</td><td>TEMP_IN</td><td style="text-align:center;">1.8V</td><td style="text-align:center;">0.1V</td><td style="text-align:center;">50nA</td></tr></tbody></table></div>
+<h3 id="23-注意事项">2.3 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>保护二极管</strong>：ADC 输入引脚通常有 ESD 保护二极管，当 Force 电压超过 VDD+Vf 或低于 VSS-Vf 时，保护二极管导通，测量的漏电会异常偏大。Force 电压必须在电源轨范围内。</li>
+<li><strong>ATE 通道泄漏</strong>：ATE 系统本身的漏电（通过 Relay 矩阵、电缆等）可能与被测漏电相当。需要预先进行背景电流校准 (Background Subtraction)。</li>
+<li><strong>温度效应</strong>：漏电流在高温下呈指数增长。高温条件测试时，规格限值应适当放宽。</li>
+<li><strong>通道间串扰</strong>：所有 HKADC 输入通道共享同一输入节点，测试一个通道时应确保其他通道处于高阻态，避免串扰。</li>
+</ol>
+<hr/>
+<h2 id="3-hkadc-转码精度测试-hkadc-conversion-accuracy-test">3. HKADC 转码精度测试 (HKADC Conversion Accuracy Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-hkadc-转码精度测试-hkadc-conversion-accuracy-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-原理">3.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>HKADC 转码精度测试是验证 ADC 将模拟输入电压线性转换为数字码的全链路精度。测试覆盖 ADC Core 的转换误差、MUX 导通电阻引入的压降、PGA 增益误差以及参考电压漂移的综合影响。</p>
+<p>对于理想 N-bit ADC，输入电压 V_in 与输出码 D_out 的关系为：</p>
+<pre><code>D_out = round( (V_in / V_ref) × 2^N )
+
+其中:
+  D_out: 输出数字码 (0 ~ 2^N - 1)
+  V_in:  模拟输入电压
+  V_ref: ADC 参考电压
+  N:     ADC 分辨率 (bits)
+  1 LSB = V_ref / 2^N
+</code></pre>
+<h3 id="32-测试方法">3.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="321-端点法测试-endpoint-method">3.2.1 端点法测试 (Endpoint Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#321-端点法测试-endpoint-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>量产 FT 中最常用的方法，通过在 ADC 输入范围的几个关键点上施加校准电压并读取转换结果来评估精度。</p>
+<pre><code>测试流程:
+  Step 1: 初始化 HKADC 模块
+    - 使能 HKADC 时钟
+    - 选择测试通道
+    - 设置 PGA 增益
+    - 设置转换模式 (单次/连续)
+
+  Step 2: 施加校准电压 V_cal
+    - 使用高精度 SMU / DVM 校准的电压源
+    - 连接到 HKADC 指定输入引脚
+    - 电压必须稳定 (ripple &lt; 0.1 LSB)
+
+  Step 3: 触发 ADC 转换
+    - 通过 I2C/SPI 发出转换命令
+    - 等待转换完成 (轮询状态寄存器或等待中断)
+
+  Step 4: 读取转换结果
+    - 从结果寄存器读取 D_out
+    - 可选: 多次采样取平均 (降低随机噪声)
+
+  Step 5: 计算误差
+    - 理想码 = round(V_cal / V_ref × 2^N)
+    - 误差 (LSB) = D_out - 理想码
+    - 误差 (mV) = (D_out × V_ref / 2^N) - V_cal
+
+  Step 6: 重复 Step 2~5，遍历所有测试电压点
+</code></pre>
+<h4 id="322-测试电压点选择">3.2.2 测试电压点选择<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#322-测试电压点选择" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">测试点</th><th style="text-align:center;">典型电压 (V_ref=2.5V, 12-bit)</th><th style="text-align:center;">对应码</th><th>用途</th></tr></thead><tbody><tr><td style="text-align:center;"><strong>1/4 FSR</strong></td><td style="text-align:center;">0.625V</td><td style="text-align:center;">1024</td><td>低端精度</td></tr><tr><td style="text-align:center;"><strong>1/2 FSR</strong></td><td style="text-align:center;">1.250V</td><td style="text-align:center;">2048</td><td>中点精度</td></tr><tr><td style="text-align:center;"><strong>3/4 FSR</strong></td><td style="text-align:center;">1.875V</td><td style="text-align:center;">3072</td><td>高端精度</td></tr><tr><td style="text-align:center;"><strong>接近 GND</strong></td><td style="text-align:center;">0.050V</td><td style="text-align:center;">~82</td><td>近地偏移</td></tr><tr><td style="text-align:center;"><strong>接近 V_ref</strong></td><td style="text-align:center;">2.450V</td><td style="text-align:center;">~4014</td><td>近满量程偏移</td></tr><tr><td style="text-align:center;"><strong>零输入</strong></td><td style="text-align:center;">0.000V</td><td style="text-align:center;">0</td><td>零偏移</td></tr></tbody></table></div>
+<h4 id="323-多通道测试">3.2.3 多通道测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#323-多通道测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PMIC 的多个 HKADC 通道需要逐一验证：</p>
+<pre><code>通道 0 (VBAT_SENSE):
+  V_ref = 5.0V (内部分压)
+  测试点: 2.7V, 3.6V, 4.2V (对应不同电池电压)
+  
+通道 1 (TEMP_SENSE):
+  V_ref = 1.8V (内部基准)
+  测试点: 0.3V, 0.7V, 1.2V (对应不同温度)
+  
+通道 2 (I_SENSE):
+  V_ref = 0.1V (差分小信号)
+  测试点: 0.01V, 0.05V, 0.09V (对应不同电流)
+</code></pre>
+<h3 id="33-判定标准-criteria">3.3 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th style="text-align:center;">HKADC 典型规格</th><th>测试条件</th></tr></thead><tbody><tr><td><strong>分辨率</strong></td><td style="text-align:center;">10~12-bit</td><td>—</td></tr><tr><td><strong>偏移误差 (Offset Error)</strong></td><td style="text-align:center;">±3 LSB</td><td>V_in = 0V</td></tr><tr><td><strong>增益误差 (Gain Error)</strong></td><td style="text-align:center;">±0.5%</td><td>V_in = V_ref × 0.9</td></tr><tr><td><strong>转码精度 (综合)</strong></td><td style="text-align:center;">±1% (或 ±5 LSB)</td><td>全输入范围</td></tr><tr><td><strong>微分非线性 (DNL)</strong></td><td style="text-align:center;">±0.5 LSB</td><td>—</td></tr><tr><td><strong>积分非线性 (INL)</strong></td><td style="text-align:center;">±1 LSB</td><td>—</td></tr><tr><td><strong>信噪比 (SNR)</strong></td><td style="text-align:center;">≥ 60dB</td><td>10-bit 或以上</td></tr><tr><td><strong>有效位数 (ENOB)</strong></td><td style="text-align:center;">≥ 9.5-bit</td><td>—</td></tr></tbody></table></div>
+<h3 id="34-注意事项">3.4 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>参考电压稳定性</strong>：HKADC 的 V_ref 可能来自内部 Bandgap 或外部引脚。V_ref 的噪声和漂移直接影响转码精度，测试前需等待参考电压稳定。</li>
+<li><strong>MUX 串扰</strong>：当切换通道时，前一个通道的残留电荷会影响新通道的转换结果。建议在通道切换后插入 dummy conversion。</li>
+<li><strong>输入驱动能力</strong>：HKADC 输入端的等效采样电容在采样瞬间会汲取电流脉冲，外部信号源需要有足够的驱动能力。</li>
+<li><strong>PSRR 影响</strong>：电源噪声会通过 ADC 的参考电压路径耦合到转换结果。测试时应确保供电电源的低噪声。</li>
+<li><strong>温度漂移</strong>：Offset 和 Gain 随温度漂移。全温测试需建立温度补偿查表或使用比例测量方法。</li>
+</ol>
+<hr/>
+<h2 id="4-inl--dnl-测试-integral--differential-nonlinearity-test">4. INL / DNL 测试 (Integral / Differential Nonlinearity Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-inl--dnl-测试-integral--differential-nonlinearity-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-原理">4.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="411-dnl-微分非线性">4.1.1 DNL (微分非线性)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#411-dnl-微分非线性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>DNL 表示 ADC 各相邻码之间的实际步长与理想步长 (1 LSB) 的偏差。</p>
+<pre><code>DNL[k] = (W[k] - 1 LSB) / 1 LSB
+
+其中:
+  W[k] = V[k+1] - V[k] (第 k 个码的实际宽度)
+  V[k] = 第 k 个码的跳变点电压
+
+理想情况: DNL[k] = 0  (每个码宽度恰好为 1 LSB)
+实际情况: DNL[k] 在 -1 ~ +1 LSB 之间
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">DNL 值</th><th>含义</th></tr></thead><tbody><tr><td style="text-align:center;">DNL > 0</td><td>该码的宽度大于 1 LSB（该码占更大电压范围）</td></tr><tr><td style="text-align:center;">DNL = 0</td><td>该码宽度恰好为 1 LSB（理想）</td></tr><tr><td style="text-align:center;">DNL &lt; 0</td><td>该码宽度小于 1 LSB（该码占更小电压范围）</td></tr><tr><td style="text-align:center;">DNL &lt; -0.9 LSB</td><td>可能丢失码 (Missing Code)，该码宽度几乎为零</td></tr></tbody></table></div>
+<h4 id="412-inl-积分非线性">4.1.2 INL (积分非线性)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#412-inl-积分非线性" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>INL 表示 ADC 实际传输函数与理想传输函数之间的累积偏差，在所有码的 DNL 累积后得到。</p>
+<pre><code>INL[k] = Σ(i=0 to k) DNL[i]
+
+或者使用端点拟合法:
+  INL[k] = (V_actual[k] - V_ideal[k]) / 1 LSB
+
+其中:
+  V_actual[k]: 第 k 个码的实际跳变点电压
+  V_ideal[k]:  第 k 个码的理想跳变点电压 (通过端点连线确定)
+</code></pre>
+<h4 id="413-理想传输函数">4.1.3 理想传输函数<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#413-理想传输函数" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>数字输出码
+  1111 ──┐
+         │
+  1110 ──┤  │
+         │  │
+  1101 ──┤    │
+         │    │
+  ...    │      │
+         │      │
+  0001 ──┤        │
+         │        │
+  0000 ──┤          │
+         LSB
+         └──┬──┬──┬──┬──┬──→ 模拟输入电压
+            1  2  3  4  5  (LSB)
+</code></pre>
+<p>理想情况下，每个码的宽度均为 1 LSB，且跳变点均匀分布。</p>
+<h3 id="42-测试方法">4.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="421-直方图法-histogram-method">4.2.1 直方图法 (Histogram Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#421-直方图法-histogram-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>原理</strong>：将已知分布的输入信号（如三角波 / 正弦波）输入 ADC，统计各码出现的频率。对于非线性度低的 ADC，各码出现的频率应与输入信号的 PDF（概率密度函数）匹配。</p>
+<pre><code>FT 应用: 对于低分辨率 ADC (8~12-bit)，使用三角波直方图法
+
+测试设置:
+  信号源: AWG (任意波形发生器)
+  波形: 低失真三角波 (Triangular Wave)
+  幅度: 略超过 ADC 满量程范围 (overdrive ~5%)
+  频率: f_signal &lt;&lt; f_sample (确保充分采样)
+  采样数: 每码至少 10~100 次以上 (总采样数 = 2^N × 10)
+
+测试步骤:
+  Step 1: AWG 输出三角波到 HKADC 输入引脚
+  Step 2: ADC 连续采样，存储所有码值
+  Step 3: 统计各码出现的次数 H[k]
+  Step 4: 计算各码的宽度 W[k] = H[k] / H_avg
+  Step 5: 计算 DNL[k] = W[k] - 1 (归一化)
+  Step 6: 计算 INL[k] = Σ(i=0 to k) DNL[i]
+  Step 7: 报告 max(DNL) 和 max(INL)
+</code></pre>
+<h4 id="422-伺服环路法-servo-loop-method">4.2.2 伺服环路法 (Servo-Loop Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#422-伺服环路法-servo-loop-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>原理</strong>：使用反馈控制回路，使 ADC 输入端精确处于某两个码之间的跳变点。</p>
+<pre><code>适用: 高精度 ADC 测试 (12-bit 以上)，FT 中较少使用（速度慢）
+
+测试电路:
+  ┌─────────┐
+  │  SMU /  │──── V_in ────→ DUT ADC
+  │  AWG    │                    │
+  │         │←── D_out ───────┘  │
+  │         │                    │
+  │ DAC ←── Comparator ←────── D_target
+  └─────────┘
+
+工作过程:
+  1. 设置目标码 k, 以及比较方向 (V_in 从低到高)
+  2. ADC 转换得到 D_out
+  3. 比较 D_out 与目标码 k:
+     - D_out &lt; k: 增大 V_in
+     - D_out = k: 保持 V_in 记录
+     - D_out > k: 减小 V_in
+  4. 反复逼近，找到 D_out 从 k-1 跳变到 k 的精确电压
+  5. 记录该电压为 V_transition[k]
+  6. 遍历所有 k = 1 到 2^N-1，获得完整传输函数
+</code></pre>
+<h4 id="423-线性斜坡法-ramp-method">4.2.3 线性斜坡法 (Ramp Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#423-线性斜坡法-ramp-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>FT 常用的折中方案</strong>：</p>
+<pre><code>测试设置:
+  - 使用高线性度 SMU 或 AWG 输出缓慢线性斜坡电压
+  - 斜坡变化率: dV/dt &lt; 1 LSB / t_conv (确保每码至少一次采样)
+  - 电压范围: 略超过 ADC 满量程
+
+数据采集:
+  - ADC 连续转换，记录 (V_force, D_out) 对
+  - V_force 由 SMU 的精密 DAC 控制 (已知电压)
+  - 同时用 DMM 监测实际 V_in 以提高精度
+
+后处理:
+  - 对每个码 k, 找到所有 D_out = k 对应的 V_force 范围
+  - 码 k 的边界 = min(V_force) 和 max(V_force)
+  - 码宽度 W[k] = V_max - V_min
+  - DNL[k] = W[k] / W_ideal - 1
+  - INL[k] = (V_center[k] - V_ideal_center[k]) / 1 LSB
+</code></pre>
+<h3 id="43-判定标准-criteria">4.3 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">参数</th><th style="text-align:center;">8-bit ADC</th><th style="text-align:center;">10-bit ADC</th><th style="text-align:center;">12-bit ADC</th></tr></thead><tbody><tr><td style="text-align:center;"><strong>DNL</strong></td><td style="text-align:center;">±0.5 LSB</td><td style="text-align:center;">±0.5 LSB</td><td style="text-align:center;">±0.5~±1 LSB</td></tr><tr><td style="text-align:center;"><strong>INL</strong></td><td style="text-align:center;">±0.5 LSB</td><td style="text-align:center;">±1 LSB</td><td style="text-align:center;">±1~±2 LSB</td></tr><tr><td style="text-align:center;"><strong>Missing Code</strong></td><td style="text-align:center;">不允许</td><td style="text-align:center;">不允许</td><td style="text-align:center;">不允许</td></tr><tr><td style="text-align:center;"><strong>单调性</strong></td><td style="text-align:center;">必须</td><td style="text-align:center;">必须</td><td style="text-align:center;">必须</td></tr></tbody></table></div>
+<h3 id="44-注意事项">4.4 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>噪声对 DNL 的影响</strong>：输入噪声会模糊码的边界，使 DNL 测量值偏小（表现比实际更好）。可在输入增加小振幅抖动 (Dither) 或使用大直方图统计消除。</li>
+<li><strong>测试时间</strong>：对于 12-bit ADC，完整的直方图法需要 2^12 × 10 = 40,960 次采样。FT 中通常简化（只测关键码点或分段测试）。</li>
+<li><strong>信号源线性度</strong>：斜坡/三角波的线性度必须优于被测 ADC 的线性度要求（至少 3~5x 更好），否则测量误差会叠加到 ADC 的 INL 结果中。</li>
+<li><strong>温度影响</strong>：INL 和 DNL 受温度影响，全温范围测试需要三温数据。</li>
+<li><strong>码密度直方图边界效应</strong>：在满量程边界 (code 0 和 code 2^N-1)，直方图统计可能不准确，需加入 overdrive 范围。</li>
+</ol>
+<hr/>
+<h2 id="5-上拉电阻测试-hkadc-pull-up-resistor-test">5. 上拉电阻测试 (HKADC Pull-Up Resistor Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-上拉电阻测试-hkadc-pull-up-resistor-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-原理">5.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>HKADC 的某些输入/输出引脚可能内置可配置的上拉电阻，用于：</p>
+<ul>
+<li>与外部漏极开路 (Open-Drain) 信号配合</li>
+<li>为外部无源传感器（如 NTC）提供偏置电流</li>
+<li>确保未使用的输入引脚处于确定电平</li>
+</ul>
+<h3 id="52-测试方法">5.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="521-电压分压法">5.2.1 电压分压法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#521-电压分压法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>测试电路:
+  ┌──────────────┐
+  │  DUT         │
+  │              │
+  │  Pin ──┬─────┤── Internal Pull-Up R_pu
+  │        │     │      │
+  │        │     │     VDD
+  │        │     │
+  │        │
+  │     R_ext (已知精密电阻)
+  │        │
+  │       GND
+  └──────────────┘
+
+测试步骤:
+  Step 1: 使能内部上拉电阻 (寄存器设置)
+  Step 2: 外部连接精密电阻 R_ext 到 GND
+  Step 3: 测量引脚电压 V_pin
+  Step 4: 计算 R_pu:
+         R_pu = R_ext × (VDD - V_pin) / V_pin
+         (上拉电阻与 R_ext 形成分压)
+  Step 5: 验证 R_pu 在规格范围内
+</code></pre>
+<h4 id="522-电流测量法">5.2.2 电流测量法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#522-电流测量法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>直接测量法（更精确）:
+
+测试步骤:
+  Step 1: 使能内部上拉电阻
+  Step 2: 使用 SMU 在引脚上 Force 电压 V_force = VDD × 0.5
+  Step 3: 测量 SMU 输出的电流 I_meas (漏入上拉电阻的电流)
+  Step 4: 计算 R_pu = (VDD - V_force) / I_meas
+  Step 5: 切换 V_force 到不同电压值验证线性度
+</code></pre>
+<h4 id="523-多档位测试">5.2.3 多档位测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#523-多档位测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>如果上拉电阻有多个可编程档位：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">档位</th><th style="text-align:center;">设定值</th><th style="text-align:center;">测得 R_pu</th><th style="text-align:center;">规格范围</th><th style="text-align:center;">PASS/FAIL</th></tr></thead><tbody><tr><td style="text-align:center;">1</td><td style="text-align:center;">2kΩ</td><td style="text-align:center;">—</td><td style="text-align:center;">1.8k~2.2kΩ</td><td style="text-align:center;">—</td></tr><tr><td style="text-align:center;">2</td><td style="text-align:center;">10kΩ</td><td style="text-align:center;">—</td><td style="text-align:center;">9k~11kΩ</td><td style="text-align:center;">—</td></tr><tr><td style="text-align:center;">3</td><td style="text-align:center;">50kΩ</td><td style="text-align:center;">—</td><td style="text-align:center;">45k~55kΩ</td><td style="text-align:center;">—</td></tr><tr><td style="text-align:center;">4</td><td style="text-align:center;">100kΩ</td><td style="text-align:center;">—</td><td style="text-align:center;">90k~110kΩ</td><td style="text-align:center;">—</td></tr></tbody></table></div>
+<h3 id="53-判定标准-criteria">5.3 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th style="text-align:center;">典型规格</th><th>说明</th></tr></thead><tbody><tr><td><strong>上拉电阻精度</strong></td><td style="text-align:center;">±10%</td><td>未修调</td></tr><tr><td><strong>上拉电阻精度 (Trim 后)</strong></td><td style="text-align:center;">±2%</td><td>已执行修调</td></tr><tr><td><strong>温度系数</strong></td><td style="text-align:center;">&lt; 500ppm/°C</td><td>随温度变化</td></tr><tr><td><strong>电源电压敏感度</strong></td><td style="text-align:center;">&lt; 1%/V</td><td>随 VDD 变化</td></tr></tbody></table></div>
+<h3 id="54-注意事项">5.4 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>外部电阻精度</strong>：外接的精密电阻 R_ext 精度应优于 DUT 上拉电阻规格的 5 倍（如 ±2% 规格需 ≤ ±0.4% 外接电阻）。</li>
+<li><strong>引脚漏电校正</strong>：如果引脚自身有漏电（尤其是高温下），会在分压法中引入误差。建议先测量引脚背景漏电再做校正。</li>
+<li><strong>开关导通电阻</strong>：上拉电阻的内部开关 (MOS Switch) 导通电阻 Ron 会与 R_pu 串联，成为测量值的一部分。这通常是设计允许的。</li>
+<li><strong>双测试电压</strong>：建议在 V_pin = VDD × 0.3 和 V_pin = VDD × 0.7 两个点各测一次，验证上拉电阻的电压系数。</li>
+</ol>
+<hr/>
+<h2 id="第二部分xoadc-crystal-oscillator-adc--辅助-adc">第二部分：XOADC (Crystal Oscillator ADC / 辅助 ADC)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#第二部分xoadc-crystal-oscillator-adc--辅助-adc" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h2 id="6-xoadc-概述">6. XOADC 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#6-xoadc-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p><strong>XOADC (Crystal Oscillator ADC)</strong> 是 PMIC 中专用于辅助测量的低速率、高精度 ADC。与 HKADC 相比，XOADC 通常具有：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>特性</th><th style="text-align:center;">HKADC</th><th style="text-align:center;">XOADC</th></tr></thead><tbody><tr><td><strong>典型分辨率</strong></td><td style="text-align:center;">10~12-bit</td><td style="text-align:center;">14~16-bit</td></tr><tr><td><strong>采样率</strong></td><td style="text-align:center;">1k~10ksps</td><td style="text-align:center;">10~100sps</td></tr><tr><td><strong>通道数</strong></td><td style="text-align:center;">6~16 通道</td><td style="text-align:center;">2~4 通道</td></tr><tr><td><strong>主要用途</strong></td><td style="text-align:center;">实时监测 (电压/电流/温度)</td><td style="text-align:center;">精密测量 (电池内阻、阻抗)</td></tr><tr><td><strong>精度</strong></td><td style="text-align:center;">1%~3%</td><td style="text-align:center;">0.1%~0.5%</td></tr><tr><td><strong>架构</strong></td><td style="text-align:center;">SAR / Sigma-Delta</td><td style="text-align:center;">Sigma-Delta (过采样)</td></tr></tbody></table></div>
+<h3 id="61-典型应用">6.1 典型应用<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-典型应用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>电池内阻精密测量 (辅助 SOH/EIS)</li>
+<li>高精度温度测量 (配合 NTC 热敏电阻)</li>
+<li>外部传感器信号采集</li>
+<li>关键电压的精确读取</li>
+</ul>
+<hr/>
+<h2 id="7-静态参数测试-xoadc-static-parameter-test">7. 静态参数测试 (XOADC Static Parameter Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#7-静态参数测试-xoadc-static-parameter-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-原理">7.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>XOADC 的静态参数测试覆盖以下关键指标：</p>
+<ul>
+<li><strong>偏移误差 (Offset Error)</strong>：零输入时的 ADC 输出码偏移</li>
+<li><strong>增益误差 (Gain Error)</strong>：ADC 传输函数斜率与理想值的偏差</li>
+<li><strong>线性误差 (Linearity Error)</strong>：ADC 传输函数与最佳拟合直线的偏离</li>
+<li><strong>噪声 (Noise)</strong>：ADC 在静态输入条件下的输出码标准偏差</li>
+</ul>
+<h3 id="72-测试方法">7.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="721-偏移误差测试">7.2.1 偏移误差测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#721-偏移误差测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>测试条件:
+  - XOADC 正常工作模式
+  - 输入通道连接到 GND (或输入短接到 VCM)
+  - 过采样率 (OSR) 设置为典型值
+
+测试步骤:
+  Step 1: 短接 XOADC 差分输入 (V_in+ = V_in-)
+  Step 2: 等待稳定时间 (≥ 100ms for Sigma-Delta)
+  Step 3: 连续采样 N 次 (N ≥ 100)
+  Step 4: 计算平均码值 D_avg
+  Step 5: 计算偏移误差:
+         Offset (LSB) = D_avg - 0
+         Offset (mV) = D_avg × V_ref / 2^N
+
+判定: Offset &lt; ±3 LSB (典型)
+</code></pre>
+<h4 id="722-增益误差测试">7.2.2 增益误差测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#722-增益误差测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>测试条件:
+  - XOADC 正常工作模式
+  - 输入通道连接精密电压源
+
+测试步骤:
+  Step 1: 施加低端校准电压 V_low (如 V_ref × 0.05)
+  Step 2: 采样，得到 D_low
+  Step 3: 施加高端校准电压 V_high (如 V_ref × 0.95)
+  Step 4: 采样，得到 D_high
+  Step 5: 计算实际增益:
+         G_actual = (D_high - D_low) / (V_high - V_low)
+         G_ideal = 2^N / V_ref
+  Step 6: 计算增益误差:
+         Gain_Error (%) = (G_actual / G_ideal - 1) × 100%
+
+判定: Gain_Error &lt; ±0.5% (典型)
+</code></pre>
+<h4 id="723-线性误差测试">7.2.3 线性误差测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#723-线性误差测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>方法: 端点拟合法 (Endpoint Fit)
+
+测试步骤:
+  Step 1: 选择 M 个测试电压点 (M ≥ 8)，均匀分布在输入范围
+  Step 2: 对每个点施加 V_in[k] 并记录 D_out[k]
+  Step 3: 使用端点连线建立理想传输函数:
+         D_ideal[k] = (V_in[k] - V_min) / (V_max - V_min) × 2^N
+  Step 4: 计算各点偏差:
+         INL[k] = D_out[k] - D_ideal[k]
+  Step 5: 报告 max(|INL[k]|)
+
+测试电压点 (14-bit, V_ref = 2.5V):
+  | 点号 | V_in (V) | 理想码 |
+  |:----:|:--------:|:------:|
+  | 1 | 0.000 | 0 |
+  | 2 | 0.3125 | 2048 |
+  | 3 | 0.6250 | 4096 |
+  | 4 | 0.9375 | 6144 |
+  | 5 | 1.2500 | 8192 |
+  | 6 | 1.5625 | 10240 |
+  | 7 | 1.8750 | 12288 |
+  | 8 | 2.1875 | 14336 |
+  | 9 | 2.5000 | 16383 |
+</code></pre>
+<h4 id="724-噪声测试">7.2.4 噪声测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#724-噪声测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>测试条件:
+  - XOADC 差分输入短接到 VCM (共模电压)
+  - 连续采样 N 次 (N ≥ 1000)
+
+测试步骤:
+  Step 1: 采集 N 个样本 D[0] ~ D[N-1]
+  Step 2: 计算均值 μ = avg(D)
+  Step 3: 计算标准偏差 σ = sqrt(Σ(D[i] - μ)² / (N-1))
+  Step 4: 计算有效分辨率 (ENOB):
+         ENOB = log2(FSR / (6.6 × σ × V_ref / 2^N))
+
+判定:
+  | 参数 | 典型值 |
+  |------|:------:|
+  | RMS 噪声 | &lt; 50μV rms |
+  | 峰峰值噪声 | &lt; 300μV pp |
+  | 有效位数 (ENOB) | ≥ 13-bit @ 10sps |
+</code></pre>
+<h3 id="73-判定标准-criteria">7.3 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th style="text-align:center;">XOADC 典型规格</th><th>测试条件</th></tr></thead><tbody><tr><td><strong>分辨率</strong></td><td style="text-align:center;">14~16-bit</td><td>—</td></tr><tr><td><strong>偏移误差</strong></td><td style="text-align:center;">±2 LSB</td><td>零输入</td></tr><tr><td><strong>增益误差</strong></td><td style="text-align:center;">±0.2% ~ ±0.5%</td><td>全量程</td></tr><tr><td><strong>积分非线性 (INL)</strong></td><td style="text-align:center;">±2 LSB</td><td>端点拟合法</td></tr><tr><td><strong>微分非线性 (DNL)</strong></td><td style="text-align:center;">±0.5 LSB</td><td>—</td></tr><tr><td><strong>RMS 噪声</strong></td><td style="text-align:center;">&lt; 20~50μV</td><td>短接输入, OSR=256</td></tr><tr><td><strong>有效位数 (ENOB)</strong></td><td style="text-align:center;">≥ 13-bit @ 10sps</td><td>—</td></tr><tr><td><strong>电源抑制比 (PSRR)</strong></td><td style="text-align:center;">≥ 80dB @ DC</td><td>—</td></tr><tr><td><strong>共模抑制比 (CMRR)</strong></td><td style="text-align:center;">≥ 90dB @ DC</td><td>—</td></tr></tbody></table></div>
+<h3 id="74-注意事项">7.4 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#74-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>过采样率 (OSR) 设置</strong>：Sigma-Delta ADC 的精度与 OSR 成正比，但转换时间也随之增加。FT 测试需在精度与测试时间之间权衡。</li>
+<li><strong>建立时间 (Settling Time)</strong>：Sigma-Delta ADC 的数字滤波器在通道切换或输入跳变后需要数个转换周期才能稳定。在切换通道后应丢弃前 2~3 次转换结果。</li>
+<li><strong>参考电压去耦</strong>：XOADC 的高精度依赖于稳定的参考电压。PCB 布局中 V_ref 去耦电容必须靠近 DUT 引脚。</li>
+<li><strong>差分布线</strong>：差分输入对必须等长等距走线，避免引入额外的差分噪声。</li>
+<li><strong>时钟抖动</strong>：XOADC 的时钟质量直接影响 SNR。过大的时钟抖动会劣化高频输入的性能。</li>
+</ol>
+<hr/>
+<h2 id="8-上拉电阻测试-xoadc-pull-up-resistor-test">8. 上拉电阻测试 (XOADC Pull-Up Resistor Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#8-上拉电阻测试-xoadc-pull-up-resistor-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="81-原理">8.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#81-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>XOADC 的上拉电阻测试与 HKADC 类似，但由于 XOADC 通常用于精密测量，其上拉电阻的精度要求可能更高，测量方法也更严格。</p>
+<h3 id="82-测试方法">8.2 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#82-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="821-静态分压法">8.2.1 静态分压法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#821-静态分压法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>测试电路（与 HKADC 一致）:
+
+     VDD
+      │
+      ├── Internal R_pu (待测)
+      │
+  DUT Pin ─── R_ext (精密) ─── GND
+
+测量:
+  1. 使能上拉
+  2. 测量 V_pin
+  3. R_pu = R_ext × (VDD - V_pin) / V_pin
+</code></pre>
+<h4 id="822-精确电流注入法">8.2.2 精确电流注入法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#822-精确电流注入法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>适用于 XOADC 的高精度要求：</p>
+<pre><code>测试步骤:
+  Step 1: 使能上拉电阻
+  Step 2: 使用精密 SMU 在引脚注入已知电流 I_inject
+  Step 3: 测量引脚电压 V_pin
+  Step 4: 计算 R_pu = (VDD - V_pin) / (I_pu + I_inject)
+  
+  其中 I_pu 是上拉电阻本身的电流:
+  I_pu = V_pin / R_ext (如果外接 R_ext 到 GND)
+  或 I_pu = 0 (如果引脚悬空, 但悬空时电压会飘到 VDD)
+</code></pre>
+<h4 id="823-差分测量法消除误差">8.2.3 差分测量法（消除误差）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#823-差分测量法消除误差" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>方法: 测量两个不同外接电阻下的电压，计算 R_pu
+
+测量点 1: R_ext1 → V_pin1 → I_total1 = V_pin1 / R_ext1
+测量点 2: R_ext2 → V_pin2 → I_total2 = V_pin2 / R_ext2
+
+方程组:
+  I_total1 = (VDD - V_pin1) / R_pu + V_pin1 / R_ext1
+  I_total2 = (VDD - V_pin2) / R_pu + V_pin2 / R_ext2
+
+由于 R_ext1, R_ext2 已知，求解 R_pu:
+  R_pu = ... (通过解方程消除 SMU 偏置误差)
+</code></pre>
+<h3 id="83-判定标准-criteria">8.3 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#83-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th style="text-align:center;">XOADC 典型规格</th></tr></thead><tbody><tr><td><strong>上拉电阻精度</strong></td><td style="text-align:center;">±5%</td></tr><tr><td><strong>上拉电阻精度 (Trim 后)</strong></td><td style="text-align:center;">±1%</td></tr><tr><td><strong>温度系数 (TCR)</strong></td><td style="text-align:center;">&lt; 200ppm/°C</td></tr><tr><td><strong>电压系数 (VCR)</strong></td><td style="text-align:center;">&lt; 100ppm/V</td></tr></tbody></table></div>
+<h3 id="84-注意事项">8.4 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#84-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>高精度电阻要求</strong>：XOADC 的上拉电阻可能需要 ±1% 或更高精度，外接参考电阻的精度必须 &lt; ±0.1%。</li>
+<li><strong>自热效应</strong>：上拉电阻的功耗虽然小，但在高精度测量中自热效应可能导致测量值漂移。测试时间应尽量短或等待热平衡。</li>
+<li><strong>XOADC 内部采样</strong>：上拉电阻与 XOADC 输入采样电路共用引脚，采样时电容的瞬态充电会干扰电压测量。应在采样保持间隙进行上拉电阻测量。</li>
+</ol>
+<hr/>
+<h2 id="9-hkadc-与-xoadc-测试对比总表">9. HKADC 与 XOADC 测试对比总表<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#9-hkadc-与-xoadc-测试对比总表" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项目</th><th style="text-align:center;">HKADC</th><th style="text-align:center;">XOADC</th><th>测试方法差异</th></tr></thead><tbody><tr><td><strong>引脚漏电测试</strong></td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td>相同方法，漏电限值可能不同</td></tr><tr><td><strong>转码精度测试</strong></td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td>XOADC 点更密、精度更高</td></tr><tr><td><strong>INL/DNL 测试</strong></td><td style="text-align:center;">✓</td><td style="text-align:center;">—</td><td>HKADC 需测，XOADC 可简化</td></tr><tr><td><strong>偏移误差测试</strong></td><td style="text-align:center;">含在精度中</td><td style="text-align:center;">✓ 单独测</td><td>—</td></tr><tr><td><strong>增益误差测试</strong></td><td style="text-align:center;">含在精度中</td><td style="text-align:center;">✓ 单独测</td><td>—</td></tr><tr><td><strong>噪声测试</strong></td><td style="text-align:center;">—</td><td style="text-align:center;">✓</td><td>XOADC 低噪声特性需验证</td></tr><tr><td><strong>上拉电阻测试</strong></td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td>HKADC 测多档，XOADC 测精度</td></tr><tr><td><strong>静态参数 (全量程)</strong></td><td style="text-align:center;">—</td><td style="text-align:center;">✓</td><td>XOADC 线性度要求更高</td></tr></tbody></table></div>
+<hr/>
+<h2 id="10-测试电路配置建议">10. 测试电路配置建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#10-测试电路配置建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="101-hkadc-测试板级配置">10.1 HKADC 测试板级配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#101-hkadc-测试板级配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│               Performance Board              │
+│                                              │
+│  Precision ──── Relay ──── DUT HKADC Pin    │
+│  Voltage           │                        │
+│  Source        [1:N MUX]                    │
+│  (SMU / DVM)      │                        │
+│                   ├─── HKADC_CH0            │
+│                   ├─── HKADC_CH1            │
+│                   ├─── HKADC_CH2            │
+│                   └─── ...                  │
+│                                              │
+│  DMM (高位表) ── Kelvin ── 监测实际 V_in    │
+└─────────────────────────────────────────────┘
+</code></pre>
+<h3 id="102-xoadc-测试板级配置">10.2 XOADC 测试板级配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#102-xoadc-测试板级配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│               Performance Board              │
+│                                              │
+│  Ultra-low noise ──── Relay ──── XOADC Pin  │
+│  Voltage Source                              │
+│  (&lt; 1μV rms)        [差分对切换]            │
+│                                              │
+│  Shielded Twisted ──── 差分输入 +           │
+│  Pair Cable           差分输入 -            │
+│                                              │
+│  高精度 DMM ──── 同时监测 V_in              │
+│  (8.5位, 3458A)                              │
+│                                              │
+│  外部 V_ref ──── 精密去耦                   │
+│  (如需外部参考)                              │
+└─────────────────────────────────────────────┘
+</code></pre>
+<h3 id="103-仪器精度要求">10.3 仪器精度要求<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#103-仪器精度要求" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>仪器</th><th>要求</th><th>用途</th></tr></thead><tbody><tr><td><strong>电压源 (SMU)</strong></td><td>线性度 &lt; 0.005%</td><td>HKADC/XOADC 校准电压</td></tr><tr><td><strong>超低噪声源</strong></td><td>噪声 &lt; 1μV rms</td><td>XOADC 噪声/线性度测试</td></tr><tr><td><strong>高位 DMM</strong></td><td>8.5 位 (Keysight 3458A)</td><td>监测实际输入电压</td></tr><tr><td><strong>精密电阻</strong></td><td>±0.01%~±0.1%</td><td>上拉电阻测试参考</td></tr><tr><td><strong>AWG</strong></td><td>THD &lt; -80dB</td><td>HKADC INL/DNL 三角波</td></tr></tbody></table></div>
+<hr/>
+<h2 id="11-常见问题与排查">11. 常见问题与排查<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-常见问题与排查" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>问题</th><th>可能原因</th><th>排查方向</th></tr></thead><tbody><tr><td>HKADC 所有通道偏大</td><td>V_ref 偏高</td><td>检查内部参考电压</td></tr><tr><td>HKADC 单通道异常</td><td>MUX 开关故障 / PCB 走线问题</td><td>检查 MUX 控制和 PCB 连接</td></tr><tr><td>INL 测试失败</td><td>V_in 源线性度不足 / 噪声过大</td><td>使用更高精度源，增加平均次数</td></tr><tr><td>DNL 出现丢失码</td><td>ADC 比较器失调 / 电容失配</td><td>检查工艺角分布</td></tr><tr><td>XOADC 噪声超标</td><td>时钟抖动 / 参考电压噪声</td><td>检查时钟源去耦和 V_ref 滤波</td></tr><tr><td>上拉电阻偏差大</td><td>外接电阻精度不足 / 引脚漏电</td><td>更换精密电阻，检查漏电路径</td></tr><tr><td>XOADC 偏移过大</td><td>差分输入不平衡 / 输入 Buffer 失调</td><td>检查差分走线对称性</td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li><a href="../../.././FT" class="internal alias" data-slug="FT">FT.md — FT 测试总览</a> — PMIC FT 测试完整清单</li>
+<li><a href="../../.././Trim" class="internal alias" data-slug="Trim">Trim.md — 修调总览</a> — PMIC 修调项说明</li>
+<li>IEEE Std 1241-2010: IEEE Standard for Terminology and Test Methods for Analog-to-Digital Converters</li>
+<li><em>ADC Testing: A Comprehensive Guide</em> - Teradyne Application Note</li>
+<li><em>Understanding Data Converters</em> - Analog Devices (MT-001 ~ MT-097)</li>
+</ul>
+<hr/>
+<blockquote>
+<p><strong>最后更新: 2026-07-24</strong></p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-89" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#hkadc--xoadc-测试--pmic-模数转换器-ft-测试" data-for="hkadc--xoadc-测试--pmic-模数转换器-ft-测试">HKADC / XOADC 测试 — PMIC 模数转换器 FT 测试</a></li><li class="depth-1"><a href="#第一部分hkadc-housekeeping-adc" data-for="第一部分hkadc-housekeeping-adc">第一部分：HKADC (Housekeeping ADC)</a></li><li class="depth-1"><a href="#1-hkadc-概述" data-for="1-hkadc-概述">1. HKADC 概述</a></li><li class="depth-2"><a href="#11-典型架构" data-for="11-典型架构">1.1 典型架构</a></li><li class="depth-2"><a href="#12-hkadc-的典型应用" data-for="12-hkadc-的典型应用">1.2 HKADC 的典型应用</a></li><li class="depth-1"><a href="#2-管脚漏电测试-hkadc-pin-leakage-test" data-for="2-管脚漏电测试-hkadc-pin-leakage-test">2. 管脚漏电测试 (HKADC Pin Leakage Test)</a></li><li class="depth-2"><a href="#21-原理" data-for="21-原理">2.1 原理</a></li><li class="depth-2"><a href="#22-测试方法" data-for="22-测试方法">2.2 测试方法</a></li><li class="depth-2"><a href="#23-注意事项" data-for="23-注意事项">2.3 注意事项</a></li><li class="depth-1"><a href="#3-hkadc-转码精度测试-hkadc-conversion-accuracy-test" data-for="3-hkadc-转码精度测试-hkadc-conversion-accuracy-test">3. HKADC 转码精度测试 (HKADC Conversion Accuracy Test)</a></li><li class="depth-2"><a href="#31-原理" data-for="31-原理">3.1 原理</a></li><li class="depth-2"><a href="#32-测试方法" data-for="32-测试方法">3.2 测试方法</a></li><li class="depth-2"><a href="#33-判定标准-criteria" data-for="33-判定标准-criteria">3.3 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#34-注意事项" data-for="34-注意事项">3.4 注意事项</a></li><li class="depth-1"><a href="#4-inl--dnl-测试-integral--differential-nonlinearity-test" data-for="4-inl--dnl-测试-integral--differential-nonlinearity-test">4. INL / DNL 测试 (Integral / Differential Nonlinearity Test)</a></li><li class="depth-2"><a href="#41-原理" data-for="41-原理">4.1 原理</a></li><li class="depth-2"><a href="#42-测试方法" data-for="42-测试方法">4.2 测试方法</a></li><li class="depth-2"><a href="#43-判定标准-criteria" data-for="43-判定标准-criteria">4.3 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#44-注意事项" data-for="44-注意事项">4.4 注意事项</a></li><li class="depth-1"><a href="#5-上拉电阻测试-hkadc-pull-up-resistor-test" data-for="5-上拉电阻测试-hkadc-pull-up-resistor-test">5. 上拉电阻测试 (HKADC Pull-Up Resistor Test)</a></li><li class="depth-2"><a href="#51-原理" data-for="51-原理">5.1 原理</a></li><li class="depth-2"><a href="#52-测试方法" data-for="52-测试方法">5.2 测试方法</a></li><li class="depth-2"><a href="#53-判定标准-criteria" data-for="53-判定标准-criteria">5.3 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#54-注意事项" data-for="54-注意事项">5.4 注意事项</a></li><li class="depth-1"><a href="#第二部分xoadc-crystal-oscillator-adc--辅助-adc" data-for="第二部分xoadc-crystal-oscillator-adc--辅助-adc">第二部分：XOADC (Crystal Oscillator ADC / 辅助 ADC)</a></li><li class="depth-1"><a href="#6-xoadc-概述" data-for="6-xoadc-概述">6. XOADC 概述</a></li><li class="depth-2"><a href="#61-典型应用" data-for="61-典型应用">6.1 典型应用</a></li><li class="depth-1"><a href="#7-静态参数测试-xoadc-static-parameter-test" data-for="7-静态参数测试-xoadc-static-parameter-test">7. 静态参数测试 (XOADC Static Parameter Test)</a></li><li class="depth-2"><a href="#71-原理" data-for="71-原理">7.1 原理</a></li><li class="depth-2"><a href="#72-测试方法" data-for="72-测试方法">7.2 测试方法</a></li><li class="depth-2"><a href="#73-判定标准-criteria" data-for="73-判定标准-criteria">7.3 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#74-注意事项" data-for="74-注意事项">7.4 注意事项</a></li><li class="depth-1"><a href="#8-上拉电阻测试-xoadc-pull-up-resistor-test" data-for="8-上拉电阻测试-xoadc-pull-up-resistor-test">8. 上拉电阻测试 (XOADC Pull-Up Resistor Test)</a></li><li class="depth-2"><a href="#81-原理" data-for="81-原理">8.1 原理</a></li><li class="depth-2"><a href="#82-测试方法" data-for="82-测试方法">8.2 测试方法</a></li><li class="depth-2"><a href="#83-判定标准-criteria" data-for="83-判定标准-criteria">8.3 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#84-注意事项" data-for="84-注意事项">8.4 注意事项</a></li><li class="depth-1"><a href="#9-hkadc-与-xoadc-测试对比总表" data-for="9-hkadc-与-xoadc-测试对比总表">9. HKADC 与 XOADC 测试对比总表</a></li><li class="depth-1"><a href="#10-测试电路配置建议" data-for="10-测试电路配置建议">10. 测试电路配置建议</a></li><li class="depth-2"><a href="#101-hkadc-测试板级配置" data-for="101-hkadc-测试板级配置">10.1 HKADC 测试板级配置</a></li><li class="depth-2"><a href="#102-xoadc-测试板级配置" data-for="102-xoadc-测试板级配置">10.2 XOADC 测试板级配置</a></li><li class="depth-2"><a href="#103-仪器精度要求" data-for="103-仪器精度要求">10.3 仪器精度要求</a></li><li class="depth-1"><a href="#11-常见问题与排查" data-for="11-常见问题与排查">11. 常见问题与排查</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

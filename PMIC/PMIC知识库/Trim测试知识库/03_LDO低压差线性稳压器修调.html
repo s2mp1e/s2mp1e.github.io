@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>LDO 低压差线性稳压器修调</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="LDO 低压差线性稳压器修调"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="LDO 低压差线性稳压器修调"/><meta name="twitter:description" content="LDO 低压差线性稳压器修调 / LDO Trim &amp; Calibration LDO (Low Dropout Regulator) 的修调是 PMIC 量产测试中的核心环节。由于工艺偏差导致反馈电阻绝对值、误差放大器 (Error Amplifier, EA) 失调电压、基准电压 (VREF) 等参数偏离设计值，必须通过 Trim 将输出电压调整到规格范围内。本章深入讲解 LDO Normal 模式与 Eco 模式输出电压修调的原理、测试方法及工程注意事项。 目录 LDO 基本架构与工作原理 LDO Normal 电压输出修调 LDO Eco 电压输出修调 LDO 修调策略与工程考..."/><meta property="og:description" content="LDO 低压差线性稳压器修调 / LDO Trim &amp; Calibration LDO (Low Dropout Regulator) 的修调是 PMIC 量产测试中的核心环节。由于工艺偏差导致反馈电阻绝对值、误差放大器 (Error Amplifier, EA) 失调电压、基准电压 (VREF) 等参数偏离设计值，必须通过 Trim 将输出电压调整到规格范围内。本章深入讲解 LDO Normal 模式与 Eco 模式输出电压修调的原理、测试方法及工程注意事项。 目录 LDO 基本架构与工作原理 LDO Normal 电压输出修调 LDO Eco 电压输出修调 LDO 修调策略与工程考..."/><meta property="og:image:alt" content="LDO 低压差线性稳压器修调 / LDO Trim &amp; Calibration LDO (Low Dropout Regulator) 的修调是 PMIC 量产测试中的核心环节。由于工艺偏差导致反馈电阻绝对值、误差放大器 (Error Amplifier, EA) 失调电压、基准电压 (VREF) 等参数偏离设计值，必须通过 Trim 将输出电压调整到规格范围内。本章深入讲解 LDO Normal 模式与 Eco 模式输出电压修调的原理、测试方法及工程注意事项。 目录 LDO 基本架构与工作原理 LDO Normal 电压输出修调 LDO Eco 电压输出修调 LDO 修调策略与工程考..."/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/03_LDO低压差线性稳压器修调"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/03_LDO低压差线性稳压器修调"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="LDO 低压差线性稳压器修调 / LDO Trim &amp; Calibration LDO (Low Dropout Regulator) 的修调是 PMIC 量产测试中的核心环节。由于工艺偏差导致反馈电阻绝对值、误差放大器 (Error Amplifier, EA) 失调电压、基准电压 (VREF) 等参数偏离设计值，必须通过 Trim 将输出电压调整到规格范围内。本章深入讲解 LDO Normal 模式与 Eco 模式输出电压修调的原理、测试方法及工程注意事项。 目录 LDO 基本架构与工作原理 LDO Normal 电压输出修调 LDO Eco 电压输出修调 LDO 修调策略与工程考..."/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/03_LDO低压差线性稳压器修调-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/03_LDO低压差线性稳压器修调-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/Trim测试知识库/03_LDO低压差线性稳压器修调-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/Trim测试知识库/03_LDO低压差线性稳压器修调"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-243"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-243" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/Trim测试知识库/">Trim测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>LDO 低压差线性稳压器修调</a></div></nav><h1 class="article-title">LDO 低压差线性稳压器修调</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>32分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ldo" class="internal tag-link">ldo</a></li><li><a href="../../../tags/trim" class="internal tag-link">trim</a></li><li><a href="../../../tags/ate" class="internal tag-link">ate</a></li><li><a href="../../../tags/calibration" class="internal tag-link">calibration</a></li><li><a href="../../../tags/knowledge-base" class="internal tag-link">knowledge-base</a></li></ul></div></div><article class="popover-hint"><h1 id="ldo-低压差线性稳压器修调--ldo-trim--calibration">LDO 低压差线性稳压器修调 / LDO Trim &amp; Calibration<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ldo-低压差线性稳压器修调--ldo-trim--calibration" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p>LDO (Low Dropout Regulator) 的修调是 PMIC 量产测试中的核心环节。由于工艺偏差导致反馈电阻绝对值、误差放大器 (Error Amplifier, EA) 失调电压、基准电压 (VREF) 等参数偏离设计值，必须通过 Trim 将输出电压调整到规格范围内。本章深入讲解 LDO Normal 模式与 Eco 模式输出电压修调的原理、测试方法及工程注意事项。</p>
+</blockquote>
+<hr/>
+<h2 id="目录">目录<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#目录" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ol>
+<li><a href="#%E4%B8%80ldo-%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86" class="internal alias">LDO 基本架构与工作原理</a></li>
+<li><a href="#%E4%BA%8Cldo-normal-%E7%94%B5%E5%8E%8B%E8%BE%93%E5%87%BA%E4%BF%AE%E8%B0%83" class="internal alias">LDO Normal 电压输出修调</a></li>
+<li><a href="#%E4%B8%89ldo-eco-%E7%94%B5%E5%8E%8B%E8%BE%93%E5%87%BA%E4%BF%AE%E8%B0%83" class="internal alias">LDO Eco 电压输出修调</a></li>
+<li><a href="#%E5%9B%9Bldo-%E4%BF%AE%E8%B0%83%E7%AD%96%E7%95%A5%E4%B8%8E%E5%B7%A5%E7%A8%8B%E8%80%83%E9%87%8F" class="internal alias">LDO 修调策略与工程考量</a></li>
+<li><a href="#%E4%BA%94%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%B0%83%E8%AF%95%E6%8C%87%E5%8D%97" class="internal alias">常见问题与调试指南</a></li>
+</ol>
+<hr/>
+<h2 id="一ldo-基本架构与工作原理">一、LDO 基本架构与工作原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一ldo-基本架构与工作原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-核心架构--core-architecture">1.1 核心架构 / Core Architecture<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-核心架构--core-architecture" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>一个典型的 PMIC 片上 LDO 包含以下关键模块：</p>
+<pre><code>                        ┌──────────┐
+VIN ──┬────────────────┤ Pass FET ├────┬── VOUT
+       │                │ (PMOS)   │    │
+       │                └─────┬────┘    │
+       │                      │         │
+       │               ┌──────┴──────┐  │
+       │               │   Error     │  │
+       │               │ Amplifier   │  │
+       │               └──────┬──────┘  │
+       │                      │         │
+       │                 ┌────┴────┐    │
+       │                 │  VREF   │    │
+       │                 └─────────┘    │
+       │                     R1         │
+       │                ┌───[===]───┬───┘
+       │                │           │
+       │                │    R2     │
+       │                └───[===]───┴──── GND
+       │                     │
+       │                     FB (Feedback Node)
+       └─────────────────────┘
+</code></pre>
+<h3 id="12-稳压原理--regulation-principle">1.2 稳压原理 / Regulation Principle<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-稳压原理--regulation-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>LDO 通过负反馈环路实现稳压：</p>
+<p><strong>输出电压公式：</strong></p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span></span></span></span></span>
+<p>其中：</p>
+<ul>
+<li><strong>VREF</strong>: 带隙基准 (Bandgap) 产生的参考电压，典型值 0.6V ~ 1.2V</li>
+<li><strong>R1/R2</strong>: 反馈分压电阻网络，决定输出电压的比例</li>
+<li><strong>Pass FET</strong>: 调整管 (通常为 PMOS)，工作在线性区作为压控电阻</li>
+</ul>
+<p><strong>反馈环路工作过程：</strong></p>
+<ol>
+<li>FB 节点电压与 VREF 在误差放大器输入端比较</li>
+<li>若 VOUT 下降 → FB 电压下降 → EA 输出降低 → PMOS 栅极电压降低 → PMOS 导通增强 → VOUT 回升</li>
+<li>若 VOUT 上升 → FB 电压上升 → EA 输出升高 → PMOS 栅极电压升高 → PMOS 导通减弱 → VOUT 回落</li>
+<li>系统在 FB = VREF 时达到稳态平衡</li>
+</ol>
+<h3 id="13-normal-模式-vs-eco-模式--normal-vs-eco-mode">1.3 Normal 模式 vs Eco 模式 / Normal vs Eco Mode<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#13-normal-模式-vs-eco-模式--normal-vs-eco-mode" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>特性</th><th>Normal 模式</th><th>Eco 模式</th></tr></thead><tbody><tr><td><strong>偏置电流 (Bias Current)</strong></td><td>高 (几 μA ~ 几十 μA)</td><td>低 (几百 nA ~ 几 μA)</td></tr><tr><td><strong>EA 增益</strong></td><td>高 (60dB ~ 80dB)</td><td>低 (40dB ~ 60dB)</td></tr><tr><td><strong>PSRR</strong></td><td>高 (50dB ~ 80dB @ 1kHz)</td><td>低 (20dB ~ 40dB @ 1kHz)</td></tr><tr><td><strong>负载调整率</strong></td><td>优 (&lt; 0.5%/A)</td><td>一般 (1%~2%/A)</td></tr><tr><td><strong>瞬态响应</strong></td><td>快</td><td>慢</td></tr><tr><td><strong>静态电流 (Iq)</strong></td><td>高</td><td>低</td></tr><tr><td><strong>应用场景</strong></td><td>性能敏感负载 (RF, PLL, Sensor)</td><td>低功耗待机 (RTC, Sleep IO)</td></tr></tbody></table></div>
+<h3 id="14-为什么要修调--why-trim-ldo">1.4 为什么要修调 / Why Trim LDO?<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#14-为什么要修调--why-trim-ldo" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>工艺偏差来源：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>偏差来源</th><th>典型偏差量</th><th>对 VOUT 的影响</th></tr></thead><tbody><tr><td><strong>R1/R2 电阻绝对值偏差</strong></td><td>±15%~±20%</td><td>比例匹配好，但绝对值偏差影响…</td></tr><tr><td><strong>R1/R2 比例匹配偏差</strong></td><td>±0.5%~±2%</td><td>直接影响 VOUT 精度 ← <strong>主要影响</strong></td></tr><tr><td><strong>VREF Bandgap 偏差</strong></td><td>±2%~±5%</td><td>所有 LDO 输出同向偏移</td></tr><tr><td><strong>EA 输入失调 Vos</strong></td><td>±1mV~±10mV</td><td>等效为 VREF 误差，影响 VOUT</td></tr><tr><td><strong>EA 有限增益误差</strong></td><td>增益不足导致稳态误差</td><td>通常 &lt; 0.1%，可忽略</td></tr></tbody></table></div>
+<p><strong>关键洞察：</strong> 即使 R1/R2 比例匹配良好，VREF 的绝对偏差和 EA 的失调电压也会导致 VOUT 偏离目标值。因此 Trim 是不可或缺的步骤。</p>
+<hr/>
+<h2 id="二ldo-normal-电压输出修调">二、LDO Normal 电压输出修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二ldo-normal-电压输出修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-原理--principle">2.1 原理 / Principle<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-原理--principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="211-trim-实现方式">2.1.1 Trim 实现方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#211-trim-实现方式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Normal 模式 VOUT Trim 通常通过以下几种方式实现：</p>
+<p><strong>方式 A：FB 分压电阻网络修调 (最常见)</strong></p>
+<pre><code>                          ┌─── R1a ───┐
+                          │           │
+                    ┌─────┤  R1b      ├───── Switch Mux
+                    │     │  ...      │
+                    │     └───────────┘
+FB ────────────┬───┤
+               │   │     ┌─── R2a ───┐
+               │   └─────┤  R2b      ├───── Switch Mux
+               │         │  ...      │
+               │         └───────────┘
+              GND
+</code></pre>
+<ul>
+<li>通过开关选择不同的 R1/R2 支路，改变分压比</li>
+<li>每步改变量通常为 0.5%~2% 的 VOUT</li>
+<li>Trim Range: ±5%~±15%</li>
+<li>Trim Code 位数: 3<del>6 bits (8</del>64 档)</li>
+</ul>
+<p><strong>方式 B：VREF DAC 修调</strong></p>
+<pre><code>Bandgap ──► DAC ──► EA(+) Reference
+               ▲
+               │
+            Trim Code
+</code></pre>
+<ul>
+<li>直接调整送入 EA 正端的参考电压</li>
+<li>精度更高，但面积更大</li>
+<li>通常用于多路 LDO 共享一个 VREF DAC 的场景</li>
+</ul>
+<p><strong>方式 C：VREF 全局修调 + LDO 独立精修</strong></p>
+<ul>
+<li>先修全局 Bandgap VREF（影响所有 LDO）</li>
+<li>再对每路 LDO 独立细调 FB 分压比</li>
+<li>混合策略，兼顾效率和精度</li>
+</ul>
+<h4 id="212-trim-的物理本质">2.1.2 Trim 的物理本质<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#212-trim-的物理本质" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>从电路角度，Trim 是通过改变以下等式中的某个变量来调整 VOUT：</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span></span></span></span></span>
+<ul>
+<li><strong>修 R1/R2 比例</strong> → 改变括号内的增益因子</li>
+<li><strong>修 VREF</strong> → 改变基准电压本身</li>
+<li><strong>修 EA 输入偏移</strong> → 在 EA 输入端叠加一个可调偏移电压（较少见）</li>
+</ul>
+<h3 id="22-测试方法--test-method">2.2 测试方法 / Test Method<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法--test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="221-标准-normal-模式-trim-流程">2.2.1 标准 Normal 模式 Trim 流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#221-标准-normal-模式-trim-流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>┌───────────────────────────────────────────────────────────────┐
+│  LDO Normal 模式 Trim 流程                                    │
+│                                                               │
+│  Step 1: 上电配置                                             │
+│    ├─ VIN = VOUT_NOM + VDO_margin (通常 VOUT_NOM + 0.3V~0.5V) │
+│    ├─ LDO 使能，设置输出电压寄存器到目标 VOUT                   │
+│    └─ 强制 LDO 进入 Normal 模式                                │
+│                                                               │
+│  Step 2: 施加负载                                             │
+│    ├─ 连接电子负载: ILOAD = I_TRIM (通常 10mA)                 │
+│    └─ 等待 VOUT 稳定 (等待时间取决于缓起时间和环路建立时间)      │
+│                                                               │
+│  Step 3: 测量 VOUT                                            │
+│    ├─ 用 SMU/ADC 测量 VOUT 引脚电压                            │
+│    ├─ 记录: VOUT_meas @ Trim_Code = Default                   │
+│    └─ 判断: VOUT_meas 是否在目标范围内                         │
+│                                                               │
+│  Step 4: 计算 Trim Code                                       │
+│    ├─ Error = VOUT_meas - VOUT_target                         │
+│    ├─ 已知 Step_Size (mV/Code)                                │
+│    ├─ Code_Delta = Round(Error / Step_Size)                   │
+│    └─ Final_Code = Default_Code + Code_Delta                  │
+│                                                               │
+│  Step 5: 烧录 / 验证                                          │
+│    ├─ 写入 Final_Code 到 Trim 寄存器 (OTP Program 或寄存器测试) │
+│    ├─ 芯片复位/重新加载 Trim Code                              │
+│    └─ 复测 VOUT → 确认在目标范围内 (Post-Trim Verify)           │
+└───────────────────────────────────────────────────────────────┘
+</code></pre>
+<h4 id="222-trim-code-搜索策略">2.2.2 Trim Code 搜索策略<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#222-trim-code-搜索策略" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>策略 A：单点测量 + 线性计算 (最常用)</strong></p>
+<pre><code>已知: Step_Size = 10mV/Code, VOUT_target = 1.800V
+实测: VOUT_meas = 1.825V (Trim_Code = 16, Mid-Code)
+误差: Error = 1.825 - 1.800 = +25mV
+需要: Code_Delta = 25mV / 10mV = 2.5 ≈ 3 (向减小方向)
+最终: Final_Code = 16 - 3 = 13
+
+注意：Step_Size 的非线性可能导致一次计算不够精确，
+     需要迭代 1~2 次验证后微调
+</code></pre>
+<p><strong>策略 B：多点扫描 + 最佳值选取</strong></p>
+<pre><code>1. 遍历所有 Trim Code (或部分子集)
+2. 对每个 Code 测量 VOUT
+3. 选取 VOUT 最接近 VOUT_target 的 Code
+4. 优势: 可发现非线性段，选择最佳 Code
+5. 劣势: 测试时间更长
+
+适用场景: 高精度 LDO (精度要求 &lt; ±1%)、Trim Step 非线性严重
+</code></pre>
+<p><strong>策略 C：二分法搜索</strong></p>
+<pre><code>1. 测量 Mid-Code → VOUT 偏大
+2. 测量 Mid - N/4 → VOUT 偏小  
+3. 测量 Mid - N/8 → VOUT ≈ Target ✓
+4. 总共只需 log2(N) 次迭代
+
+优势: 测试时间短
+劣势: 需要 Trim Step 单调性保证
+</code></pre>
+<h4 id="223-关键测试条件">2.2.3 关键测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#223-关键测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>建议值</th><th>说明</th></tr></thead><tbody><tr><td>VIN</td><td>VOUT_NOM + 0.3V~0.5V</td><td>保证 Pass FET 在线性区，同时不过压</td></tr><tr><td>ILOAD</td><td>10mA (或轻载)</td><td>轻载条件下 VOUT 最接近空载值（无 IR Drop 影响）</td></tr><tr><td>温度</td><td>25°C (室温)</td><td>基准测试条件，温度影响单独验证</td></tr><tr><td>测量精度</td><td>±0.05% 量程以上</td><td>VOUT 精度通常要求 ±1%~±2%，测量系统需有 10× 裕量</td></tr><tr><td>稳定等待时间</td><td>> 100μs</td><td>确保 LDO 环路建立稳定，缓起 (Soft Start) 完成</td></tr></tbody></table></div>
+<h3 id="23-注意事项--important-notes">2.3 注意事项 / Important Notes<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-注意事项--important-notes" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>负载电流设定：</strong> Trim 时负载电流必须在规格书中明确指定。不同负载下 VOUT 不同（Load Regulation），同一颗芯片在不同负载下测得的 VOUT 差异可达 0.5%~2%。</p>
+</li>
+<li>
+<p><strong>VIN 电压选择：</strong> VIN 必须高于 VOUT + VDO_min，保证 LDO 正常工作；但 VIN 过高会导致 Pass FET 上的压降过大，芯片功耗增加，自热效应 (Self-Heating) 可能改变 VOUT。</p>
+</li>
+<li>
+<p><strong>Trim Code 单调性验证：</strong> 在量产前需确认 Trim Code 与 VOUT 的关系是单调的（Monotonic）。非单调的 Trim Step 会导致搜索算法失效，甚至无法收敛到目标范围内。</p>
+</li>
+<li>
+<p><strong>电阻网络非线性：</strong> 在 Trim Range 的边界处，由于电阻开关的导通电阻 (Ron) 和寄生效应，Step_Size 可能偏离设计值。建议在中段使用线性近似，边界处增加 Guard Band。</p>
+</li>
+<li>
+<p><strong>EA Offset 影响分离：</strong> VOUT 偏差通常是 VREF 偏差 + R 比例偏差 + EA Offset 的综合结果。如果多路 LDO 同向偏差，优先怀疑 VREF 全局偏差；如果单路 LDO 偏差与其他路不同向，优先怀疑该路 FB 分压或 EA 失调。</p>
+</li>
+<li>
+<p><strong>寄存器写入验证：</strong> 对于 OTP 修调，在烧录前需要通过寄存器写入临时验证 Trim Code 是否正确，确认后再烧录 OTP。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="三ldo-eco-电压输出修调">三、LDO Eco 电压输出修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三ldo-eco-电压输出修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-原理--principle">3.1 原理 / Principle<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-原理--principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="311-eco-模式-vout-偏移的根源">3.1.1 Eco 模式 VOUT 偏移的根源<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#311-eco-模式-vout-偏移的根源" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Eco 模式（低功耗模式）与 Normal 模式之间的 VOUT 偏差主要来自以下因素：</p>
+<p><strong>因素 1：EA 偏置电流降低</strong></p>
+<pre><code>Normal 模式:  EA Bias = 5μA  →  Gain = 80dB, Vos = ±1mV
+Eco 模式:     EA Bias = 200nA →  Gain = 50dB, Vos = ±5mV
+</code></pre>
+<ul>
+<li>偏置电流降低 → EA 输入对管的 gm 下降 → 增益下降 → 环路增益降低</li>
+<li>有限增益导致稳态误差：VOUT 偏离理想值</li>
+<li>失调电压 Vos 增大：由于输入对管匹配程度在低偏置下变差</li>
+</ul>
+<p><strong>因素 2：反馈网络负载效应</strong></p>
+<ul>
+<li>正常模式下，EA 输出级驱动能力充足，反馈网络的分流电流影响可忽略</li>
+<li>Eco 模式下，EA 输出级驱动能力降低，R1/R2 网络的电流抽取可能改变环路工作点</li>
+</ul>
+<p><strong>因素 3：参考缓冲器偏移</strong></p>
+<ul>
+<li>部分 LDO 设计中，VREF 通过一个缓冲器 (Buffer) 送入 EA</li>
+<li>Eco 模式下 Buffer 偏置降低，其输出偏移可能发生变化</li>
+</ul>
+<p><strong>因素 4：Pass FET 栅极驱动强度</strong></p>
+<ul>
+<li>Normal 模式下 Pass FET 栅极驱动强，VGS 可快速调整</li>
+<li>Eco 模式下栅极驱动弱，VGS 建立精度下降</li>
+</ul>
+<h4 id="312-两种模式-vout-差异示例">3.1.2 两种模式 VOUT 差异示例<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#312-两种模式-vout-差异示例" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>实测数据示例（同一芯片，不同模式）:
+
+Normal 模式: VOUT = 1.800V (Trim Code = 16, Mid-Code)
+Eco 模式:   VOUT = 1.788V (同 Trim Code)
+
+差异: ΔVOUT = -12mV (-0.67%)
+
+原因: Eco 模式下 EA 增益降低 → 有限增益误差增大
+      Vos 偏移 → 等效 VREF 变化
+</code></pre>
+<h4 id="313-eco-trim-的两种场景">3.1.3 Eco Trim 的两种场景<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#313-eco-trim-的两种场景" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>场景</th><th>设计类型</th><th>Trim 策略</th><th>复杂度</th></tr></thead><tbody><tr><td><strong>共享 Trim</strong></td><td>Normal/Eco 共用同一组 FB 电阻</td><td>仅修 Normal，Eco 由设计保证在规格内</td><td>低</td></tr><tr><td><strong>独立 Trim</strong></td><td>Normal/Eco 有独立的 Trim 寄存器</td><td>分别测量、分别计算、分别烧录</td><td>高</td></tr></tbody></table></div>
+<h3 id="32-测试方法--test-method">3.2 测试方法 / Test Method<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法--test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="321-标准-eco-模式-trim-流程">3.2.1 标准 Eco 模式 Trim 流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#321-标准-eco-模式-trim-流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>┌───────────────────────────────────────────────────────────────┐
+│  LDO Eco 模式 Trim 流程                                       │
+│                                                               │
+│  Step 1: 上电配置                                             │
+│    ├─ VIN = VOUT_NOM + VDO_margin (与 Normal 模式一致)         │
+│    ├─ LDO 使能，设置输出电压寄存器到目标 VOUT                   │
+│    └─ 强制 LDO 进入 Eco/Low-Power 模式（通过寄存器配置）         │
+│                                                               │
+│  Step 2: 施加负载                                             │
+│    ├─ 连接电子负载: ILOAD = I_ECO_TRIM (通常 1mA，轻载)         │
+│    └─ 等待 VOUT 稳定 (Eco 模式环路响应更慢，需更长等待时间)      │
+│                                                               │
+│  Step 3: 测量 VOUT                                            │
+│    ├─ 用 SMU/ADC 测量 VOUT 引脚电压                            │
+│    └─ 记录: VOUT_eco_meas @ 当前 Trim Code                     │
+│                                                               │
+│  Step 4: 计算 Trim Code                                       │
+│    ├─ Error_eco = VOUT_eco_meas - VOUT_target                 │
+│    ├─ 使用该模式的 Step_Size (可能与 Normal 模式不同)           │
+│    └─ Final_Code_eco = Current_Code + Code_Delta              │
+│                                                               │
+│  Step 5: 交叉验证                                             │
+│    ├─ 切换回 Normal 模式，验证 VOUT_nor 仍在规格内              │
+│    └─ 如果 Normal 模式被 Eco Trim 影响，需要折中或迭代          │
+│                                                               │
+│  Step 6: 烧录 / 验证                                          │
+│    ├─ 写入 Eco Trim Code（可能为独立寄存器或共用寄存器）         │
+│    └─ 复测 Eco 和 Normal 模式的 VOUT                           │
+└───────────────────────────────────────────────────────────────┘
+</code></pre>
+<h4 id="322-共享-trim-场景的折中方法">3.2.2 共享 Trim 场景的折中方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#322-共享-trim-场景的折中方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>当 Normal 和 Eco 共用同一组 Trim 寄存器时，需要找到两个模式都能接受的 Trim Code：</p>
+<p><strong>方法 1：中心化折中</strong></p>
+<pre><code>Normal 模式 Trim 结果: Code = 13 → VOUT_nor = 1.800V ✓
+Eco 模式 @ Code = 13: VOUT_eco = 1.788V (偏差 -12mV, 超下规格)
+
+解决方案：尝试调整 Code 到 14 → VOUT_nor = 1.810V, VOUT_eco = 1.798V
+         两者都在规格内 ✓
+</code></pre>
+<p><strong>方法 2：Normal 优先，Eco 验证</strong></p>
+<pre><code>策略:
+  1. 先 Trim Normal 模式到目标值
+  2. 在 Normal Trim Code 下测量 Eco 模式 VOUT
+  3. 如果 Eco VOUT 在规格内 → 通过
+  4. 如果 Eco VOUT 超规格 → 微调 Trim Code 使两个模式都在规格内
+  5. 如果无法两全 → 晶圆判废 (设计问题)
+</code></pre>
+<h4 id="323-独立-trim-场景的流程">3.2.3 独立 Trim 场景的流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#323-独立-trim-场景的流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>┌───────────────────────────────────────────────────────────┐
+│  Step 1: Normal 模式 Trim                                 │
+│    测量 → 计算 → 写入 Normal_Trim_Code                     │
+│    验证 VOUT_nor ∈ Target 范围                             │
+│                                                           │
+│  Step 2: Eco 模式 Trim                                    │
+│    切换到 Eco 模式                                         │
+│    测量 VOUT_eco @ Normal_Trim_Code                       │
+│    如果偏差在规格内 → Eco_Trim_Code = Normal_Trim_Code     │
+│    如果偏差超规格 → 计算 Eco 专用 Trim Code                 │
+│    写入 Eco_Trim_Code（独立寄存器）                         │
+│                                                           │
+│  Step 3: 最终交叉验证                                      │
+│    验证 Normal 模式 VOUT（确保 Eco Trim 不影响 Normal）     │
+│    验证 Eco 模式 VOUT（确保 Eco Trim 修正正确）             │
+└───────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="33-注意事项--important-notes">3.3 注意事项 / Important Notes<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-注意事项--important-notes" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>Eco 模式更长的稳定时间：</strong> Eco 模式下 EA 的偏置电流和带宽都降低，环路建立时间可能是 Normal 模式的 10~100 倍。测试时需确保等待时间足够长，避免读取到非稳态的 VOUT 值。</p>
+</li>
+<li>
+<p><strong>负载条件差异：</strong> Eco 模式通常用于轻载场景（1mA 以下），因此 Trim 时负载电流应选择轻载（典型值 1mA），与 Normal 模式 Trim 的负载（典型值 10mA）不同。</p>
+</li>
+<li>
+<p><strong>模式切换时的瞬态效应：</strong> 从 Normal 切换到 Eco 模式时，VOUT 可能出现短暂的下冲或过冲。应等待足够时间直到 VOUT 完全稳定后再测量。</p>
+</li>
+<li>
+<p><strong>Trim 寄存器独立性：</strong> 需明确 Normal 和 Eco 模式的 Trim 寄存器是独立的、共享的、还是通过额外偏移量 (Offset) 寄存器控制的。不同的架构需要不同的测试策略。</p>
+</li>
+<li>
+<p><strong>Eco 模式下 PSRR 降低：</strong> Trim Code 的选择可能影响 EA 的工作点 → 影响 PSRR。在 PSRR 敏感的应用中，需要在 VOUT 精度和 PSRR 之间做 trade-off。</p>
+</li>
+<li>
+<p><strong>Eco 模式的温度敏感性：</strong> 由于 Eco 模式使用更低的偏置电流，EA 的 Vos 温度漂移通常比 Normal 模式更显著。室温 Trim 后需在高温和低温下验证。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="四ldo-修调策略与工程考量">四、LDO 修调策略与工程考量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四ldo-修调策略与工程考量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-trim-流程策略--trim-flow-strategy">4.1 Trim 流程策略 / Trim Flow Strategy<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-trim-流程策略--trim-flow-strategy" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="411-推荐的总体策略">4.1.1 推荐的总体策略<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#411-推荐的总体策略" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>VREF 全局 Trim（影响所有 LDO）
+        │
+        ▼
+LDO-1 Normal Trim（Normal Trim Code 确定）
+        │
+        ▼
+LDO-1 Eco 检查（检查 Eco 偏移量）
+   ├── 规格内 → 无需独立 Eco Trim
+   └── 超规格 → 独立 Eco Trim
+        │
+        ▼
+LDO-2, LDO-3, ...（逐路 Trim，与 LDO-1 相同流程）
+        │
+        ▼
+交叉验证（每路 LDO 的 Normal 和 Eco 模式）
+</code></pre>
+<h4 id="412-执行顺序建议">4.1.2 执行顺序建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#412-执行顺序建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>先修 Bandgap VREF</strong>：所有 LDO 的参考基准，全局影响最大</li>
+<li><strong>再修每路 LDO Normal 模式</strong>：建立基础输出电压精度</li>
+<li><strong>后检每路 LDO Eco 模式偏移</strong>：根据实际偏移量决定是否需要独立处理</li>
+<li><strong>最后交叉验证</strong>：确认所有模式、所有负载条件下 VOUT 在规格内</li>
+</ol>
+<h3 id="42-负载调整率影响--load-regulation-impact">4.2 负载调整率影响 / Load Regulation Impact<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-负载调整率影响--load-regulation-impact" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="421-原理">4.2.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#421-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Load Regulation 定义为负载电流变化时 VOUT 的变化量：</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">Load Regulation</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1963em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight">A</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">D</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>影响因素：</p>
+<ul>
+<li><strong>环路增益</strong>：增益越高，Load Regulation 越好</li>
+<li><strong>Pass FET 输出阻抗</strong>：Rout 越大，负载调整率越差</li>
+<li><strong>封装寄生电阻</strong>：Rbon 和引脚电阻上的 IR Drop</li>
+</ul>
+<h4 id="422-对-trim-的影响">4.2.2 对 Trim 的影响<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#422-对-trim-的影响" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>关键概念: Trim 时的负载条件必须明确
+
+示例:
+  芯片 A @ Trim (10mA):  VOUT = 1.800V  ← 修到此值
+  芯片 A @ Full Load:    VOUT = 1.788V  (Load Regulation = 1.2mV/mA)
+  芯片 A @ No Load:      VOUT = 1.802V
+
+如果 Trim 时负载与实际应用负载不同，
+则 VOUT 精度在应用中可能偏移。
+
+建议:
+  • Trim 负载 = 实际应用中的典型负载
+  • 或在 Trim 后测量 Load Regulation 并计入 Guard Band
+</code></pre>
+<h4 id="423-不同负载下的-test-condition">4.2.3 不同负载下的 Test Condition<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#423-不同负载下的-test-condition" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>负载类型</th><th>典型值</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>空载 (No Load)</strong></td><td>0mA</td><td>待机验证、Iq 测试</td></tr><tr><td><strong>轻载 (Light Load)</strong></td><td>1mA~10mA</td><td>Trim 条件、Eco 模式验证</td></tr><tr><td><strong>中载 (Medium Load)</strong></td><td>50mA~100mA</td><td>Normal 模式典型应用</td></tr><tr><td><strong>重载 (Heavy Load)</strong></td><td>200mA~500mA</td><td>OCP、Dropout、热测试</td></tr></tbody></table></div>
+<p>Trim 通常选择轻载条件，因为：</p>
+<ul>
+<li>重载下 IR Drop 和自热效应会干扰 Trim 精度</li>
+<li>轻载下 VOUT 最接近理想开环值</li>
+<li>重载下的偏差由 Load Regulation 表征而非 Trim 修正</li>
+</ul>
+<h3 id="43-温度效应--temperature-effects">4.3 温度效应 / Temperature Effects<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-温度效应--temperature-effects" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="431-vout-温度漂移的来源">4.3.1 VOUT 温度漂移的来源<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#431-vout-温度漂移的来源" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>LDO VOUT 的全温漂移是多个温度系数的叠加：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>来源</th><th>温度系数</th><th>方向</th></tr></thead><tbody><tr><td>VREF Bandgap TC</td><td>±20~±50 ppm/°C</td><td>典型抛物线</td></tr><tr><td>EA Vos TC</td><td>±1~±5 μV/°C</td><td>可正可负</td></tr><tr><td>R1/R2 电阻 TC</td><td>正 (P+) 或 负 (N-)</td><td>取决于电阻类型</td></tr><tr><td>Pass FET Vth TC</td><td>-2~-4 mV/°C</td><td>负温度系数</td></tr></tbody></table></div>
+<h4 id="432-trim-温度策略">4.3.2 Trim 温度策略<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#432-trim-温度策略" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>室温 (25°C) Trim  →  高温 (85°C/125°C) 验证  →  低温 (-40°C) 验证
+
+典型结果:
+  VOUT @ 25°C:  1.800V ✓ (Trim 目标)
+  VOUT @ 125°C: 1.792V (偏差 -0.44%)
+  VOUT @ -40°C: 1.809V (偏差 +0.50%)
+
+如果全温偏差在规格内 → Trim 完成
+如果全温偏差超规格 → 需要温度补偿 Trim (TC Trim)
+</code></pre>
+<h4 id="433-温度相关的注意事项">4.3.3 温度相关的注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#433-温度相关的注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>Trim 温度一致性：</strong> 所有芯片的 Trim 步骤必须保持相同温度（通常 25°C ±2°C），避免温度引入的测量误差和 Trim Code 偏差</li>
+<li><strong>自热效应 (Self-Heating)：</strong> 大负载电流下芯片结温升高，VOUT 动态漂移。Trim 时负载不宜过大</li>
+<li><strong>不同模式的温度行为差异：</strong> Eco 模式下 EA 偏置低，Vos 的温漂更大。Eco Trim 后需特别注意全温验证</li>
+<li><strong>Guard Band 分配：</strong> 将温度漂移的预算从 Total Error Budget 中预留出来，例如：</li>
+</ul>
+<pre><code>VOUT Total Error Budget: ±2.0%
+  分配:
+    • Trim 残留误差:   ±0.5%
+    • 温度漂移:        ±0.8%
+    • 负载调整率:      ±0.3%
+    • 线调整率:        ±0.2%
+    • 老化余量:        ±0.2%
+</code></pre>
+<h3 id="44-线性调整率影响--line-regulation-impact">4.4 线性调整率影响 / Line Regulation Impact<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-线性调整率影响--line-regulation-impact" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="441-原理">4.4.1 原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#441-原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Line Regulation 衡量 VIN 变化时 VOUT 的稳定性：</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">Line Regulation</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1963em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>主要影响因素：</p>
+<ul>
+<li><strong>EA 的电源抑制能力</strong>：EA 的 PSRR 在高频下降</li>
+<li><strong>Pass FET 的 Early Effect</strong>：VDS 变化导致输出电流变化</li>
+<li><strong>VREF 的 Line Sensitivity</strong>：VREF 本身随 VIN 变化的程度</li>
+</ul>
+<h4 id="442-对-trim-的影响">4.4.2 对 Trim 的影响<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#442-对-trim-的影响" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>影响说明:
+  Trim 时 VIN = VOUT + 0.3V
+  应用中 VIN 可能变化 (如电池电压从 4.2V → 3.4V)
+  
+  如果 Line Regulation = 0.5%/V:
+  VIN 变化 0.8V → VOUT 变化 0.4%
+  
+  这个偏移是在 Trim 后额外叠加的，
+  需要在 Total Error Budget 中考虑。
+</code></pre>
+<h4 id="443-建议">4.4.3 建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#443-建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>Trim 时 VIN 应选择应用中的典型值</li>
+<li>在 Datasheet 中明确标注 Trim 条件 (VIN, ILOAD, Temp)</li>
+<li>量产测试中需在不同 VIN 下验证 VOUT（Line Regulation 测试项）</li>
+</ul>
+<h3 id="45-normal-与-eco-模式相关性--mode-correlation">4.5 Normal 与 Eco 模式相关性 / Mode Correlation<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#45-normal-与-eco-模式相关性--mode-correlation" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="451-偏差来源对比">4.5.1 偏差来源对比<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#451-偏差来源对比" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>主要 VOUT 偏差来源</th><th>典型偏差量</th><th>可修正性</th></tr></thead><tbody><tr><td><strong>Normal</strong></td><td>R 比例偏差 + VREF 偏差 + EA Vos</td><td>±1%~±3%</td><td>FB Trim 可直接修正</td></tr><tr><td><strong>Eco</strong></td><td>R 比例偏差 + VREF 偏差 + EA Vos + <strong>低增益误差</strong> + <strong>额外 Vos 偏移</strong></td><td>±2%~±5%</td><td>可能需要独立修正</td></tr></tbody></table></div>
+<h4 id="452-相关性分析">4.5.2 相关性分析<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#452-相关性分析" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>统计相关性（同一芯片 Normal vs Eco VOUT 偏差）:
+
+  强相关场景:
+    • R1/R2 比例偏差 → Normal 和 Eco 的 VOUT 同向偏移
+    • VREF 偏差 → 两种模式同向偏移
+  
+  弱相关场景:
+    • EA 低增益误差 → 仅影响 Eco
+    • EA Vos 低偏置偏移 → 仅影响 Eco
+  
+  结论:
+    • Normal Trim 可以消除 R 比例偏差和 VREF 偏差
+    • Eco 模式下剩余的偏差主要来自 EA 的增益和失调变化
+    • 如果设计良好，Normal Trim 后 Eco 偏移量通常 &lt; ±1%
+</code></pre>
+<h4 id="453-量产数据示例">4.5.3 量产数据示例<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#453-量产数据示例" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>统计 10000 颗芯片的量产数据:
+
+Normal 模式 VOUT (Trim 后):
+  Mean = 1.8002V, Sigma = 3.2mV (0.18%)
+  Cpk = 2.1 ✓
+
+Eco 模式 VOUT (共享 Trim，未独立修正):
+  Mean = 1.791V, Sigma = 5.8mV (0.32%)
+  Cpk = 1.2 (需关注)
+  Δ(Normal - Eco) = 9.2mV (0.51%)
+
+如果 Eco 模式规格为 ±2% (36mV):
+  Cpk = 1.2 → 基本满足，需持续监控
+  如果部分芯片 Eco VOUT 超下规格 → 考虑独立 Eco Trim
+</code></pre>
+<h3 id="46-ac-参数影响--ac-parameter-impact">4.6 AC 参数影响 / AC Parameter Impact<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#46-ac-参数影响--ac-parameter-impact" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="461-psrr-受-trim-code-的影响">4.6.1 PSRR 受 Trim Code 的影响<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#461-psrr-受-trim-code-的影响" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Trim Code 的变化不仅改变 DC VOUT，还可能影响 LDO 的 AC 性能：</p>
+<p><strong>影响机制：</strong></p>
+<ol>
+<li>
+<p><strong>EA 工作点偏移：</strong> Trim Code 改变 FB 分压比 → FB 节点 DC 电压变化 → EA 输入对管的工作电流和跨导改变 → EA 增益和带宽变化 → PSRR 变化</p>
+</li>
+<li>
+<p><strong>Pass FET VGS 调整：</strong> VOUT 变化后，Pass FET 的 VGS 会自适应调整 → 输出阻抗 Rout 变化 → PSRR 变化</p>
+</li>
+<li>
+<p><strong>环路增益变化：</strong> 不同 Trim Code 下环路的 DC 增益和单位增益带宽 (UGBW) 可能有微小差异</p>
+</li>
+</ol>
+<h4 id="462-psrr-与-trim-code-的关系示例">4.6.2 PSRR 与 Trim Code 的关系示例<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#462-psrr-与-trim-code-的关系示例" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>实测数据 (某款 LDO):
+
+Trim Code | VOUT    | PSRR @ 1kHz | PSRR @ 100kHz
+----------|---------|------------|-------------
+ 8 (Min)  | 1.770V  | 62dB       | 38dB
+12        | 1.785V  | 65dB       | 40dB
+16 (Mid)  | 1.800V  | 67dB       | 41dB  ← 最佳
+20        | 1.815V  | 66dB       | 40dB
+24 (Max)  | 1.830V  | 64dB       | 39dB
+
+趋势: Mid-Code 附近 PSRR 最优，边界 PSRR 下降 2~3dB
+原因: Trim 在边界值工作时，EA 和 Pass FET 偏离最佳偏置点
+</code></pre>
+<h4 id="463-其他受影响的-ac-参数">4.6.3 其他受影响的 AC 参数<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#463-其他受影响的-ac-参数" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>AC 参数</th><th>受 Trim 影响程度</th><th>说明</th></tr></thead><tbody><tr><td><strong>PSRR</strong></td><td>中度</td><td>Trim Code 改变 EA 偏置点</td></tr><tr><td><strong>输出噪声</strong></td><td>轻度</td><td>EA 偏置变化影响噪声谱密度</td></tr><tr><td><strong>瞬态响应</strong></td><td>轻度</td><td>环路 UGBW 微小变化</td></tr><tr><td><strong>相位裕度</strong></td><td>极轻微</td><td>通常可忽略</td></tr><tr><td><strong>缓起时间</strong></td><td>无影响</td><td>独立于 Trim 电路</td></tr></tbody></table></div>
+<h4 id="464-建议">4.6.4 建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#464-建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>在 Trim Code 选择时，除了 DC 精度外，应验证 AC 性能是否在规格内</li>
+<li>对于 PSRR 敏感的 LDO (如 RF 供电)，应选择 PSRR 最优的 Trim Code 区间</li>
+<li>必要时需在 DC 精度和 PSRR 之间做 trade-off</li>
+</ul>
+<h3 id="47-guard-band-与-error-budget">4.7 Guard Band 与 Error Budget<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#47-guard-band-与-error-budget" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="471-完整的-vout-error-budget-示例">4.7.1 完整的 VOUT Error Budget 示例<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#471-完整的-vout-error-budget-示例" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>VOUT Target: 1.800V
+VOUT Spec:  ±2.0%  (±36mV)
+
+Error Budget 分配:
+
+误差来源                    │ 典型值    │ 占比
+───────────────────────────│──────────│──────
+Trim 残留误差 (Step 精度)    │ ±0.3%    │ 15%
+Trim 测量系统误差            │ ±0.1%    │ 5%
+温度漂移 (0°C ~ 85°C)      │ ±0.6%    │ 30%
+负载调整率 (0~200mA)       │ ±0.4%    │ 20%
+线性调整率 (3.0V~4.2V)     │ ±0.2%    │ 10%
+老化 (Aging, 10年)          │ ±0.2%    │ 10%
+封装应力                    │ ±0.1%    │ 5%
+OTHERS (PSRR, Noise, etc.) │ ±0.1%    │ 5%
+───────────────────────────│──────────│──────
+总和 (RSS)                  │ ±0.86%   │
+总和 (Worst Case)           │ ±2.0%    │
+                             │
+Trim 目标: VOUT = 1.800V ± 0.3%
+                           (保留 Guard Band 给其他误差源)
+</code></pre>
+<h4 id="472-guard-band-设置建议">4.7.2 Guard Band 设置建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#472-guard-band-设置建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>Trim Guard Band:</strong> 规格的 20%~30%（即 Trim 到目标的 ±1.4% 以内，而不是 ±2%）</li>
+<li><strong>温度 Guard Band:</strong> 根据实测 TC 数据和温度分布设置</li>
+<li><strong>负载 Guard Band:</strong> 根据实测 Load Regulation 和负载范围设置</li>
+</ul>
+<hr/>
+<h2 id="五常见问题与调试指南">五、常见问题与调试指南<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五常见问题与调试指南" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-trim-相关问题速查">5.1 Trim 相关问题速查<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-trim-相关问题速查" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>问题</th><th>可能原因</th><th>检查方向</th></tr></thead><tbody><tr><td><strong>Trim 后 VOUT 不变化</strong></td><td>Trim 寄存器未正确写入</td><td>确认 I2C/SPI 通信正常</td></tr><tr><td></td><td>Trim 未使能（需额外 Enable Bit）</td><td>检查 Trim Enable 寄存器</td></tr><tr><td></td><td>OTP 烧录后未重新上电加载</td><td>执行 POR 或 Reset</td></tr><tr><td><strong>Trim Code 到边界仍不够</strong></td><td>工艺偏差超出设计 Trim Range</td><td>扩大 Trim Range（需改版）</td></tr><tr><td></td><td>VREF 偏差太大</td><td>先修 VREF 再修 LDO</td></tr><tr><td><strong>Normal Trim 后 Eco 偏差大</strong></td><td>EA 低增益偏移过大</td><td>检查 EA 设计</td></tr><tr><td></td><td>Eco 模式下 Vos 过大</td><td>考虑独立 Eco Trim</td></tr><tr><td><strong>Trim 后 PSRR 显著下降</strong></td><td>Trim Code 在边界导致偏置点偏移</td><td>改用靠近 Mid-Code 的 Trim 值</td></tr><tr><td><strong>Trim 后 VOUT 不稳定/振荡</strong></td><td>Trim Code 改变了环路稳定性</td><td>检查相位裕度</td></tr><tr><td></td><td>负载条件导致 LDO 进入不稳定区</td><td>检查 Load/Line 条件</td></tr><tr><td><strong>高温/低温下 Trim 失效</strong></td><td>Trim Code 温度漂移</td><td>增加 TC Trim 或调整 Guard Band</td></tr><tr><td></td><td>Trim 存储单元高温数据丢失</td><td>检查 OTP Data Retention</td></tr><tr><td><strong>同一晶圆不同 Die VOUT 差异大</strong></td><td>Wafer 均匀性问题</td><td>检查工艺边缘区域</td></tr><tr><td></td><td>探针接触电阻不一致</td><td>检查 Probe Card 状况</td></tr></tbody></table></div>
+<h3 id="52-ate-调试检查清单">5.2 ATE 调试检查清单<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-ate-调试检查清单" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>□  Trim 寄存器映射表是否确认？
+   - 地址、默认值、Bit 位宽、读写属性
+
+□  Trim Enable 条件是否满足？
+   - 是否需要特殊 Key/Sequence
+   - 是否需要额外供电 (VPP)
+
+□  Trim 前后测量条件是否一致？
+   - VIN, ILOAD, 温度, 等待时间
+
+□  OTP 烧录条件是否验证？
+   - VPP 电压、脉宽、温度范围
+
+□  Normal/Eco 模式切换方式？
+   - 寄存器 Bit → 切换时序 → 稳定等待时间
+
+□  Trim 良率是否有监控？
+   - Trim Code 分布直方图
+   - Post-Trim VOUT 分布
+   - Normal/Eco 偏移量分布
+
+□  FT 中 Trim 验证流程？
+   - Trim Code Re-Read
+   - VOUT Verification Test
+   - Guard Band 是否足够
+</code></pre>
+<h3 id="53-良率优化建议">5.3 良率优化建议<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-良率优化建议" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li>
+<p><strong>Trim Code 分布监控：</strong> 量产初期绘制 Trim Code 直方图，确认 Trim Code 集中在中段区域。若 Trim Code 分布在边界附近，提示工艺偏移或设计余量不足。</p>
+</li>
+<li>
+<p><strong>多路 LDO 偏差模式分析：</strong> 如果所有 LDO 同向偏差，优先修 VREF；如果单路 LDO 异常，检查该路的 FB 电阻或 EA。</p>
+</li>
+<li>
+<p><strong>Normal/Eco 偏移量跟踪：</strong> 长期监控 Normal vs Eco 的偏移量（ΔVOUT = VOUT_eco - VOUT_nor），若均值显著偏离零，需要调整 Eco 模式 Trim 策略。</p>
+</li>
+<li>
+<p><strong>温度漂移特性表征：</strong> 在 characterization 阶段充分测量不同 Trim Code 下的温度特性，确保极端温度下 Trim 仍有效。</p>
+</li>
+<li>
+<p><strong>Step Size 验证：</strong> 量产验证阶段实际测量 Trim Step 的有效性，确认 Step_Size 与设计值一致，不存在缺失码或非单调段。</p>
+</li>
+</ol>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li><a href="../../../PMIC/Trim" class="internal alias" data-slug="PMIC/Trim">PMIC Trim 完整指南</a> — 全模块 Trim 方法大全</li>
+<li><a href="../../../PMIC/FT" class="internal alias" data-slug="PMIC/FT">FT 测试完整指南</a> — FT 中的 Trim 验证流程</li>
+<li><a href="../../../PMIC/LDO/LDO_原理与测试" class="internal alias" data-slug="PMIC/LDO/LDO_原理与测试">LDO 原理与测试</a> — LDO 基本原理和测试</li>
+<li><a href="../../../PMIC/Digital_Interface/OTP_EFUSE_Trim" class="internal alias" data-slug="PMIC/Digital_Interface/OTP_EFUSE_Trim">Trim 测试</a> — 存储技术和烧录细节</li>
+<li><a href="../../../PMIC/Analog_Core/Bandgap_原理与测试" class="internal alias" data-slug="PMIC/Analog_Core/Bandgap_原理与测试">Bandgap 原理与测试</a> — VREF Trim 参考</li>
+<li><a href="../../../PMIC/Common/ATE测试基础" class="internal alias" data-slug="PMIC/Common/ATE测试基础">ATE 测试基础</a> — ATE 测试方法论</li>
+</ul></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-94" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#ldo-低压差线性稳压器修调--ldo-trim--calibration" data-for="ldo-低压差线性稳压器修调--ldo-trim--calibration">LDO 低压差线性稳压器修调 / LDO Trim &amp; Calibration</a></li><li class="depth-1"><a href="#目录" data-for="目录">目录</a></li><li class="depth-1"><a href="#一ldo-基本架构与工作原理" data-for="一ldo-基本架构与工作原理">一、LDO 基本架构与工作原理</a></li><li class="depth-2"><a href="#11-核心架构--core-architecture" data-for="11-核心架构--core-architecture">1.1 核心架构 / Core Architecture</a></li><li class="depth-2"><a href="#12-稳压原理--regulation-principle" data-for="12-稳压原理--regulation-principle">1.2 稳压原理 / Regulation Principle</a></li><li class="depth-2"><a href="#13-normal-模式-vs-eco-模式--normal-vs-eco-mode" data-for="13-normal-模式-vs-eco-模式--normal-vs-eco-mode">1.3 Normal 模式 vs Eco 模式 / Normal vs Eco Mode</a></li><li class="depth-2"><a href="#14-为什么要修调--why-trim-ldo" data-for="14-为什么要修调--why-trim-ldo">1.4 为什么要修调 / Why Trim LDO?</a></li><li class="depth-1"><a href="#二ldo-normal-电压输出修调" data-for="二ldo-normal-电压输出修调">二、LDO Normal 电压输出修调</a></li><li class="depth-2"><a href="#21-原理--principle" data-for="21-原理--principle">2.1 原理 / Principle</a></li><li class="depth-2"><a href="#22-测试方法--test-method" data-for="22-测试方法--test-method">2.2 测试方法 / Test Method</a></li><li class="depth-2"><a href="#23-注意事项--important-notes" data-for="23-注意事项--important-notes">2.3 注意事项 / Important Notes</a></li><li class="depth-1"><a href="#三ldo-eco-电压输出修调" data-for="三ldo-eco-电压输出修调">三、LDO Eco 电压输出修调</a></li><li class="depth-2"><a href="#31-原理--principle" data-for="31-原理--principle">3.1 原理 / Principle</a></li><li class="depth-2"><a href="#32-测试方法--test-method" data-for="32-测试方法--test-method">3.2 测试方法 / Test Method</a></li><li class="depth-2"><a href="#33-注意事项--important-notes" data-for="33-注意事项--important-notes">3.3 注意事项 / Important Notes</a></li><li class="depth-1"><a href="#四ldo-修调策略与工程考量" data-for="四ldo-修调策略与工程考量">四、LDO 修调策略与工程考量</a></li><li class="depth-2"><a href="#41-trim-流程策略--trim-flow-strategy" data-for="41-trim-流程策略--trim-flow-strategy">4.1 Trim 流程策略 / Trim Flow Strategy</a></li><li class="depth-2"><a href="#42-负载调整率影响--load-regulation-impact" data-for="42-负载调整率影响--load-regulation-impact">4.2 负载调整率影响 / Load Regulation Impact</a></li><li class="depth-2"><a href="#43-温度效应--temperature-effects" data-for="43-温度效应--temperature-effects">4.3 温度效应 / Temperature Effects</a></li><li class="depth-2"><a href="#44-线性调整率影响--line-regulation-impact" data-for="44-线性调整率影响--line-regulation-impact">4.4 线性调整率影响 / Line Regulation Impact</a></li><li class="depth-2"><a href="#45-normal-与-eco-模式相关性--mode-correlation" data-for="45-normal-与-eco-模式相关性--mode-correlation">4.5 Normal 与 Eco 模式相关性 / Mode Correlation</a></li><li class="depth-2"><a href="#46-ac-参数影响--ac-parameter-impact" data-for="46-ac-参数影响--ac-parameter-impact">4.6 AC 参数影响 / AC Parameter Impact</a></li><li class="depth-2"><a href="#47-guard-band-与-error-budget" data-for="47-guard-band-与-error-budget">4.7 Guard Band 与 Error Budget</a></li><li class="depth-1"><a href="#五常见问题与调试指南" data-for="五常见问题与调试指南">五、常见问题与调试指南</a></li><li class="depth-2"><a href="#51-trim-相关问题速查" data-for="51-trim-相关问题速查">5.1 Trim 相关问题速查</a></li><li class="depth-2"><a href="#52-ate-调试检查清单" data-for="52-ate-调试检查清单">5.2 ATE 调试检查清单</a></li><li class="depth-2"><a href="#53-良率优化建议" data-for="53-良率优化建议">5.3 良率优化建议</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

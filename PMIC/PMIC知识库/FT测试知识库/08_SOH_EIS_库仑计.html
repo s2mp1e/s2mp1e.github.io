@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>SOH_EIS_库仑计测试 — PMIC 电池管理 FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="SOH_EIS_库仑计测试 — PMIC 电池管理 FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="SOH_EIS_库仑计测试 — PMIC 电池管理 FT 测试"/><meta name="twitter:description" content="PMIC 电池管理系统 FT 测试详细指南，涵盖 SOH（健康状态）、EIS（电化学阻抗谱）和库仑计（Coulomb Counter）的测试原理、方法与判定标准"/><meta property="og:description" content="PMIC 电池管理系统 FT 测试详细指南，涵盖 SOH（健康状态）、EIS（电化学阻抗谱）和库仑计（Coulomb Counter）的测试原理、方法与判定标准"/><meta property="og:image:alt" content="PMIC 电池管理系统 FT 测试详细指南，涵盖 SOH（健康状态）、EIS（电化学阻抗谱）和库仑计（Coulomb Counter）的测试原理、方法与判定标准"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/08_SOH_EIS_库仑计"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/08_SOH_EIS_库仑计"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC 电池管理系统 FT 测试详细指南，涵盖 SOH（健康状态）、EIS（电化学阻抗谱）和库仑计（Coulomb Counter）的测试原理、方法与判定标准"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/08_SOH_EIS_库仑计-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/08_SOH_EIS_库仑计-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/08_SOH_EIS_库仑计-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/08_SOH_EIS_库仑计"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-230"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-230" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>SOH_EIS_库仑计测试 — PMIC 电池管理 FT 测试</a></div></nav><h1 class="article-title">SOH_EIS_库仑计测试 — PMIC 电池管理 FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>26分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../../tags/battery-management" class="internal tag-link">battery-management</a></li><li><a href="../../../tags/soh" class="internal tag-link">soh</a></li><li><a href="../../../tags/eis" class="internal tag-link">eis</a></li><li><a href="../../../tags/coulomb-counter" class="internal tag-link">coulomb-counter</a></li><li><a href="../../../tags/fuel-gauge" class="internal tag-link">fuel-gauge</a></li></ul></div></div><article class="popover-hint"><h1 id="soh--eis--库仑计测试--pmic-电池管理-ft-测试">SOH / EIS / 库仑计测试 — PMIC 电池管理 FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#soh--eis--库仑计测试--pmic-电池管理-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p><strong>本文档详细阐述 PMIC 电池管理（Battery Management）子系统在 FT 阶段的测试原理与测试方法，包括 SOH（State of Health，健康状态）、EIS（Electrochemical Impedance Spectroscopy，电化学阻抗谱）和库仑计（Coulomb Counter，电量计）三大核心测试模块。</strong></p>
+</blockquote>
+<hr/>
+<h2 id="1-soh-测试-state-of-health-test">1. SOH 测试 (State of Health Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-soh-测试-state-of-health-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-概述">1.1 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>SOH（State of Health，健康状态）</strong> 是衡量电池老化程度的关键指标。随着电池使用次数的增加和时间的推移，电池内部会发生不可逆的化学变化，导致内阻增加和可用容量衰减。SOH 测试用于量化这种老化程度，为系统提供电池健康状态的准确评估。</p>
+<h3 id="12-工作原理">1.2 工作原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-工作原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="121-soh-的定义">1.2.1 SOH 的定义<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#121-soh-的定义" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>SOH 通常以百分比表示，100% 表示全新电池，0% 表示电池寿命终止（End of Life, EOL）。典型定义方式有两种：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>定义方式</th><th>公式</th><th>说明</th></tr></thead><tbody><tr><td><strong>基于容量衰减 (Capacity Fade)</strong></td><td>SOH = (C_aged / C_new) x 100%</td><td>当前最大可用容量与初始容量之比</td></tr><tr><td><strong>基于内阻增加 (Resistance Increase)</strong></td><td>SOH = (R_EOL - R_current) / (R_EOL - R_new) x 100%</td><td>内阻从初始值到寿命终值的相对位置</td></tr></tbody></table></div>
+<p>在 PMIC FT 生产中，<strong>基于内阻的方法</strong>更常见，因为内阻测量可在短时间内完成，适合量产测试的 throughput 要求。</p>
+<h4 id="122-电池内阻与-soh-的关系">1.2.2 电池内阻与 SOH 的关系<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#122-电池内阻与-soh-的关系" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>电池内阻由以下部分组成：</p>
+<pre><code>R_battery = R_ohmic + R_activation + R_diffusion
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>内阻分量</th><th>物理来源</th><th>随老化变化趋势</th></tr></thead><tbody><tr><td><strong>R_ohmic（欧姆内阻）</strong></td><td>电解液电阻、隔膜电阻、极耳接触电阻</td><td>显著增加（电解液分解、SEI 膜增厚）</td></tr><tr><td><strong>R_activation（活化极化内阻）</strong></td><td>电荷转移过程</td><td>增加（活性物质损失）</td></tr><tr><td><strong>R_diffusion（扩散内阻）</strong></td><td>Li+ 在电极中的扩散</td><td>增加（结构退化）</td></tr></tbody></table></div>
+<p>老化过程中，内阻可增加 <strong>1.5~3 倍</strong>，是判断 SOH 的重要依据。</p>
+<h3 id="13-测试方法">1.3 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#13-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="131-内阻测量法ft-量产方法">1.3.1 内阻测量法（FT 量产方法）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#131-内阻测量法ft-量产方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>方法: 直流脉冲法 (DC Pulse / HPPC Method)
+</code></pre>
+<p><strong>测试步骤：</strong></p>
+<pre><code>Step 1: 将电池充电/放电至指定 SOC（如 50% SOC）
+Step 2: 静置一段时间（如 30s），记录开路电压 Voc
+Step 3: 施加已知大小的放电/充电电流脉冲 I_pulse（如 1C 或 0.5C）
+Step 4: 测量脉冲施加瞬间的电压变化 ΔV
+Step 5: 计算内阻 R = ΔV / I_pulse
+Step 6: 将 R 与参考值比较，计算 SOH
+</code></pre>
+<p><strong>电压响应曲线示意：</strong></p>
+<pre><code>V(t)
+│
+│  Voc ────────────┐
+│                  │   ΔV_ohmic (瞬间压降)
+│                  ▼──┐
+│                     │
+│                     │── ΔV_polarization (极化建立)
+│                     │
+│                     │── 持续放电阶段
+│                     │
+│                     └──────────→  t
+                   脉冲开始
+</code></pre>
+<p><strong>关键测量点：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测量点</th><th>时间</th><th>含义</th></tr></thead><tbody><tr><td>Voc</td><td>脉冲前</td><td>开路电压（平衡状态）</td></tr><tr><td>V1</td><td>脉冲开始后 ~100μs</td><td>欧姆内阻压降（R_ohmic）</td></tr><tr><td>V2</td><td>脉冲结束前</td><td>总内阻压降（R_ohmic + R_polarization）</td></tr><tr><td>V3</td><td>脉冲结束后瞬间</td><td>欧姆内阻恢复</td></tr><tr><td>V4</td><td>恢复结束后</td><td>回滞电压</td></tr></tbody></table></div>
+<h4 id="132-交流阻抗法-ac-impedance">1.3.2 交流阻抗法 (AC Impedance)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#132-交流阻抗法-ac-impedance" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>在 FT 中较少用于完整 SOH 评估，但可作为快速筛选：</p>
+<pre><code>测量条件：
+  频率: 1kHz（单频点快速测量）
+  激励: 小信号 AC 电流（如 10mA rms）
+  测量: 交流电压响应 → 计算阻抗模值 |Z|@1kHz
+
+判断: |Z|@1kHz > 阈值 → 内阻过大 → SOH 不良
+</code></pre>
+<h3 id="14-soh-计算与判定">1.4 SOH 计算与判定<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#14-soh-计算与判定" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="141-soh-计算模型">1.4.1 SOH 计算模型<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#141-soh-计算模型" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>模型 A（线性模型）:
+  SOH = (R_EOL - R_meas) / (R_EOL - R_new) x 100%
+  其中 R_new 和 R_EOL 从电池规格书获取
+
+模型 B（查表模型）:
+  SOH = LookupTable(R_meas, Temp, SOC)
+  需提前建立 R vs. SOH 的对应关系表
+</code></pre>
+<h4 id="142-测试条件规范">1.4.2 测试条件规范<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#142-测试条件规范" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>典型值</th><th>备注</th></tr></thead><tbody><tr><td>测试温度</td><td>25°C ± 2°C</td><td>温度对内阻影响大，必须严格控制</td></tr><tr><td>SOC 状态</td><td>50% ± 2%</td><td>SOC 不同内阻不同</td></tr><tr><td>脉冲电流</td><td>0.5C ~ 1C</td><td>视电池容量而定</td></tr><tr><td>脉冲宽度</td><td>1s ~ 10s</td><td>区分欧姆内阻和极化内阻</td></tr><tr><td>静置时间</td><td>≥ 30s</td><td>脉冲前后均需静置</td></tr><tr><td>测量精度</td><td>电压: ±0.1mV, 电流: ±0.1%</td><td>直接影响 SOH 精度</td></tr></tbody></table></div>
+<h3 id="15-判定标准-criteria">1.5 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#15-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>项目</th><th>规格</th><th>说明</th></tr></thead><tbody><tr><td><strong>SOH 报告精度</strong></td><td>±3% (典型)</td><td>PMIC 报告的 SOH 与实际 SOH 的偏差</td></tr><tr><td><strong>内阻测量精度</strong></td><td>±2%</td><td>内部电阻测量模块的精度要求</td></tr><tr><td><strong>内阻分辨率</strong></td><td>&lt; 100μΩ</td><td>最小可检测的内阻变化</td></tr><tr><td><strong>SOH 初值</strong></td><td>100% ± 2%</td><td>新电池的 SOH 报告值</td></tr><tr><td><strong>内阻参考值偏差</strong></td><td>&lt; ±5% @ 25°C</td><td>与出厂标称内阻的偏差</td></tr></tbody></table></div>
+<h3 id="16-注意事项">1.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#16-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>温度敏感性</strong>：电池内阻温度系数约为 -2%/°C（温度升高内阻降低），FT 测试必须严格控制温度。</li>
+<li><strong>SOC 依赖性</strong>：低 SOC 时内阻显著增加，测试需在指定 SOC 点进行。</li>
+<li><strong>脉冲宽度选择</strong>：过短的脉冲无法反映极化内阻，过长的脉冲会导致 SOC 变化。</li>
+<li><strong>接触电阻校正</strong>：Socket 接触电阻会叠加到测量结果中，需使用 Kelvin 测量或预先扣除。</li>
+<li><strong>老化趋势验证</strong>：SOH 算法需在使用中持续验证，FT 只保证初始精度。</li>
+</ol>
+<hr/>
+<h2 id="2-eis-测试-electrochemical-impedance-spectroscopy-test">2. EIS 测试 (Electrochemical Impedance Spectroscopy Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-eis-测试-electrochemical-impedance-spectroscopy-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-概述">2.1 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>EIS（Electrochemical Impedance Spectroscopy，电化学阻抗谱）</strong> 是一种通过在宽频率范围内测量电池的交流阻抗响应，来表征电池电化学特性（欧姆阻抗、电荷转移阻抗、扩散阻抗）的技术。</p>
+<p>在 PMIC 中，EIS 功能用于：</p>
+<ul>
+<li><strong>电池建模</strong>：建立电池的等效电路模型（ECM）参数</li>
+<li><strong>状态估计</strong>：辅助 SOH 和 SOC 的精确估算</li>
+<li><strong>老化诊断</strong>：区分不同类型的电池老化机制</li>
+<li><strong>安全监测</strong>：检测微短路、析锂等异常状态</li>
+</ul>
+<h3 id="22-工作原理">2.2 工作原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-工作原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="221-基本原理">2.2.1 基本原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#221-基本原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>EIS 通过向电池注入小幅度 AC 激励信号（电流或电压），测量电池的电压/电流响应，从而计算复阻抗：</p>
+<pre><code>Z(ω) = V_ac(ω) / I_ac(ω) = |Z|·e^(jθ) = Z' + jZ''
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>|Z|：阻抗模值 (Impedance Magnitude)</li>
+<li>θ：阻抗相位角 (Phase Angle)</li>
+<li>Z’：实部 (Real Part) = |Z|·cos(θ)</li>
+<li>Z”：虚部 (Imaginary Part) = |Z|·sin(θ)</li>
+</ul>
+<h4 id="222-ac-注入法">2.2.2 AC 注入法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#222-ac-注入法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PMIC 中的 EIS 通常采用 <strong>AC 电流注入法</strong>：</p>
+<pre><code>┌─────────────────────────────────────────────────┐
+│  PMIC EIS 模块                                   │
+│                                                    │
+│  AC Current Source ──→ Battery ──→ Voltage Sense   │
+│       │                              │              │
+│   Frequency Sweep                Magnitude &amp; Phase  │
+│   (0.1Hz ~ 10kHz)                Demodulation       │
+│                                                    │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>测量流程：</strong></p>
+<pre><code>1. 设置激励频率 f (从高频到低频扫描)
+2. 生成 AC 电流 I_ac = I_m · sin(2πft)
+3. 注入电池
+4. 测量电池端电压 V_ac = V_m · sin(2πft + θ)
+5. 使用锁相放大 (Lock-in Amplifier) 解调出 V_m 和 θ
+6. 计算 Z(ω) = V_m / I_m, θ = θ_v - θ_i
+7. 切换下一频率，重复 1~6
+</code></pre>
+<h4 id="223-奈奎斯特图-nyquist-plot">2.2.3 奈奎斯特图 (Nyquist Plot)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#223-奈奎斯特图-nyquist-plot" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>EIS 测量结果通常以奈奎斯特图表示：</p>
+<pre><code>-Z'' (Ω)
+   │
+   │    高频区         中频区          低频区
+   │    (欧姆阻抗)    (电荷转移)      (扩散阻抗)
+   │
+   │      ··· ──→ semicircle ──→ 45° tail
+   │    ·   ·
+   │   ·     ·
+   │  ·       ·
+   │ ·         ·
+   │·           ·
+   │             ────────────────→ Z' (Ω)
+   │R_ohmic     R_ohmic + R_ct
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>频率范围</th><th>对应阻抗分量</th><th>典型频率</th></tr></thead><tbody><tr><td><strong>高频区 (> 1kHz)</strong></td><td>欧姆内阻 R_ohmic</td><td>电解液、隔膜、极耳</td></tr><tr><td><strong>中频区 (1Hz ~ 1kHz)</strong></td><td>电荷转移阻抗 R_ct + C_dl</td><td>电极/电解液界面</td></tr><tr><td><strong>低频区 (&lt; 1Hz)</strong></td><td>扩散阻抗 Warburg</td><td>Li+ 在电极中的扩散</td></tr></tbody></table></div>
+<h4 id="224-等效电路模型-ecm">2.2.4 等效电路模型 (ECM)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#224-等效电路模型-ecm" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>常用等效电路模型来拟合 EIS 数据：</p>
+<pre><code>Model: R_ohmic + (R_ct // CPE) + W
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>R_ohmic：欧姆内阻（串联电阻）</li>
+<li>R_ct：电荷转移电阻</li>
+<li>CPE：恒定相位元件（代替理想电容，反映非理想行为）</li>
+<li>W：Warburg 扩散阻抗</li>
+</ul>
+<h3 id="23-测试方法">2.3 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="231-ft-量产测试方案">2.3.1 FT 量产测试方案<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#231-ft-量产测试方案" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>FT 中 EIS 测试通常<strong>不扫描全频段</strong>（测试时间过长），而是采用以下简化方案：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>方案</th><th>测试内容</th><th style="text-align:center;">测试时间</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>单频点</strong></td><td>仅测 1kHz 阻抗</td><td style="text-align:center;">&lt; 10ms</td><td>快速筛选</td></tr><tr><td><strong>三点法</strong></td><td>高/中/低各 1 个频点</td><td style="text-align:center;">~50ms</td><td>常规量产</td></tr><tr><td><strong>简化扫描</strong></td><td>每 decade 3~5 点</td><td style="text-align:center;">~200ms</td><td>高精度需求</td></tr><tr><td><strong>全扫描</strong></td><td>全频段 0.1Hz~10kHz</td><td style="text-align:center;">> 1s</td><td>实验室/QA</td></tr></tbody></table></div>
+<h4 id="232-典型-ft-测试流程-三点法">2.3.2 典型 FT 测试流程 (三点法)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#232-典型-ft-测试流程-三点法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>Step 1: 初始化 EIS 模块
+  - 使能 EIS 电流源
+  - 设置校准模式（连接校准电阻）
+
+Step 2: 校准测量
+  - 将 EIS 模块切换到精密校准电阻（如 10mΩ/100mΩ）
+  - 测量校准电阻的阻抗和相位
+  - 记录系统偏移用于补偿
+
+Step 3: 切换到电池测量
+  - EIS 模块连接到电池
+  - 确认电池静止（无充放电电流）
+
+Step 4: 高频点测量 (1kHz)
+  - 频率: 1kHz
+  - 激励电流: I_ac = 50mA rms
+  - 测量: |Z|_1kHz, θ_1kHz
+  - 计算: R_ohmic ≈ |Z|_1kHz · cos(θ_1kHz)
+
+Step 5: 中频点测量 (10Hz)
+  - 频率: 10Hz
+  - 激励电流: I_ac = 25mA rms
+  - 测量: |Z|_10Hz, θ_10Hz
+
+Step 6: 低频点测量 (0.5Hz)
+  - 频率: 0.5Hz
+  - 激励电流: I_ac = 10mA rms
+  - 测量: |Z|_0.5Hz, θ_0.5Hz
+
+Step 7: 参数验证
+  - 与规格限值比较
+  - 判定 PASS/FAIL
+</code></pre>
+<h4 id="233-解调原理锁相放大">2.3.3 解调原理（锁相放大）<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#233-解调原理锁相放大" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PMIC 内部使用数字锁相放大器 (Digital Lock-in Amplifier) 解调阻抗信号：</p>
+<pre><code>V_ac(t) = V_m · sin(ωt + θ)
+
+混频:
+  I = V_ac(t) · sin(ωt)     → 低通滤波 → V_m · cos(θ) / 2
+  Q = V_ac(t) · cos(ωt)     → 低通滤波 → V_m · sin(θ) / 2
+
+计算:
+  V_m = 2 · sqrt(I² + Q²)
+  θ = arctan(Q / I)
+  |Z| = V_m / I_m
+</code></pre>
+<h3 id="24-校准方法">2.4 校准方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#24-校准方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="241-外部校准电阻">2.4.1 外部校准电阻<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#241-外部校准电阻" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>EIS 模块需要外部精密电阻进行增益和相位校准：</p>
+<pre><code>┌───────────────┐
+│   PMIC EIS    │
+│               │         ┌──────────────┐
+│   I_out ──────┼─────────┤              │
+│               │         │  校准电阻     │
+│   V_sense ────┼─────────┤  (精密 ±0.1%) │
+│               │         │              │
+│               │         └──────────────┘
+│   Cal_SW ─────┤ 控制 Relay
+└───────────────┘
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>校准电阻值</th><th>用途</th><th>对应阻抗范围</th></tr></thead><tbody><tr><td>10mΩ</td><td>低阻抗校准（动力电池）</td><td>5~50mΩ</td></tr><tr><td>100mΩ</td><td>中阻抗校准（消费电池）</td><td>50~500mΩ</td></tr><tr><td>1Ω</td><td>高阻抗校准（小型电池）</td><td>0.5~5Ω</td></tr></tbody></table></div>
+<h4 id="242-校准流程">2.4.2 校准流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#242-校准流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>1. 断开电池连接，导通校准 Relay
+2. 接入标准电阻 R_cal
+3. 在标准频率点测量：
+   - 幅度增益校正因子 G_cal = R_cal / |Z_measured|
+   - 相位偏移校正因子 θ_offset = 0 - θ_measured
+4. 存储校正因子到寄存器
+5. 切换到电池测量模式
+6. 实际测量值 = 原始测量值 × G_cal，相位值 = θ_raw + θ_offset
+</code></pre>
+<h3 id="25-判定标准-criteria">2.5 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#25-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>规格</th><th>备注</th></tr></thead><tbody><tr><td><strong>阻抗模值精度</strong></td><td>±2% (典型)</td><td>全频段</td></tr><tr><td><strong>相位精度</strong></td><td>±2° (典型)</td><td>> 1Hz 时</td></tr><tr><td><strong>相位精度 (低频)</strong></td><td>±5°</td><td>&lt; 1Hz 时（噪声大）</td></tr><tr><td><strong>激励电流精度</strong></td><td>±1%</td><td>AC 电流源精度</td></tr><tr><td><strong>频率精度</strong></td><td>±0.5%</td><td>激励频率精度</td></tr><tr><td><strong>阻抗测量范围</strong></td><td>1mΩ ~ 10Ω</td><td>覆盖常见电池</td></tr><tr><td><strong>最大 DC 偏置容差</strong></td><td>±100mV</td><td>电池端 DC 电压波动</td></tr><tr><td><strong>校准电阻精度要求</strong></td><td>±0.1% (外部)</td><td>参考标准</td></tr></tbody></table></div>
+<h3 id="26-注意事项">2.6 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#26-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>电池平衡状态</strong>：EIS 测量必须在不充电/不放电的静止状态下进行，DC 电流会导致测量失真。</li>
+<li><strong>激励幅度选择</strong>：激励电流必须足够小以确保系统线性响应（通常 &lt; 10mV 电压响应），但又要足够大以获得良好 SNR。</li>
+<li><strong>频率响应时间</strong>：低频测量（如 0.1Hz）需要至少 10 个周期的稳定时间（即 100s），FT 中通常避免极低频测量。</li>
+<li><strong>噪声抑制</strong>：EIS 测量易受开关电源噪声和工频 (50/60Hz) 干扰，需使用平均滤波和屏蔽。</li>
+<li><strong>温度影响</strong>：电池阻抗随温度显著变化，全温范围测试需建立温度补偿表。</li>
+<li><strong>校准频率依赖性</strong>：校准因子可能随频率变化，宽频段测试应在多个频率点校准。</li>
+</ol>
+<hr/>
+<h2 id="3-库仑计测试-coulomb-counter-test">3. 库仑计测试 (Coulomb Counter Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-库仑计测试-coulomb-counter-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-概述">3.1 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>库仑计 (Coulomb Counter)</strong> 是 PMIC 电池管理系统中的核心电量监测模块。它通过连续测量电池的充放电电流并对其时间积分，实时跟踪电池的荷电状态 (State of Charge, SOC)。</p>
+<p>库仑计的基本原理：</p>
+<pre><code>SOC(t) = SOC(0) + (1 / C_nom) · ∫₀ᵗ (I_bat - I_loss) · dt
+
+其中:
+  SOC(t):  当前荷电状态 (%)
+  SOC(0):  初始荷电状态 (%)
+  C_nom:   电池标称容量 (Ah / mAh)
+  I_bat:   电池电流 (正 = 放电, 负 = 充电)
+  I_loss:  自放电等损耗电流
+</code></pre>
+<h3 id="32-工作原理">3.2 工作原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-工作原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="321-系统架构">3.2.1 系统架构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#321-系统架构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>PMIC 库仑计模块的典型架构：</p>
+<pre><code>                     ┌──────────┐
+Battery ───┬─────────┤ Shunt    ├─────── System Load
+           │         │ Resistor │          │
+           │         │ (Rsense) │          │
+           │         └────┬─────┘          │
+           │              │                 │
+           │         ┌────▼─────┐          │
+           │         │ Current  │          │
+           └─────────┤ Sense    │          │
+                     │ Amplifier│          │
+                     └────┬─────┘          │
+                          │                 │
+                     ┌────▼─────┐          │
+                     │   ADC    │          │
+                     └────┬─────┘          │
+                          │                 │
+                     ┌────▼─────┐          │
+                     │ Digital  │          │
+                     │Integrator│          │
+                     └────┬─────┘          │
+                          │                 │
+                     ┌────▼─────┐          │
+                     │   Fuel   │          │
+                     │  Gauge   │          │
+                     │  Registers│          │
+                     └──────────┘          │
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模块</th><th>功能</th><th>关键参数</th></tr></thead><tbody><tr><td><strong>Shunt Resistor (Rsense)</strong></td><td>电流采样电阻</td><td>典型值 1~10mΩ，精度 ±0.5%~1%</td></tr><tr><td><strong>Current Sense Amplifier (CSA)</strong></td><td>放大 Shunt 两端差分电压</td><td>增益 50~200，失调 &lt; ±50μV</td></tr><tr><td><strong>ADC</strong></td><td>将模拟电压转换为数字量</td><td>分辨率 16<del>24bit，采样率 1</del>100Hz</td></tr><tr><td><strong>Digital Integrator</strong></td><td>累加电流采样值，计算累积电荷</td><td>位数 ≥ 32bit</td></tr><tr><td><strong>Fuel Gauge Registers</strong></td><td>存储 SOC、累积容量、标志位</td><td>含 OTP/RAM 存储</td></tr></tbody></table></div>
+<h4 id="322-电流测量路径">3.2.2 电流测量路径<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#322-电流测量路径" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>电流 → Shunt 电阻 → V_sense = I_bat × Rsense
+         ↓
+   CSA 放大 → V_out = V_sense × Gain
+         ↓
+   ADC 采样 → D_out = V_out / V_ref × 2^N
+         ↓
+   数字积分 → Q_acc = Σ(D_out × Gain_cal × Tsample)
+</code></pre>
+<h3 id="33-测试方法">3.3 测试方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-测试方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="331-增益误差测试-gain-error-test">3.3.1 增益误差测试 (Gain Error Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#331-增益误差测试-gain-error-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：测量库仑计的电流测量增益精度。</p>
+<pre><code>测试条件:
+  - 通过精密电流源施加已知 DC 电流到电池端
+  - 选择多个电流点（正/负方向）
+
+测试步骤:
+  Step 1: 设置电源/电子负载输出 I_target
+  Step 2: 通过库仑计 ADC 读取测量值 I_meas
+  Step 3: 计算增益误差 Gain_Error = (I_meas / I_target - 1) × 100%
+
+测试点:
+  | # | I_target | 方向 | 预期增益误差 |
+  |---|----------|------|-------------|
+  | 1 | +Imax    | 放电 | &lt; ±1% |
+  | 2 | +0.5·Imax| 放电 | &lt; ±1% |
+  | 3 | +0.1·Imax| 放电 | &lt; ±2% |
+  | 4 | -0.1·Imax| 充电 | &lt; ±2% |
+  | 5 | -0.5·Imax| 充电 | &lt; ±1% |
+  | 6 | -Imax    | 充电 | &lt; ±1% |
+</code></pre>
+<h4 id="332-失调误差测试-offset-error-test">3.3.2 失调误差测试 (Offset Error Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#332-失调误差测试-offset-error-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：测量库仑计的零输入电流偏差。</p>
+<pre><code>测试条件:
+  - 电池端开路（无电流）
+  - 分别测量有偏置和无偏置情况
+
+测试步骤:
+  Step 1: 断开负载，确保电池端无电流
+  Step 2: 在 shunt 两端短接（V_sense = 0）
+  Step 3: 读取 ADC 输出，记录 Offset_Digital
+  Step 4: 计算等效输入失调 Offset_uV = Offset_Digital × V_ref / 2^N / Gain
+  Step 5: 等效电流失调 Offset_A = Offset_uV / Rsense
+
+判定标准:
+  | 测试项 | 典型规格 | 说明 |
+  |-------|---------|------|
+  | CSA 输入失调 | &lt; ±50μV | 折合到输入端 |
+  | ADC 失调 | &lt; ±5 LSB | 数字域 |
+  | 等效电流失调 | &lt; ±5mA | 取决于 Rsense 和 Gain |
+</code></pre>
+<h4 id="333-积分精度测试-integration-accuracy-test">3.3.3 积分精度测试 (Integration Accuracy Test)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#333-积分精度测试-integration-accuracy-test" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>核心测试</strong>：验证库仑计在指定时间内的累积电荷精度。</p>
+<pre><code>测试条件:
+  - 施加已知 I 和已知持续时间 t
+  - 理论累积电荷 Q_target = I × t
+  - 库仑计报告 Q_meas
+
+测试步骤:
+  Step 1: 复位库仑计累积寄存器
+  Step 2: 开启恒流源 I_charge (+1A 充电)
+  Step 3: 持续 t = 60s
+  Step 4: 关闭电流源
+  Step 5: 读取库仑计累积电荷 Q_meas
+  Step 6: 计算误差 Error = (Q_meas - Q_target) / Q_target × 100%
+
+测试组合:
+  | 测试组合 | 电流 | 时间 | 理论电荷 | 预期精度 |
+  |---------|------|:----:|:--------:|:--------:|
+  | 小电荷 | +100mA | 10s | 1000mAs | ±2% |
+  | 中电荷 | +500mA | 60s | 30000mAs | ±1% |
+  | 大电荷 | +2A | 120s | 240000mAs | ±1% |
+  | 反向 | -1A | 30s | -30000mAs | ±1% |
+  | 零电荷 | 0mA | 60s | 0mAs | &lt; ±10mAs |
+  | 变电流 | 100mA→1A 步进 | 60s | 计算 | ±1.5% |
+</code></pre>
+<h4 id="334-自放电补偿测试-self-discharge-compensation">3.3.4 自放电补偿测试 (Self-Discharge Compensation)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#334-自放电补偿测试-self-discharge-compensation" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>目的</strong>：验证库仑计在开路状态下的漏电跟踪能力。</p>
+<pre><code>测试条件:
+  - 电池静置（开路）
+  - PMIC 处于低功耗模式
+  - 持续监测 60min（或可接受的 FT 时间）
+
+测试:
+  1. 记录初始累积电荷 Q_start
+  2. 等待指定时间 t_standby
+  3. 记录最终累积电荷 Q_end
+  4. 等效自放电电流 I_self_discharge = (Q_end - Q_start) / t_standby
+  5. 验证 I_self_discharge 在规格内
+
+注意: FT 中通常不进行长时间测试，改为验证自放电补偿
+      寄存器的配置值是否正确。
+</code></pre>
+<h3 id="34-校准与修调">3.4 校准与修调<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-校准与修调" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="341-增益校准-gain-calibration">3.4.1 增益校准 (Gain Calibration)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#341-增益校准-gain-calibration" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>库仑计的增益误差主要通过修调补偿：</p>
+<pre><code>校准流程:
+  1. 施加已知电流 I_cal（如 1A）
+  2. 读取库仑计原始值 D_raw
+  3. 计算理论值 D_theory = I_cal × Rsense × Gain / V_ref × 2^N
+  4. 计算校准因子 K_cal = D_theory / D_raw
+  5. 将校准因子写入库仑计校准寄存器
+  6. 施加验证电流 I_verify，确认误差在规格内
+</code></pre>
+<h4 id="342-失调校准-offset-calibration">3.4.2 失调校准 (Offset Calibration)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#342-失调校准-offset-calibration" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>失调校准流程:
+  1. 零电流条件下读取残余偏移 D_offset
+  2. 写入失调补偿寄存器
+  3. 周期性（如每 10 次测量）自动归零
+
+方法:
+  - 前台校准: 测量前短接输入，记录偏移
+  - 后台校准: 周期性插入校准周期
+</code></pre>
+<h3 id="35-判定标准-criteria">3.5 判定标准 (Criteria)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#35-判定标准-criteria" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>规格</th><th>测试条件</th></tr></thead><tbody><tr><td><strong>库仑计数精度</strong></td><td>±1% (典型)</td><td>I > 0.1·Imax，25°C</td></tr><tr><td><strong>库仑计数精度 (小电流)</strong></td><td>±3%</td><td>I &lt; 0.1·Imax</td></tr><tr><td><strong>增益误差</strong></td><td>±0.5% (Trim 后)</td><td>全温度范围</td></tr><tr><td><strong>失调误差</strong></td><td>&lt; ±0.1% FSR</td><td>折合到输入</td></tr><tr><td><strong>积分非线性</strong></td><td>&lt; ±0.1%</td><td>ADC 线性度</td></tr><tr><td><strong>分辨率</strong></td><td>≥ 16-bit</td><td>有效分辨率</td></tr><tr><td><strong>采样率</strong></td><td>≥ 10Hz</td><td>典型值</td></tr><tr><td><strong>累积电荷寄存器宽度</strong></td><td>≥ 32-bit</td><td>防止溢出</td></tr><tr><td><strong>温度漂移</strong></td><td>&lt; ±50ppm/°C</td><td>跨 -20°C~85°C</td></tr></tbody></table></div>
+<h3 id="36-测试电路配置">3.6 测试电路配置<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#36-测试电路配置" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>                  SMU1 (电源/充电模拟)
+                     │
+                  ┌──┴──┐
+                  │     │
+               [Rsense] │
+                  │     │
+  DMM1 ─── V_sense ─┘     │
+                  │       │
+             DUT 电池端 ──┤
+               │         │
+              ┌┤         │
+              ││         │
+              └┤         │
+               │         │
+              GND       GND
+                  │
+                  SMU2 / 电子负载 (放电模拟)
+
+控制信号:
+  I2C/SPI ──── DUT (PMIC) ──── 库仑计寄存器读取
+</code></pre>
+<h3 id="37-注意事项">3.7 注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#37-注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>Shunt 电阻的选择</strong>：Rsense 值的选择需权衡功耗 (I²R) 和信噪比 (V_sense)。典型值 1~10mΩ，大电流应用需降至 0.5mΩ 以下。</li>
+<li><strong>Kelvin 连接</strong>：Shunt 电阻两端的采样线必须使用 Kelvin 4 线连接，排除走线电阻引入的误差。</li>
+<li><strong>共模电压范围</strong>：CSA 需处理电池端的共模电压（最高可达 ~4.5V/cell × 串数），超出范围会导致饱和。</li>
+<li><strong>温度影响</strong>：Shunt 电阻的 TCR（典型 ±50~±100ppm/°C）会引入增益漂移，高精度应用需使用 TCR &lt; 20ppm/°C 的精密电阻。</li>
+<li><strong>积分清零同步</strong>：累积电荷寄存器归零需与已知 SOC 点同步（如充满电时），FT 中需验证清零功能。</li>
+<li><strong>ADC 采样率 vs 电流变化</strong>：采样率不足会导致高频电流分量被混叠到积分结果中。建议采样率 ≥ 10× 最高电流变化频率。</li>
+<li><strong>自热效应</strong>：大电流长时间测试会导致 PMIC 和 Shunt 电阻自热，影响测量精度。测试时间应尽量短。</li>
+</ol>
+<hr/>
+<h2 id="4-测试项总结">4. 测试项总结<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-测试项总结" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:center;">#</th><th>测试模块</th><th>主要测试项</th><th>核心测量参数</th><th style="text-align:center;">典型精度要求</th></tr></thead><tbody><tr><td style="text-align:center;">1</td><td><strong>SOH 测试</strong></td><td>内阻测量</td><td>电池直流内阻 (DCIR)</td><td style="text-align:center;">±2%</td></tr><tr><td style="text-align:center;">2</td><td><strong>SOH 测试</strong></td><td>SOH 计算验证</td><td>SOH 百分比</td><td style="text-align:center;">±3%</td></tr><tr><td style="text-align:center;">3</td><td><strong>EIS 测试</strong></td><td>阻抗模值</td><td>Z 幅值 @ 多频点</td><td style="text-align:center;">±2%</td></tr><tr><td style="text-align:center;">4</td><td><strong>EIS 测试</strong></td><td>相位角</td><td>θ 相位</td><td style="text-align:center;">±2°</td></tr><tr><td style="text-align:center;">5</td><td><strong>EIS 测试</strong></td><td>校准验证</td><td>校准电阻精度</td><td style="text-align:center;">±0.1%</td></tr><tr><td style="text-align:center;">6</td><td><strong>库仑计测试</strong></td><td>增益误差</td><td>电流测量增益</td><td style="text-align:center;">±0.5%</td></tr><tr><td style="text-align:center;">7</td><td><strong>库仑计测试</strong></td><td>失调误差</td><td>零输入偏差</td><td style="text-align:center;">&lt; ±0.1% FSR</td></tr><tr><td style="text-align:center;">8</td><td><strong>库仑计测试</strong></td><td>积分精度</td><td>累积电荷</td><td style="text-align:center;">±1%</td></tr><tr><td style="text-align:center;">9</td><td><strong>库仑计测试</strong></td><td>校准寄存器验证</td><td>校准因子读写</td><td style="text-align:center;">Bit perfect</td></tr></tbody></table></div>
+<hr/>
+<h2 id="5-常见问题与排查">5. 常见问题与排查<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#5-常见问题与排查" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>问题</th><th>可能原因</th><th>排查方向</th></tr></thead><tbody><tr><td>SOH 偏差过大</td><td>温度未平衡 / SOC 不准</td><td>检查 soak time 和充电电路</td></tr><tr><td>EIS 相位角异常</td><td>校准失效 / Relay 接触不良</td><td>重新校准，检查 Relay 导通电阻</td></tr><tr><td>库仑计积分误差大</td><td>Shunt 焊点不良 / 增益校准失效</td><td>检查 Kelvin 连接，重做增益校准</td></tr><tr><td>零电流读数偏大</td><td>CSA 失调未校准 / PCB 漏电</td><td>检查 PCB 清洁度，重做失调校准</td></tr><tr><td>EIS 低频噪声大</td><td>工频干扰 / 电池不平衡</td><td>增加平均次数，检查电池状态</td></tr><tr><td>库仑计满量程偏差</td><td>Rsense 焊接偏差 / ADC 基准漂移</td><td>检查 Rsense 实际阻值，验证 Vref</td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li><a href="../../.././FT" class="internal alias" data-slug="FT">FT.md — FT 测试总览</a> — PMIC FT 测试完整清单</li>
+<li><a href="../../.././Trim" class="internal alias" data-slug="Trim">Trim.md — 修调总览</a> — PMIC 修调项说明</li>
+<li>[[../PMIC知识库/<em>index</em>.md|PMIC 修调知识库]] — 修调原理与流程</li>
+<li>IEEE 1188-1996: IEEE Recommended Practice for Maintenance, Testing, and Replacement of Valve-Regulated Lead-Acid (VRLA) Batteries</li>
+<li><em>Electrochemical Impedance Spectroscopy</em> - Mark E. Orazem, Bernard Tribollet</li>
+<li>Battery Management Systems: Design by Modelling - H.J. Bergveld</li>
+</ul>
+<hr/>
+<blockquote>
+<p><strong>最后更新: 2026-07-24</strong></p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-88" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#soh--eis--库仑计测试--pmic-电池管理-ft-测试" data-for="soh--eis--库仑计测试--pmic-电池管理-ft-测试">SOH / EIS / 库仑计测试 — PMIC 电池管理 FT 测试</a></li><li class="depth-1"><a href="#1-soh-测试-state-of-health-test" data-for="1-soh-测试-state-of-health-test">1. SOH 测试 (State of Health Test)</a></li><li class="depth-2"><a href="#11-概述" data-for="11-概述">1.1 概述</a></li><li class="depth-2"><a href="#12-工作原理" data-for="12-工作原理">1.2 工作原理</a></li><li class="depth-2"><a href="#13-测试方法" data-for="13-测试方法">1.3 测试方法</a></li><li class="depth-2"><a href="#14-soh-计算与判定" data-for="14-soh-计算与判定">1.4 SOH 计算与判定</a></li><li class="depth-2"><a href="#15-判定标准-criteria" data-for="15-判定标准-criteria">1.5 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#16-注意事项" data-for="16-注意事项">1.6 注意事项</a></li><li class="depth-1"><a href="#2-eis-测试-electrochemical-impedance-spectroscopy-test" data-for="2-eis-测试-electrochemical-impedance-spectroscopy-test">2. EIS 测试 (Electrochemical Impedance Spectroscopy Test)</a></li><li class="depth-2"><a href="#21-概述" data-for="21-概述">2.1 概述</a></li><li class="depth-2"><a href="#22-工作原理" data-for="22-工作原理">2.2 工作原理</a></li><li class="depth-2"><a href="#23-测试方法" data-for="23-测试方法">2.3 测试方法</a></li><li class="depth-2"><a href="#24-校准方法" data-for="24-校准方法">2.4 校准方法</a></li><li class="depth-2"><a href="#25-判定标准-criteria" data-for="25-判定标准-criteria">2.5 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#26-注意事项" data-for="26-注意事项">2.6 注意事项</a></li><li class="depth-1"><a href="#3-库仑计测试-coulomb-counter-test" data-for="3-库仑计测试-coulomb-counter-test">3. 库仑计测试 (Coulomb Counter Test)</a></li><li class="depth-2"><a href="#31-概述" data-for="31-概述">3.1 概述</a></li><li class="depth-2"><a href="#32-工作原理" data-for="32-工作原理">3.2 工作原理</a></li><li class="depth-2"><a href="#33-测试方法" data-for="33-测试方法">3.3 测试方法</a></li><li class="depth-2"><a href="#34-校准与修调" data-for="34-校准与修调">3.4 校准与修调</a></li><li class="depth-2"><a href="#35-判定标准-criteria" data-for="35-判定标准-criteria">3.5 判定标准 (Criteria)</a></li><li class="depth-2"><a href="#36-测试电路配置" data-for="36-测试电路配置">3.6 测试电路配置</a></li><li class="depth-2"><a href="#37-注意事项" data-for="37-注意事项">3.7 注意事项</a></li><li class="depth-1"><a href="#4-测试项总结" data-for="4-测试项总结">4. 测试项总结</a></li><li class="depth-1"><a href="#5-常见问题与排查" data-for="5-常见问题与排查">5. 常见问题与排查</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

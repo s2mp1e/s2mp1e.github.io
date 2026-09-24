@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>BLE/RF 测试详解</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="BLE/RF 测试详解"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="BLE/RF 测试详解"/><meta name="twitter:description" content="BLE / RF 测试详解 一、BLE 基础 1.1 BLE 物理层 BLE (Bluetooth Low Energy) 物理层: 频段: 2.400 ~ 2.4835 GHz (ISM) 信道: 40 个 (37 数据 + 3 广播), 2MHz 间隔 调制: GFSK (高斯频移键控) 速率: 1 Mbps (LE 1M) / 2 Mbps (LE 2M) 发射功率: -20 ~ +10 dBm (典型 0 dBm) 灵敏度: -70 ~ -100 dBm 1.2 GFSK 调制 GFSK = 高斯滤波 + FSK 逻辑 1 → 频偏 +Δf (如 +250kHz) 逻辑 0 → 频偏 ..."/><meta property="og:description" content="BLE / RF 测试详解 一、BLE 基础 1.1 BLE 物理层 BLE (Bluetooth Low Energy) 物理层: 频段: 2.400 ~ 2.4835 GHz (ISM) 信道: 40 个 (37 数据 + 3 广播), 2MHz 间隔 调制: GFSK (高斯频移键控) 速率: 1 Mbps (LE 1M) / 2 Mbps (LE 2M) 发射功率: -20 ~ +10 dBm (典型 0 dBm) 灵敏度: -70 ~ -100 dBm 1.2 GFSK 调制 GFSK = 高斯滤波 + FSK 逻辑 1 → 频偏 +Δf (如 +250kHz) 逻辑 0 → 频偏 ..."/><meta property="og:image:alt" content="BLE / RF 测试详解 一、BLE 基础 1.1 BLE 物理层 BLE (Bluetooth Low Energy) 物理层: 频段: 2.400 ~ 2.4835 GHz (ISM) 信道: 40 个 (37 数据 + 3 广播), 2MHz 间隔 调制: GFSK (高斯频移键控) 速率: 1 Mbps (LE 1M) / 2 Mbps (LE 2M) 发射功率: -20 ~ +10 dBm (典型 0 dBm) 灵敏度: -70 ~ -100 dBm 1.2 GFSK 调制 GFSK = 高斯滤波 + FSK 逻辑 1 → 频偏 +Δf (如 +250kHz) 逻辑 0 → 频偏 ..."/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/30.areas/MCU/BLE_RF/BLE_RF_测试详解"/><meta property="twitter:url" content="https://s2mp1e.github.io/30.areas/MCU/BLE_RF/BLE_RF_测试详解"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="BLE / RF 测试详解 一、BLE 基础 1.1 BLE 物理层 BLE (Bluetooth Low Energy) 物理层: 频段: 2.400 ~ 2.4835 GHz (ISM) 信道: 40 个 (37 数据 + 3 广播), 2MHz 间隔 调制: GFSK (高斯频移键控) 速率: 1 Mbps (LE 1M) / 2 Mbps (LE 2M) 发射功率: -20 ~ +10 dBm (典型 0 dBm) 灵敏度: -70 ~ -100 dBm 1.2 GFSK 调制 GFSK = 高斯滤波 + FSK 逻辑 1 → 频偏 +Δf (如 +250kHz) 逻辑 0 → 频偏 ..."/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/30.areas/MCU/BLE_RF/BLE_RF_测试详解-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/30.areas/MCU/BLE_RF/BLE_RF_测试详解-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/30.areas/MCU/BLE_RF/BLE_RF_测试详解-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="30.areas/MCU/BLE_RF/BLE_RF_测试详解"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-29"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-29" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../30.areas/">30.areas</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../30.areas/MCU/">MCU 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../30.areas/MCU/BLE_RF/">BLE / RF 无线测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>BLE/RF 测试详解</a></div></nav><h1 class="article-title">BLE/RF 测试详解</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-18T00:00:00.000Z">2026年7月18日</time><span>11分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/mcu" class="internal tag-link">mcu</a></li><li><a href="../../../tags/ble" class="internal tag-link">ble</a></li><li><a href="../../../tags/rf" class="internal tag-link">rf</a></li><li><a href="../../../tags/wireless" class="internal tag-link">wireless</a></li><li><a href="../../../tags/ate" class="internal tag-link">ate</a></li></ul></div></div><article class="popover-hint"><h1 id="ble--rf-测试详解">BLE / RF 测试详解<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#ble--rf-测试详解" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<hr/>
+<h2 id="一ble-基础">一、BLE 基础<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一ble-基础" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-ble-物理层">1.1 BLE 物理层<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-ble-物理层" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>BLE (Bluetooth Low Energy) 物理层:
+
+  频段: 2.400 ~ 2.4835 GHz (ISM)
+  信道: 40 个 (37 数据 + 3 广播), 2MHz 间隔
+  调制: GFSK (高斯频移键控)
+  速率: 1 Mbps (LE 1M) / 2 Mbps (LE 2M)
+  发射功率: -20 ~ +10 dBm (典型 0 dBm)
+  灵敏度: -70 ~ -100 dBm
+</code></pre>
+<h3 id="12-gfsk-调制">1.2 GFSK 调制<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-gfsk-调制" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>GFSK = 高斯滤波 + FSK
+
+  逻辑 1 → 频偏 +Δf (如 +250kHz)
+  逻辑 0 → 频偏 -Δf (如 -250kHz)
+
+关键参数:
+  频偏 (Frequency Deviation): ±250kHz (BLE 1M)
+  调制指数: 0.5 (BLE)
+  高斯滤波 BT: 0.5
+</code></pre>
+<hr/>
+<h2 id="二rf-ate-资源">二、RF ATE 资源<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二rf-ate-资源" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-必备-rf-仪器">2.1 必备 RF 仪器<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-必备-rf-仪器" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>仪器</th><th>功能</th><th>用途</th></tr></thead><tbody><tr><td><strong>VSA (Vector Signal Analyzer)</strong></td><td>分析 RF 信号</td><td>TX 测试 (功率/频率/调制/频谱)</td></tr><tr><td><strong>VSG (Vector Signal Generator)</strong></td><td>产生 RF 信号</td><td>RX 测试 (发送标准 BLE 包)</td></tr><tr><td><strong>频谱仪</strong></td><td>频域分析</td><td>杂散/谐波/掩模</td></tr><tr><td><strong>功率计</strong></td><td>精确功率测量</td><td>输出功率校准</td></tr></tbody></table></div>
+<h3 id="22-主流-rf-ate-方案">2.2 主流 RF ATE 方案<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-主流-rf-ate-方案" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>方案</th><th>说明</th><th>适用</th></tr></thead><tbody><tr><td><strong>V93000 RF + SmarTest</strong></td><td>Advantest 集成 RF</td><td>高端</td></tr><tr><td><strong>UltraFLEX + UltraWave</strong></td><td>Teradyne 集成 RF</td><td>主流</td></tr><tr><td><strong>J750 + RF Option</strong></td><td>中端 RF</td><td>低成本</td></tr><tr><td><strong>外部仪器 + 控制</strong></td><td>ATE 控制外部 VSG/VSA</td><td>灵活方案</td></tr><tr><td><strong>专用 BLE 测试仪</strong></td><td>Anritsu/R&amp;S/LitePoint</td><td>产测专用</td></tr></tbody></table></div>
+<h3 id="23-rf-dib-设计要求">2.3 RF DIB 设计要求<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-rf-dib-设计要求" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>RF 测试板特殊要求:
+
+① RF 走线: 50Ω 特征阻抗 (微带线/带状线)
+② RF 连接器: SMA/SMP 连接器
+③ 屏蔽: RF 区域金属屏蔽罩 (防串扰)
+④ 接地: 大面积接地层 (回流路径)
+⑤ 隔离: RF 信号与其他信号充分隔离
+⑥ 天线匹配网络: DUT 到连接器的匹配
+⑦ Socket 影响: RF 引脚的低寄生 Socket
+</code></pre>
+<hr/>
+<h2 id="三tx-发射-测试">三、TX (发射) 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三tx-发射-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-输出功率测试">3.1 输出功率测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-输出功率测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>测试:
+  ① 芯片进入 TX 模式 (连续发送或 DTM)
+  ② 设置目标功率 (如 0 dBm)
+  ③ VSA/功率计测量实际输出功率
+  ④ 计算与目标的偏差
+
+典型规格:
+  TX Power: 0 dBm ± 2dB (室温)
+  功率控制范围: -20 ~ +10 dBm
+  功率步进: 1~2 dB (多档验证)
+</code></pre>
+<h3 id="32-频率精度测试">3.2 频率精度测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-频率精度测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>测试:
+  ① TX 发送载波 (或连续包)
+  ② VSA 测量载波频率
+  ③ 计算频偏: F_err = F_meas - F_center
+
+典型规格:
+  频偏 &lt; ±40kHz (室温, 未校准前 ±100kHz)
+  
+频偏来源:
+  晶振精度 (如 ±20ppm @ 2.4GHz → ±48kHz)
+  → 需要晶振校准或温度补偿
+</code></pre>
+<h3 id="33-调制质量测试">3.3 调制质量测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-调制质量测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>关键参数:
+
+① Frequency Deviation (频偏):
+   目标 ±250kHz, 规格 ±10%
+
+② DEVM (Differential Error Vector Magnitude):
+   综合调制质量指标
+
+③ Drift Rate (频率漂移):
+   包内频率漂移 (如 &lt; 50kHz/50μs)
+
+④ FSK Error:
+   频偏偏差的统计值
+</code></pre>
+<h3 id="34-频谱掩模测试-spectral-mask">3.4 频谱掩模测试 (Spectral Mask)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-频谱掩模测试-spectral-mask" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>BLE 频谱掩模要求:
+
+功率
+ │  ┌─────┐
+ │  │     │  ← 主信道 (±1MHz 内)
+ │  └─────┘
+ │    ╲   ╱  ← 过渡带
+ │      ╲╱
+ │   ←±2MHz→ 邻信道
+ │
+ └──────────────────→ 频率
+
+测试:
+  ① TX 发送标准包
+  ② 频谱仪扫频
+  ③ 各频偏点的功率
+  ④ 与掩模要求比对 (如 ±2MHz 处 &lt; -20dBm)
+</code></pre>
+<h3 id="35-杂散与谐波测试">3.5 杂散与谐波测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#35-杂散与谐波测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>测试:
+  ① TX 输出功率已知
+  ② 频谱仪扫描宽频段 (如 30MHz ~ 13GHz)
+  ③ 检查谐波 (2 次: 4.8GHz, 3 次: 7.2GHz)
+  ④ 检查非谐波杂散
+
+典型规格:
+  2 次谐波: &lt; -30 dBc
+  3 次谐波: &lt; -40 dBc
+  带外杂散: 符合法规 (FCC/ETSI)
+</code></pre>
+<hr/>
+<h2 id="四rx-接收-测试">四、RX (接收) 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四rx-接收-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-灵敏度测试-sensitivity">4.1 灵敏度测试 (Sensitivity)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-灵敏度测试-sensitivity" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>定义: 满足 PER ≤ 30.8% 的最小输入功率
+
+测试:
+  ① VSG 产生标准 BLE 包 (固定功率)
+  ② 芯片接收, 统计 PER (Packet Error Rate)
+  ③ 逐步降低 VSG 功率
+  ④ 找到 PER = 30.8% 的功率点
+  ⑤ 该功率 = 灵敏度
+
+典型规格:
+  BLE 1M: -97 dBm (理想), -93 dBm (典型规格)
+  BLE 2M: -92 dBm
+
+PER 统计:
+  至少 1500 包 (BLE 规范要求)
+  测试时间: ~几秒/功率点
+</code></pre>
+<h3 id="42-per-vs-输入功率曲线">4.2 PER vs 输入功率曲线<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-per-vs-输入功率曲线" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>PER
+100% │╲
+     │ ╲
+     │  ╲
+     │   ╲
+ 30% │────╲────────── 阈值线
+     │     ╲
+     │      ╲
+  0% │       ╲______
+     └──────────────────→ 输入功率 (dBm)
+              ↑
+            灵敏度
+
+量产策略:
+  固定功率点测试 (如 -93dBm 处 PER &lt; 30.8%)
+  → 快速判定, 无需完整扫描
+</code></pre>
+<h3 id="43-阻塞测试-blocking">4.3 阻塞测试 (Blocking)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-阻塞测试-blocking" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>定义: 在干扰信号存在下的接收能力
+
+测试:
+  ① 有用信号: -67 dBm (强信号)
+  ② 干扰信号: 邻道/带内/带外
+  ③ 测量 PER
+  ④ PER &lt; 30.8% → 通过
+
+阻塞分类 (BLE):
+  同道: ±0MHz
+  邻道: ±1MHz, ±2MHz, ±3MHz
+  带内: ±5MHz ~ ±10MHz
+  带外: 2.4GHz 之外 (2GHz/3GHz 等)
+</code></pre>
+<h3 id="44-频率容限测试">4.4 频率容限测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-频率容限测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>RX 频率容限:
+
+测试:
+  ① VSG 载波频率偏移 ±Δf (如 ±50kHz, ±100kHz)
+  ② 每个偏移点测 PER
+  ③ 芯片仍能正常接收 → 通过
+
+反映: RX 解调器的频率容限能力
+</code></pre>
+<hr/>
+<h2 id="五dtm-测试模式-direct-test-mode">五、DTM 测试模式 (Direct Test Mode)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五dtm-测试模式-direct-test-mode" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-dtm-概述">5.1 DTM 概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-dtm-概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>DTM (BLE Direct Test Mode):
+
+BLE 芯片的标准化测试模式 (蓝牙规范定义):
+
+控制接口: UART (2-wire) 或 HCI
+功能:
+  ① TX Test: 发送指定信道/长度的测试包
+  ② RX Test: 接收测试包并统计
+  ③ 结束测试
+
+命令示例:
+  LE Transmitter Test: 信道 0~39, 包长, 包类型
+  LE Receiver Test: 信道, 包长
+  LE Test End: 返回接收包数量
+</code></pre>
+<h3 id="52-dtm-测试流程">5.2 DTM 测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-dtm-测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>① 芯片上电, 进入 DTM 模式
+   (通过测试引脚或 Firmware 配置)
+
+② UART 连接 (DTM 命令接口)
+   波特率: 115200 典型
+
+③ TX 测试:
+   发送 TX Test 命令 (信道/包长)
+   → 芯片持续发送测试包
+   → RF 仪器测量
+
+④ RX 测试:
+   发送 RX Test 命令
+   → VSG 发送 N 个标准包
+   → Test End 命令 → 返回接收计数
+   → PER = (N - 接收数) / N
+
+⑤ 重复各信道/功率/包长组合
+</code></pre>
+<hr/>
+<h2 id="六rf-校准-calibration">六、RF 校准 (Calibration)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六rf-校准-calibration" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-为什么需要校准">6.1 为什么需要校准？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-为什么需要校准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>芯片间差异 + 温度影响:
+
+TX 功率: 目标 0dBm, 芯片 A 输出 +1.5dBm, 芯片 B 输出 -2dBm
+频偏: 晶振偏差导致 ±100kHz 频偏
+
+校准项目:
+  ① 晶振校准 (频偏补偿)
+  ② TX 功率校准 (各功率档)
+  ③ 温度补偿表 (可选)
+</code></pre>
+<h3 id="62-晶振校准流程">6.2 晶振校准流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-晶振校准流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>① 芯片发送载波 (CW)
+② VSA 测量频偏 (如 +85kHz)
+③ 计算晶振修正值:
+   F_err / F_RF = 85kHz / 2.4GHz = 35ppm
+④ 写入校准寄存器 (调整晶振负载电容)
+⑤ 复测: 频偏 &lt; ±10kHz ✓
+⑥ 校准值写入 Flash/OTP
+</code></pre>
+<h3 id="63-tx-功率校准流程">6.3 TX 功率校准流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-tx-功率校准流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>① 设置功率档 = Target (如 0dBm)
+② 测量实际输出 (如 -1.8dBm)
+③ 计算补偿值: +1.8dB
+④ 调整内部增益设置
+⑤ 复测: 0dBm ± 0.5dB ✓
+⑥ 各功率档重复 (-20~+10dBm, 步进 2dB)
+⑦ 校准表写入 Flash
+
+量产简化:
+  只校准 2~3 个代表功率档
+  其他档用插值
+</code></pre>
+<hr/>
+<h2 id="七量产测试策略">七、量产测试策略<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七量产测试策略" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-rf-ft-测试流程">7.1 RF FT 测试流程<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-rf-ft-测试流程" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>无线 MCU RF FT 典型流程:
+
+① 常规 DC/数字测试 (与普通 MCU 相同)
+    ↓
+② 进入 DTM 模式
+    ↓
+③ 晶振校准 (每颗芯片)
+    ↓
+④ TX 测试 (2~3 信道代表):
+   - 输出功率
+   - 频偏
+   - 调制质量 (DEVM/频偏误差)
+    ↓
+⑤ RX 测试 (1~2 功率点):
+   - 灵敏度点 PER
+    ↓
+⑥ 校准数据写入 Flash
+    ↓
+⑦ RF 测试完成 → 常规测试继续
+</code></pre>
+<h3 id="72-测试时间与站点">7.2 测试时间与站点<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-测试时间与站点" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>RF 测试耗时项:
+
+  晶振校准: ~200ms
+  TX 测试 (3 信道): ~300ms
+  RX PER (1500 包): ~500ms~1s
+  校准写入: ~100ms
+  ────────────────────
+  RF 部分总计: 1~2 秒
+
+RF 测试通常单独建站 (RF Station):
+  常规测试站 + RF 测试站 分开
+  RF 站需要屏蔽箱 (Shielding Box)
+</code></pre>
+<h3 id="73-rf-测试环境">7.3 RF 测试环境<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-rf-测试环境" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>RF FT 产线环境要求:
+
+① 屏蔽箱 (RF Shield Box):
+   - 隔离外界 2.4GHz 干扰 (WiFi 等)
+   - 内部吸波材料防反射
+   - 屏蔽效能: > 80dB
+
+② 测试路径: 传导测试 (Conducted) 
+   通过 RF 连接器直接连接 (非天线辐射)
+   → 稳定可靠, 适合量产
+
+③ 环境控制:
+   温度控制 (RF 参数对温度敏感)
+   湿度控制
+
+④ 产线干扰:
+   远离 WiFi 路由器/微波炉等 2.4GHz 源
+</code></pre>
+<hr/>
+<h2 id="八常见问题">八、常见问题<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#八常见问题" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>问题</th><th>可能原因</th><th>解决</th></tr></thead><tbody><tr><td>频偏超标</td><td>晶振未校准/漂移</td><td>校准/温度补偿</td></tr><tr><td>TX 功率偏差</td><td>匹配网络/工艺</td><td>功率校准</td></tr><tr><td>灵敏度差</td><td>接收链路噪声</td><td>检查匹配/屏蔽</td></tr><tr><td>PER 异常高</td><td>干扰/屏蔽不良</td><td>检查屏蔽箱</td></tr><tr><td>校准后漂移</td><td>温度变化</td><td>温度补偿表</td></tr><tr><td>Socket 接触不良</td><td>RF 引脚接触</td><td>Socket 维护</td></tr></tbody></table></div>
+<hr/>
+<h2 id="参考资料">参考资料<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#参考资料" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li><a href="../../../30.areas/MCU/Clock/Clock_OSC_PLL_测试" class="internal alias" data-slug="30.areas/MCU/Clock/Clock_OSC_PLL_测试">Clock 系统</a> — 晶振与频偏关系</li>
+<li><a href="../../../30.areas/MCU/System/Idd_电源_复位_测试" class="internal alias" data-slug="30.areas/MCU/System/Idd_电源_复位_测试">功耗测试</a> — BLE 广播/连接模式电流</li>
+<li><a href="../../../30.areas/MCU/Common/MCU_FT" class="internal alias" data-slug="30.areas/MCU/Common/MCU_FT">MCU FT 指南</a> — RF FT 站点设计</li>
+<li><a href="../../../30.areas/MCU/Common/MCU_ATE测试基础" class="internal alias" data-slug="30.areas/MCU/Common/MCU_ATE测试基础">MCU ATE 测试基础</a></li>
+</ul></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-9" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#ble--rf-测试详解" data-for="ble--rf-测试详解">BLE / RF 测试详解</a></li><li class="depth-1"><a href="#一ble-基础" data-for="一ble-基础">一、BLE 基础</a></li><li class="depth-2"><a href="#11-ble-物理层" data-for="11-ble-物理层">1.1 BLE 物理层</a></li><li class="depth-2"><a href="#12-gfsk-调制" data-for="12-gfsk-调制">1.2 GFSK 调制</a></li><li class="depth-1"><a href="#二rf-ate-资源" data-for="二rf-ate-资源">二、RF ATE 资源</a></li><li class="depth-2"><a href="#21-必备-rf-仪器" data-for="21-必备-rf-仪器">2.1 必备 RF 仪器</a></li><li class="depth-2"><a href="#22-主流-rf-ate-方案" data-for="22-主流-rf-ate-方案">2.2 主流 RF ATE 方案</a></li><li class="depth-2"><a href="#23-rf-dib-设计要求" data-for="23-rf-dib-设计要求">2.3 RF DIB 设计要求</a></li><li class="depth-1"><a href="#三tx-发射-测试" data-for="三tx-发射-测试">三、TX (发射) 测试</a></li><li class="depth-2"><a href="#31-输出功率测试" data-for="31-输出功率测试">3.1 输出功率测试</a></li><li class="depth-2"><a href="#32-频率精度测试" data-for="32-频率精度测试">3.2 频率精度测试</a></li><li class="depth-2"><a href="#33-调制质量测试" data-for="33-调制质量测试">3.3 调制质量测试</a></li><li class="depth-2"><a href="#34-频谱掩模测试-spectral-mask" data-for="34-频谱掩模测试-spectral-mask">3.4 频谱掩模测试 (Spectral Mask)</a></li><li class="depth-2"><a href="#35-杂散与谐波测试" data-for="35-杂散与谐波测试">3.5 杂散与谐波测试</a></li><li class="depth-1"><a href="#四rx-接收-测试" data-for="四rx-接收-测试">四、RX (接收) 测试</a></li><li class="depth-2"><a href="#41-灵敏度测试-sensitivity" data-for="41-灵敏度测试-sensitivity">4.1 灵敏度测试 (Sensitivity)</a></li><li class="depth-2"><a href="#42-per-vs-输入功率曲线" data-for="42-per-vs-输入功率曲线">4.2 PER vs 输入功率曲线</a></li><li class="depth-2"><a href="#43-阻塞测试-blocking" data-for="43-阻塞测试-blocking">4.3 阻塞测试 (Blocking)</a></li><li class="depth-2"><a href="#44-频率容限测试" data-for="44-频率容限测试">4.4 频率容限测试</a></li><li class="depth-1"><a href="#五dtm-测试模式-direct-test-mode" data-for="五dtm-测试模式-direct-test-mode">五、DTM 测试模式 (Direct Test Mode)</a></li><li class="depth-2"><a href="#51-dtm-概述" data-for="51-dtm-概述">5.1 DTM 概述</a></li><li class="depth-2"><a href="#52-dtm-测试流程" data-for="52-dtm-测试流程">5.2 DTM 测试流程</a></li><li class="depth-1"><a href="#六rf-校准-calibration" data-for="六rf-校准-calibration">六、RF 校准 (Calibration)</a></li><li class="depth-2"><a href="#61-为什么需要校准" data-for="61-为什么需要校准">6.1 为什么需要校准？</a></li><li class="depth-2"><a href="#62-晶振校准流程" data-for="62-晶振校准流程">6.2 晶振校准流程</a></li><li class="depth-2"><a href="#63-tx-功率校准流程" data-for="63-tx-功率校准流程">6.3 TX 功率校准流程</a></li><li class="depth-1"><a href="#七量产测试策略" data-for="七量产测试策略">七、量产测试策略</a></li><li class="depth-2"><a href="#71-rf-ft-测试流程" data-for="71-rf-ft-测试流程">7.1 RF FT 测试流程</a></li><li class="depth-2"><a href="#72-测试时间与站点" data-for="72-测试时间与站点">7.2 测试时间与站点</a></li><li class="depth-2"><a href="#73-rf-测试环境" data-for="73-rf-测试环境">7.3 RF 测试环境</a></li><li class="depth-1"><a href="#八常见问题" data-for="八常见问题">八、常见问题</a></li><li class="depth-1"><a href="#参考资料" data-for="参考资料">参考资料</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../30.areas/MCU/BLE_RF/" class="internal">BLE / RF 无线测试知识库</a></li><li><a href="../../../30.areas/MCU/" class="internal">MCU 知识库</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>

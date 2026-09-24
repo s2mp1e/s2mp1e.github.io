@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr"><head><title>BuckBoost测试 — PMIC 升降压变换器 FT 测试</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Elsanna · ATE 工程知识库"/><meta property="og:title" content="BuckBoost测试 — PMIC 升降压变换器 FT 测试"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="BuckBoost测试 — PMIC 升降压变换器 FT 测试"/><meta name="twitter:description" content="PMIC Buck-Boost（升降压）变换器 FT (Final Test) 测试项详解，涵盖软启动时间、静态电流、下拉电阻、OVP、SCP、输出精度/纹波、状态寄存器、DCM/CCM切换点、LX频率、VIN/VO比较器翻转点等测试的原理、方法与判定标准"/><meta property="og:description" content="PMIC Buck-Boost（升降压）变换器 FT (Final Test) 测试项详解，涵盖软启动时间、静态电流、下拉电阻、OVP、SCP、输出精度/纹波、状态寄存器、DCM/CCM切换点、LX频率、VIN/VO比较器翻转点等测试的原理、方法与判定标准"/><meta property="og:image:alt" content="PMIC Buck-Boost（升降压）变换器 FT (Final Test) 测试项详解，涵盖软启动时间、静态电流、下拉电阻、OVP、SCP、输出精度/纹波、状态寄存器、DCM/CCM切换点、LX频率、VIN/VO比较器翻转点等测试的原理、方法与判定标准"/><meta property="twitter:domain" content="s2mp1e.github.io"/><meta property="og:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试"/><meta property="twitter:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试"/><link rel="icon" href="../../../static/icon.png"/><meta name="description" content="PMIC Buck-Boost（升降压）变换器 FT (Final Test) 测试项详解，涵盖软启动时间、静态电流、下拉电阻、OVP、SCP、输出精度/纹波、状态寄存器、DCM/CCM切换点、LX频率、VIN/VO比较器翻转点等测试的原理、方法与判定标准"/><meta name="generator" content="Quartz"/><link href="../../../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL2hvbWUvcnVubmVyL3dvcmsvczJtcDFlLmdpdGh1Yi5pby9zMm1wMWUuZ2l0aHViLmlvL3NvdXJjZS9xdWFydHovY29tcG9uZW50cy9zdHlsZXMiLCJzb3VyY2VzIjpbIm1lcm1haWQuaW5saW5lLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUdGO0VBQ0U7OztBQUtGO0VBQ0U7RUFDQTs7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7O0FBR0Y7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTs7QUFHRjtFQUNFO0VBQ0E7O0FBSUo7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBOztBQUVBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7O0FBSUY7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyIuZXhwYW5kLWJ1dHRvbiB7XG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxvYXQ6IHJpZ2h0O1xuICBwYWRkaW5nOiAwLjRyZW07XG4gIG1hcmdpbjogMC4zcmVtO1xuICByaWdodDogMDsgLy8gTk9URTogcmlnaHQgd2lsbCBiZSBzZXQgaW4gbWVybWFpZC5pbmxpbmUudHNcbiAgY29sb3I6IHZhcigtLWdyYXkpO1xuICBib3JkZXItY29sb3I6IHZhcigtLWRhcmspO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiB2YXIoLS1saWdodCk7XG4gIGJvcmRlcjogMXB4IHNvbGlkO1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG4gIG9wYWNpdHk6IDA7XG4gIHRyYW5zaXRpb246IDAuMnM7XG5cbiAgJiA+IHN2ZyB7XG4gICAgZmlsbDogdmFyKC0tbGlnaHQpO1xuICAgIGZpbHRlcjogY29udHJhc3QoMC4zKTtcbiAgfVxuXG4gICY6aG92ZXIge1xuICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICBib3JkZXItY29sb3I6IHZhcigtLXNlY29uZGFyeSk7XG4gIH1cblxuICAmOmZvY3VzIHtcbiAgICBvdXRsaW5lOiAwO1xuICB9XG59XG5cbnByZSB7XG4gICY6aG92ZXIgPiAuZXhwYW5kLWJ1dHRvbiB7XG4gICAgb3BhY2l0eTogMTtcbiAgICB0cmFuc2l0aW9uOiAwLjJzO1xuICB9XG59XG5cbiNtZXJtYWlkLWNvbnRhaW5lciB7XG4gIHBvc2l0aW9uOiBmaXhlZDtcbiAgY29udGFpbjogbGF5b3V0O1xuICB6LWluZGV4OiA5OTk7XG4gIGxlZnQ6IDA7XG4gIHRvcDogMDtcbiAgd2lkdGg6IDEwMHZ3O1xuICBoZWlnaHQ6IDEwMHZoO1xuICBvdmVyZmxvdzogaGlkZGVuO1xuICBkaXNwbGF5OiBub25lO1xuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoNHB4KTtcbiAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjUpO1xuXG4gICYuYWN0aXZlIHtcbiAgICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7XG4gIH1cblxuICAmID4gI21lcm1haWQtc3BhY2Uge1xuICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICAgIGJvcmRlci1yYWRpdXM6IDVweDtcbiAgICBwb3NpdGlvbjogZml4ZWQ7XG4gICAgdG9wOiA1MCU7XG4gICAgbGVmdDogNTAlO1xuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIC01MCUpO1xuICAgIGhlaWdodDogODB2aDtcbiAgICB3aWR0aDogODB2dztcbiAgICBvdmVyZmxvdzogaGlkZGVuO1xuXG4gICAgJiA+IC5tZXJtYWlkLWNvbnRlbnQge1xuICAgICAgcGFkZGluZzogMnJlbTtcbiAgICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcbiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IDAgMDtcbiAgICAgIHRyYW5zaXRpb246IHRyYW5zZm9ybSAwLjFzIGVhc2U7XG4gICAgICBvdmVyZmxvdzogdmlzaWJsZTtcbiAgICAgIG1pbi1oZWlnaHQ6IDIwMHB4O1xuICAgICAgbWluLXdpZHRoOiAyMDBweDtcblxuICAgICAgcHJlIHtcbiAgICAgICAgbWFyZ2luOiAwO1xuICAgICAgICBib3JkZXI6IG5vbmU7XG4gICAgICB9XG5cbiAgICAgIHN2ZyB7XG4gICAgICAgIG1heC13aWR0aDogbm9uZTtcbiAgICAgICAgaGVpZ2h0OiBhdXRvO1xuICAgICAgfVxuICAgIH1cblxuICAgICYgPiAubWVybWFpZC1jb250cm9scyB7XG4gICAgICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gICAgICBib3R0b206IDIwcHg7XG4gICAgICByaWdodDogMjBweDtcbiAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICBnYXA6IDhweDtcbiAgICAgIHBhZGRpbmc6IDhweDtcbiAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICBib3JkZXItcmFkaXVzOiA2cHg7XG4gICAgICBib3gtc2hhZG93OiAwIDJweCA0cHggcmdiYSgwLCAwLCAwLCAwLjEpO1xuICAgICAgei1pbmRleDogMjtcblxuICAgICAgLm1lcm1haWQtY29udHJvbC1idXR0b24ge1xuICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyO1xuICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcbiAgICAgICAgd2lkdGg6IDMycHg7XG4gICAgICAgIGhlaWdodDogMzJweDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgICAgYm9yZGVyOiAxcHggc29saWQgdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHQpO1xuICAgICAgICBjb2xvcjogdmFyKC0tZGFyayk7XG4gICAgICAgIGJvcmRlci1yYWRpdXM6IDRweDtcbiAgICAgICAgY3Vyc29yOiBwb2ludGVyO1xuICAgICAgICBmb250LXNpemU6IDE2cHg7XG4gICAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1ib2R5Rm9udCk7XG4gICAgICAgIHRyYW5zaXRpb246IGFsbCAwLjJzIGVhc2U7XG5cbiAgICAgICAgJjpob3ZlciB7XG4gICAgICAgICAgYmFja2dyb3VuZDogdmFyKC0tbGlnaHRncmF5KTtcbiAgICAgICAgfVxuXG4gICAgICAgICY6YWN0aXZlIHtcbiAgICAgICAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoMXB4KTtcbiAgICAgICAgfVxuXG4gICAgICAgIC8vIFN0eWxlIHRoZSByZXNldCBidXR0b24gZGlmZmVyZW50bHlcbiAgICAgICAgJjpudGgtY2hpbGQoMikge1xuICAgICAgICAgIHdpZHRoOiBhdXRvO1xuICAgICAgICAgIHBhZGRpbmc6IDAgMTJweDtcbiAgICAgICAgICBmb250LXNpemU6IDE0cHg7XG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cbiJdfQ== */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../../../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../../../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://s2mp1e.github.io/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试-og-image.webp"/><meta property="og:image:url" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试-og-image.webp"/><meta name="twitter:image" content="https://s2mp1e.github.io/PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="PMIC/PMIC知识库/FT测试知识库/05_BuckBoost测试"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="../../..">Elsanna · ATE 工程知识库</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg><p>搜索</p></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="搜索些什么" placeholder="搜索些什么"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="暗色模式"><title>暗色模式</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="亮色模式"><title>亮色模式</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="阅读模式"><title>阅读模式</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-224"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>探索</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-224" class="explorer-content" aria-expanded="false" role="group"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../../../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/">PMIC 知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/">PMIC知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../../../PMIC/PMIC知识库/FT测试知识库/">FT测试知识库</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>BuckBoost测试 — PMIC 升降压变换器 FT 测试</a></div></nav><h1 class="article-title">BuckBoost测试 — PMIC 升降压变换器 FT 测试</h1><p show-comma="true" class="content-meta"><time datetime="2026-07-24T00:00:00.000Z">2026年7月24日</time><span>44分钟阅读</span></p><ul class="tags"><li><a href="../../../tags/pmic" class="internal tag-link">pmic</a></li><li><a href="../../../tags/ft" class="internal tag-link">ft</a></li><li><a href="../../../tags/final-test" class="internal tag-link">final-test</a></li><li><a href="../../../tags/buck-boost" class="internal tag-link">buck-boost</a></li><li><a href="../../../tags/dc-dc" class="internal tag-link">dc-dc</a></li><li><a href="../../../tags/converter" class="internal tag-link">converter</a></li><li><a href="../../../tags/soft-start" class="internal tag-link">soft-start</a></li><li><a href="../../../tags/ovp" class="internal tag-link">ovp</a></li><li><a href="../../../tags/scp" class="internal tag-link">scp</a></li><li><a href="../../../tags/dcm" class="internal tag-link">dcm</a></li><li><a href="../../../tags/ccm" class="internal tag-link">ccm</a></li><li><a href="../../../tags/knowledge-base" class="internal tag-link">knowledge-base</a></li></ul></div></div><article class="popover-hint"><h1 id="buckboost-测试--pmic-升降压变换器-ft-测试">BuckBoost 测试 — PMIC 升降压变换器 FT 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#buckboost-测试--pmic-升降压变换器-ft-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<blockquote>
+<p>Buck-Boost（升降压）变换器是 PMIC 中最重要的电源转换模块之一，能够在输入电压高于或低于输出电压时维持稳定的输出。FT 阶段需要对 Buck-Boost 的各项功能与性能参数进行全面验证，包括启动特性、静态功耗、保护功能、输出质量、模式切换等。</p>
+</blockquote>
+<hr/>
+<h2 id="目录">目录<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#目录" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ol>
+<li><a href="#%E4%B8%80%E6%A6%82%E6%A6%82%E8%BF%B0" class="internal alias">概述</a></li>
+<li><a href="#%E4%BA%8C%E8%BD%AF%E5%90%AF%E5%8A%A8%E6%97%B6%E9%97%B4%E6%B5%8B%E8%AF%95" class="internal alias">软启动时间测试</a></li>
+<li><a href="#%E4%B8%89%E9%9D%99%E6%80%81%E7%94%B5%E6%B5%81%E6%B5%8B%E8%AF%95" class="internal alias">静态电流测试</a></li>
+<li><a href="#%E5%9B%9B%E4%B8%8B%E4%B8%8B%E6%8B%89%E7%94%B5%E9%98%BB%E6%B5%8B%E8%AF%95" class="internal alias">下拉电阻测试</a></li>
+<li><a href="#%E4%BA%94ovp-%E8%BF%87%E5%8E%8B%E4%BF%9D%E6%8A%A4%E6%B5%8B%E8%AF%95" class="internal alias">OVP 过压保护测试</a></li>
+<li><a href="#%E5%85%ADscp-%E7%9F%AD%E8%B7%AF%E4%BF%9D%E6%8A%A4%E6%B5%8B%E8%AF%95" class="internal alias">SCP 短路保护测试</a></li>
+<li><a href="#%E4%B8%83%E8%BE%93%E5%87%BA%E7%94%B5%E5%8E%8B%E7%B2%BE%E5%BA%A6%E4%B8%8E%E7%BA%B9%E6%B3%A2%E6%B5%8B%E8%AF%95" class="internal alias">输出电压精度与纹波测试</a></li>
+<li><a href="#%E5%85%AB%E7%8A%B6%E6%80%81%E5%AF%84%E5%AD%98%E5%99%A8-bb_state-%E6%B5%8B%E8%AF%95" class="internal alias">状态寄存器 BB_STATE 测试</a></li>
+<li><a href="#%E4%B9%9Ddcmccm-%E5%88%87%E6%8D%A2%E7%82%B9%E6%B5%8B%E8%AF%95" class="internal alias">DCM/CCM 切换点测试</a></li>
+<li><a href="#%E5%8D%81lx-%E9%A2%91%E7%8E%87%E6%B5%8B%E8%AF%95" class="internal alias">LX 频率测试</a></li>
+<li><a href="#%E5%8D%81%E4%B8%80vinvo-%E5%86%85%E9%83%A8%E6%AF%94%E8%BE%83%E5%99%A8%E7%BF%BB%E8%BD%AC%E7%82%B9%E6%B5%8B%E8%AF%95" class="internal alias">VIN/VO 内部比较器翻转点测试</a></li>
+<li><a href="#%E5%8D%81%E4%BA%8C%E6%80%BB%E7%BB%93" class="internal alias">总结</a></li>
+</ol>
+<hr/>
+<h2 id="一概述">一、概述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#一概述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="11-buck-boost-变换器简介">1.1 Buck-Boost 变换器简介<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#11-buck-boost-变换器简介" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Buck-Boost 变换器是一种 DC-DC 转换器，其输出电压可以低于、等于或高于输入电压。它结合了 Buck（降压）和 Boost（升压）两种拓扑结构，通过控制四个开关管的导通时序实现升降压功能。</p>
+<p><strong>典型四开关 Buck-Boost 拓扑</strong>：</p>
+<pre><code>                    ┌─── SW1 ──┬─── SW2 ───┐
+                    │          L          │
+    VIN ───────────┤          │          ├────────── VOUT
+                    │       ┌──┴──┐       │
+                    │       │    │       │
+                    │       │    │       │
+                    └─── SW3 ──┴─── SW4 ──┘
+                              │
+                             GND
+</code></pre>
+<p><strong>四种工作模式</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>输入 vs 输出</th><th>工作方式</th></tr></thead><tbody><tr><td>Buck 模式</td><td>VIN >> VOUT</td><td>SW1、SW3 为主开关，SW2 常开，SW4 常关</td></tr><tr><td>Buck-Boost 模式</td><td>VIN ≈ VOUT</td><td>四个开关管均参与开关转换</td></tr><tr><td>Boost 模式</td><td>VIN &lt;&lt; VOUT</td><td>SW2、SW4 为主开关，SW1 常开，SW3 常关</td></tr><tr><td>直通模式 (Pass-Through)</td><td>VIN ≈ VOUT</td><td>SW1、SW2 常开，SW3、SW4 常关</td></tr></tbody></table></div>
+<h3 id="12-ft-测试关注点">1.2 FT 测试关注点<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#12-ft-测试关注点" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Buck-Boost FT 测试覆盖以下方面：</p>
+<ol>
+<li><strong>启动特性</strong>：软启动时间、浪涌电流限制</li>
+<li><strong>静态功耗</strong>：空载/轻载时的芯片自身功耗</li>
+<li><strong>保护功能</strong>：OVP、SCP 等保护电路是否正常触发</li>
+<li><strong>输出质量</strong>：直流精度、交流纹波、瞬态响应</li>
+<li><strong>模式切换</strong>：Buck/Boost/Buck-Boost 模式判断和切换</li>
+<li><strong>开关特性</strong>：开关频率、死区时间、占空比范围</li>
+</ol>
+<hr/>
+<h2 id="二软启动时间测试">二、软启动时间测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二软启动时间测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="21-原理-principle">2.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#21-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="211-为什么要软启动">2.1.1 为什么要软启动<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#211-为什么要软启动" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck-Boost 变换器在启动时，如果没有软启动 (Soft-Start) 电路，输出电容的充电电流将非常大，导致：</p>
+<ul>
+<li><strong>输入电压跌落</strong>：瞬态大电流拉低输入电源，可能导致系统复位</li>
+<li><strong>电感饱和</strong>：浪涌电流超过电感饱和电流，损坏电感或开关管</li>
+<li><strong>输出过冲</strong>：启动瞬间输出电压可能大幅超过目标值</li>
+<li><strong>系统供电不稳</strong>：同一电源轨上的其他电路受到干扰</li>
+</ul>
+<h4 id="212-软启动实现方式">2.1.2 软启动实现方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#212-软启动实现方式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方式一：内部电流限制法</strong></p>
+<p>在启动阶段限制开关管的峰值电流（逐周期限流），输出电压逐步上升：</p>
+<pre><code>I_peak_limit = I_limit_ss  (启动阶段)
+I_peak_limit = I_limit_normal (正常运行)
+</code></pre>
+<p><strong>方式二：参考电压斜坡法 (Voltage Ramp)</strong></p>
+<p>控制误差放大器的参考电压从 0V 线性上升到目标值，输出跟随参考电压：</p>
+<pre><code>VREF_ss(t) = VREF_target × (t / T_ss),  0 &lt; t &lt; T_ss
+VOUT(t) ≈ VREF_ss(t) × (1 + R1/R2)
+</code></pre>
+<p><strong>方式三：占空比渐进法</strong></p>
+<p>从最小占空比开始，逐步增加到稳态占空比，实现输出电压平滑上升。</p>
+<p><strong>常见混合方案</strong>：同时使用电流限制和电压斜坡，在限制浪涌电流的同时保证输出电压平滑上升。</p>
+<h3 id="22-测试方法-test-method">2.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="221-基本测量方法">2.2.1 基本测量方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#221-基本测量方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>配置 Buck-Boost 为目标输出电压（如 3.3V）</li>
+<li>使能变换器（通过 EN 管脚或 I2C 寄存器）</li>
+<li>使用 Digitizer 或示波器捕获 VOUT 上升波形</li>
+<li>测量 10% VOUT_target 到 90% VOUT_target 的时间</li>
+</ol>
+<pre><code>VOUT
+│
+│         ┌──── 100%
+│       ┌─┘────  90%
+│      │
+│      │   T_ss (10%-90%)
+│      │
+│     ┌┘────  10%
+│  ┌──┘
+│  │
+─┴────────────────────────── t
+  使能
+</code></pre>
+<p><strong>计算公式</strong>：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">SS</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.9024em;vertical-align:-0.2191em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.5198em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">90%</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2191em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9024em;vertical-align:-0.2191em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.5198em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">10%</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2191em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><strong>T₁₀%</strong>：输出电压上升到目标值 10% 的时刻</li>
+<li><strong>T₉₀%</strong>：输出电压上升到目标值 90% 的时刻</li>
+</ul>
+<h4 id="222-精确测量技术">2.2.2 精确测量技术<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#222-精确测量技术" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>ATE 实现方案</strong>：</p>
+<ul>
+<li>使用 ATE 的 AWG (任意波形发生器) 产生使能信号</li>
+<li>使用 Digitizer（采样率 1 ~ 10 MS/s）捕获 VOUT 波形</li>
+<li>软件后处理计算 10%-90% 上升时间</li>
+</ul>
+<pre><code>[ATE AWG] ──使能信号──→ [DUT EN]
+                       [DUT VOUT] ──→ [ATE Digitizer]
+</code></pre>
+<h4 id="223-浪涌电流测量">2.2.3 浪涌电流测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#223-浪涌电流测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>在测量软启动时间的同时，同步测量输入电流：</p>
+<ol>
+<li>在输入路径串联精密采样电阻</li>
+<li>使用差分 Digitizer 测量电阻两端电压</li>
+<li>计算输入电流：I_IN = V_sense / R_sense</li>
+</ol>
+<h3 id="23-测试条件">2.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#23-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件 1 (轻载)</th><th>条件 2 (满载)</th><th>单位</th></tr></thead><tbody><tr><td>输入电压 VIN</td><td>VIN_min / typ / max</td><td>VIN_min / typ / max</td><td>V</td></tr><tr><td>输出电压 VOUT</td><td>VOUT_nom</td><td>VOUT_nom</td><td>V</td></tr><tr><td>输出负载 ILOAD</td><td>0 (空载)</td><td>ILOAD_max</td><td>A</td></tr><tr><td>输出电容 COUT</td><td>COUT_nom</td><td>COUT_nom</td><td>μF</td></tr><tr><td>温度</td><td>25°C / hot / cold</td><td>25°C / hot / cold</td><td>°C</td></tr></tbody></table></div>
+<h3 id="24-判定标准">2.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#24-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>条件</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>软启动时间 (10%-90%)</td><td>空载</td><td>50</td><td>200</td><td>500</td><td>μs</td></tr><tr><td>软启动时间 (10%-90%)</td><td>满载</td><td>100</td><td>400</td><td>1000</td><td>μs</td></tr><tr><td>浪涌电流峰值</td><td>所有条件</td><td>—</td><td>—</td><td>I_limit_ss</td><td>A</td></tr><tr><td>启动过冲</td><td>所有条件</td><td>—</td><td>—</td><td>VOUT_nom + 3%</td><td>V</td></tr></tbody></table></div>
+<h3 id="25-测试注意事项">2.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#25-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>负载影响</strong>：软启动时间与输出负载和电容密切相关，需在标准负载条件下测试</li>
+<li><strong>触发同步</strong>：Digitizer 触发信号需与使能信号同步，确保捕获完整的启动波形</li>
+<li><strong>软启动失败</strong>：若 VOUT 长时间达不到目标值，可能指示软启动电路异常或输出过载</li>
+<li><strong>重复性</strong>：建议多次启动取平均，排除单次启动的随机性</li>
+</ol>
+<hr/>
+<h2 id="三静态电流测试">三、静态电流测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三静态电流测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="31-原理-principle">3.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="311-静态电流定义">3.1.1 静态电流定义<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#311-静态电流定义" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>静态电流 (Quiescent Current, IQ) 指变换器在空载或轻载条件下，控制电路（包括误差放大器、比较器、基准、驱动逻辑等）消耗的电流。它是评估电源芯片自身功耗的关键指标。</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">Q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><strong>I_IN</strong>：输入电源提供的总电流</li>
+<li><strong>I_OUT</strong>：输出负载电流</li>
+</ul>
+<p>在空载条件下（ILOAD = 0），I_Q ≈ I_IN（因为没有输出电流）。</p>
+<h4 id="312-pfm-模式-vs-pwm-模式-iq">3.1.2 PFM 模式 vs PWM 模式 IQ<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#312-pfm-模式-vs-pwm-模式-iq" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>模式</th><th>工作原理</th><th>IQ 典型值</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>PWM (Pulse Width Modulation)</strong></td><td>固定频率，调整占空比</td><td>数百 μA ~ 数 mA</td><td>中等~重载，低纹波</td></tr><tr><td><strong>PFM (Pulse Frequency Modulation)</strong></td><td>固定导通时间，调整频率</td><td>数 μA ~ 数十 μA</td><td>轻载，高效率</td></tr><tr><td><strong>Burst Mode / Skip Mode</strong></td><td>跳过部分开关周期</td><td>数 μA ~ 数十 μA</td><td>极轻载，最低功耗</td></tr></tbody></table></div>
+<h4 id="313-iq-的组成">3.1.3 IQ 的组成<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#313-iq-的组成" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<pre><code>IQ = I_bandgap + I_EA + I_comp + I_driver_loss + I_switch_loss + I_feedback
+</code></pre>
+<ul>
+<li><strong>I_bandgap</strong>：带隙基准偏置电流（数 μA）</li>
+<li><strong>I_EA</strong>：误差放大器偏置电流（数 μA ~ 数十 μA）</li>
+<li><strong>I_comp</strong>：比较器偏置电流（数 μA）</li>
+<li><strong>I_driver_loss</strong>：栅极驱动损耗（与开关频率相关）</li>
+<li><strong>I_switch_loss</strong>：开关管栅极充放电损耗</li>
+<li><strong>I_feedback</strong>：反馈分压电阻上流过的电流（VOUT / (R1+R2)）</li>
+</ul>
+<h3 id="32-测试方法-test-method">3.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#32-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="321-空载-iq-测试">3.2.1 空载 IQ 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#321-空载-iq-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>PWM 模式 IQ 测试</strong>：</p>
+<ol>
+<li>使能变换器，设置为强制 PWM 模式</li>
+<li>设置空载（ILOAD = 0）</li>
+<li>等待输出稳定（典型 1 ~ 5ms）</li>
+<li>测量输入电流 I_IN</li>
+</ol>
+<p><strong>PFM 模式 IQ 测试</strong>：</p>
+<ol>
+<li>使能变换器，设置为 PFM/Auto 模式</li>
+<li>设置空载或极小负载（如 1μA）</li>
+<li>等待输出稳定</li>
+<li>长时间积分测量输入电流（因 PFM 模式下电流呈脉冲状，需平均采样）</li>
+</ol>
+<h4 id="322-ate-测量方案">3.2.2 ATE 测量方案<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#322-ate-测量方案" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方案一：精密 SMU 测量</strong></p>
+<p>使用源测量单元 (SMU) 直接测量输入电流：</p>
+<ul>
+<li>将 SMU 设置为 Force Voltage，Measure Current 模式</li>
+<li>设置合适量程（如 10μA 量程用于 PFM IQ，10mA 量程用于 PWM IQ）</li>
+<li>注意 SMU 的自动量程切换时间</li>
+</ul>
+<p><strong>方案二：串联采样电阻法</strong></p>
+<p>在输入路径串入精密采样电阻，用差动 Digitizer 测量电压降：</p>
+<pre><code>SMU ──→ R_sense (1Ω ~ 10KΩ) ──→ DUT VIN
+                ↓
+         Digitizer Diff Input
+</code></pre>
+<ul>
+<li><strong>R_sense 选择</strong>：IQ 越小，R_sense 需越大，以产生可测量的电压降
+<ul>
+<li>PWM IQ (~1mA)：R_sense ≈ 1Ω → V_sense ≈ 1mV</li>
+<li>PFM IQ (~1μA)：R_sense ≈ 1KΩ → V_sense ≈ 1mV</li>
+</ul>
+</li>
+</ul>
+<h3 id="33-测试条件">3.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#33-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>PWM 模式</th><th>PFM 模式</th><th>单位</th></tr></thead><tbody><tr><td>VIN</td><td>VIN_nom</td><td>VIN_nom</td><td>V</td></tr><tr><td>VOUT</td><td>VOUT_nom</td><td>VOUT_nom</td><td>V</td></tr><tr><td>ILOAD</td><td>0</td><td>0 (或 1μA)</td><td>A</td></tr><tr><td>温度</td><td>25°C</td><td>25°C</td><td>°C</td></tr><tr><td>开关频率</td><td>f_sw_nom</td><td>PFM (自动)</td><td>Hz</td></tr></tbody></table></div>
+<h3 id="34-判定标准">3.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#34-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>模式</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>静态电流 IQ</td><td>PWM</td><td>—</td><td>800</td><td>1500</td><td>μA</td></tr><tr><td>静态电流 IQ</td><td>PFM / Auto</td><td>—</td><td>15</td><td>50</td><td>μA</td></tr><tr><td>静态电流 IQ</td><td>关断 (Shutdown)</td><td>—</td><td>0.1</td><td>1</td><td>μA</td></tr></tbody></table></div>
+<h3 id="35-测试注意事项">3.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#35-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>漏电流补偿</strong>：测试板自身的漏电流可能达到数 μA，需在空板测量后做漏电流校准 (delta 测量)</li>
+<li><strong>测量稳定时间</strong>：PFM 模式下电流呈脉冲状，需足够长的积分时间（> 100ms）获得平均电流</li>
+<li><strong>温度影响</strong>：IQ 随温度升高而增加（偏置电流的温度系数为正），需全温度范围验证</li>
+<li><strong>输入滤波电容</strong>：DUT 输入端的去耦电容会吸收 SMU 的瞬态电流，需注意测量建立时间</li>
+</ol>
+<hr/>
+<h2 id="四下拉电阻测试">四、下拉电阻测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#四下拉电阻测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="41-原理-principle">4.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#41-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="411-下拉电阻的作用">4.1.1 下拉电阻的作用<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#411-下拉电阻的作用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck-Boost 变换器在关断 (Disable/Shutdown) 状态下，输出管脚 VOUT 需要被拉至 GND：</p>
+<ol>
+<li><strong>可控放电</strong>：确保关断时输出电容上的电荷快速泄放，VOUT 快速下降到 0V</li>
+<li><strong>防止浮空</strong>：避免输出管脚在关断时处于高阻态，受漏电流影响产生不确定电压</li>
+<li><strong>系统安全</strong>：确保下次启动时输出电容已完全放电，防止启动时序异常</li>
+</ol>
+<p><strong>典型电路结构</strong>：</p>
+<pre><code>VOUT ────┬─── SW_discharge ─── R_pd ──── GND
+         │
+         │    SW_discharge = NMOS 开关管
+         │    R_pd = 片内多晶硅电阻，典型几十 Ω ~ 几百 Ω
+         │
+         └─── 输出电容 COUT (外部)
+</code></pre>
+<h3 id="42-测试方法-test-method">4.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#42-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="421-基本测量方法">4.2.1 基本测量方法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#421-基本测量方法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：电压-电流法</strong></p>
+<ol>
+<li>禁用 (Disable) Buck-Boost 变换器，使下拉电阻接入</li>
+<li>在 VOUT 管脚施加一个测试电压 V_force（注意不超过最大允许电压）</li>
+<li>测量流入 VOUT 管脚的电流 I_measure</li>
+<li>计算下拉电阻：</li>
+</ol>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">P</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">D</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.4365em;vertical-align:-0.4451em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9914em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight">re</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5131em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span><span class="mord mathnormal mtight">orce</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4451em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p><strong>方法二：两点法（消除接触电阻）</strong></p>
+<p>使用两个不同的测试电压，计算差分电阻：</p>
+<ol>
+<li>施加 V1，测量 I1</li>
+<li>施加 V2，测量 I2</li>
+<li>计算：</li>
+</ol>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">P</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">D</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3335em;vertical-align:-0.4451em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8884em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4101em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4451em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>这种方法可以消除接触电阻和测试路径上的固定偏置电压误差。</p>
+<h4 id="422-ate-实现">4.2.2 ATE 实现<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#422-ate-实现" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>使用 PPMU (Per-Pin PMU) 或 SMU 进行 Force Voltage / Measure Current：</p>
+<pre><code>[ATE PPMU] Force V_force ──→ DUT VOUT Pin
+           Measure I_measure ←── DUT VOUT Pin
+</code></pre>
+<h4 id="423-关键注意事项">4.2.3 关键注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#423-关键注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>测试电压选择</strong>：V_force 不能过高，否则可能意外激活 Buck-Boost 的保护电路</li>
+<li><strong>开关管导通电阻</strong>：实际测量值包含放电开关管的导通电阻 Ron，规格书中通常给出 R_pd + Ron 的综合值</li>
+<li><strong>使能状态确认</strong>：必须确认 Buck-Boost 已被正确禁用，否则读取的电流包括变换器工作电流</li>
+</ol>
+<h3 id="43-测试条件">4.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#43-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>数值</th><th>单位</th></tr></thead><tbody><tr><td>VIN</td><td>任意</td><td>0 或 VIN_nom</td><td>V</td></tr><tr><td>EN (使能)</td><td>禁用</td><td>0</td><td>V</td></tr><tr><td>V_force (测试电压)</td><td>—</td><td>0.1 ~ VOUT_nom (如 1.0V)</td><td>V</td></tr><tr><td>温度</td><td>常温</td><td>25</td><td>°C</td></tr></tbody></table></div>
+<h3 id="44-判定标准">4.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#44-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>下拉电阻 R_pd</td><td>30</td><td>50</td><td>80</td><td>Ω</td></tr><tr><td>或 R_pd (不同设计)</td><td>100</td><td>200</td><td>300</td><td>Ω</td></tr></tbody></table></div>
+<blockquote>
+<p><strong>注意</strong>：不同 Buck-Boost 设计的下拉电阻值不同，需按具体芯片规格判定。大电流变换器通常使用更小的下拉电阻以加速放电。</p>
+</blockquote>
+<hr/>
+<h2 id="五ovp-过压保护测试">五、OVP 过压保护测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#五ovp-过压保护测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="51-原理-principle">5.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#51-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="511-ovp-的作用">5.1.1 OVP 的作用<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#511-ovp-的作用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>过压保护 (Over Voltage Protection, OVP) 用于防止 Buck-Boost 输出电压超过安全阈值，保护下游负载电路。OVP 触发时，变换器会采取保护动作（关闭开关管、拉低输出等）。</p>
+<p><strong>OVP 触发场景</strong>：</p>
+<ol>
+<li><strong>反馈电阻开路</strong>：FB 分压电阻 R1 开路 → FB 电压 = 0 → EA 认为输出不足 → 占空比最大 → VOUT 飙升</li>
+<li><strong>上管短路</strong>：SW1 (Buck 上管) 或 SW2 (Boost 上管) 击穿短路 → 输入直通到输出</li>
+<li><strong>控制环路故障</strong>：EA 输出饱和、PWM 比较器失效等</li>
+<li><strong>输入电压异常升高</strong>：VIN 升高导致占空比异常</li>
+</ol>
+<h4 id="512-两类-ovp-实现">5.1.2 两类 OVP 实现<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#512-两类-ovp-实现" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>类型一：反馈环路 OVP (Feedback OVP)</strong></p>
+<ul>
+<li>监控 FB 节点电压，当 VFB 超过 VREF 的某个百分比（如 115%）时触发</li>
+<li>覆盖反馈电阻开路的故障场景</li>
+<li>保护阈值：VFB_OVP = 115% ~ 130% × VREF</li>
+</ul>
+<p><strong>类型二：输出直接 OVP (Output OVP)</strong></p>
+<ul>
+<li>通过独立的分压电阻网络直接监控 VOUT</li>
+<li>与反馈环路无关，即使反馈环路故障仍能保护</li>
+<li>保护阈值：VOUT_OVP = 110% ~ 130% × VOUT_nom</li>
+</ul>
+<p><strong>保护动作</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>保护动作</th><th>描述</th><th>恢复方式</th></tr></thead><tbody><tr><td>关断 (Shutdown)</td><td>关闭所有开关管，变换器停止工作</td><td>重新使能</td></tr><tr><td>强制 DCM</td><td>禁止同步整流管导通，防止反向电流</td><td>OVP 消失后自动恢复</td></tr><tr><td>下拉输出</td><td>打开输出下拉电阻，快速放电</td><td>需重新使能</td></tr><tr><td>Latch-off</td><td>锁死，彻底关断</td><td>需重新上电或 POR</td></tr></tbody></table></div>
+<h3 id="52-测试方法-test-method">5.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#52-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="521-反馈-ovp-测试">5.2.1 反馈 OVP 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#521-反馈-ovp-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：外部注入法</strong></p>
+<ol>
+<li>使能 Buck-Boost 正常工作（VOUT = VOUT_nom）</li>
+<li>通过外部电源在 FB 管脚注入额外的电压，模拟 FB 电压异常</li>
+<li>逐渐降低 FB 节点电压（模拟电阻开路故障），观察 OVP 是否触发</li>
+<li>记录 OVP 触发时的 VOUT 实际值</li>
+</ol>
+<blockquote>
+<p><strong>注意</strong>：直接向 FB 注电压可能改变环路的反馈特性，需通过电阻隔离注入。</p>
+</blockquote>
+<p><strong>方法二：电阻模拟法</strong></p>
+<p>在反馈分压电阻 R1 上并联一个外部电阻，降低 R1 有效值：</p>
+<ul>
+<li>R1 并联外部电阻 → 分压比降低 → VOUT 升高</li>
+<li>观察 OVP 触发时的 VOUT 值</li>
+</ul>
+<h4 id="522-输出-ovp-测试">5.2.2 输出 OVP 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#522-输出-ovp-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>使能 Buck-Boost 正常工作</li>
+<li>使用外部电源通过隔离电阻向 VOUT 注入额外电压</li>
+<li>逐步升高 VOUT，直到 OVP 保护触发</li>
+<li>记录 OVP 触发阈值</li>
+</ol>
+<p><strong>ATE 实现</strong>：</p>
+<pre><code>[ATE DPS/SMU → VOUT] ──→ R_isolation (1KΩ) ──→ DUT VOUT
+[DUT VOUT] ──→ ATE Digitizer (监控 OVP 触发)
+[DUT FAULT_N/STATUS] ──→ ATE Digital (检测 OVP 标志)
+</code></pre>
+<h3 id="53-测试条件">5.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#53-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>数值</th><th>单位</th></tr></thead><tbody><tr><td>VIN</td><td>典型值</td><td>VIN_nom</td><td>V</td></tr><tr><td>VOUT</td><td>目标值</td><td>VOUT_nom</td><td>V</td></tr><tr><td>ILOAD</td><td>轻载</td><td>1 ~ 10</td><td>mA</td></tr><tr><td>温度</td><td>常温</td><td>25</td><td>°C</td></tr></tbody></table></div>
+<h3 id="54-判定标准">5.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#54-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>OVP 触发阈值 (反馈 OVP)</td><td>110</td><td>120</td><td>130</td><td>%VOUT_nom</td></tr><tr><td>OVP 触发阈值 (输出 OVP)</td><td>110</td><td>115</td><td>125</td><td>%VOUT_nom</td></tr><tr><td>OVP 响应时间</td><td>—</td><td>2</td><td>10</td><td>μs</td></tr><tr><td>保护动作后 VOUT</td><td>—</td><td>0</td><td>0.5</td><td>V</td></tr></tbody></table></div>
+<h3 id="55-测试注意事项">5.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#55-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>隔离电阻选择</strong>：注入路径的隔离电阻要足够大，避免影响正常输出</li>
+<li><strong>触发检测</strong>：OVP 触发后 VOUT 迅速下降，Digitizer 需足够快以捕获触发点</li>
+<li><strong>自恢复 vs 锁死</strong>：需区分 OVP 是自恢复型 (Hiccup) 还是锁死型 (Latch-off)</li>
+<li><strong>温度影响</strong>：OVP 阈值比较器的失调电压随温度变化，需验证全温度范围</li>
+</ol>
+<hr/>
+<h2 id="六scp-短路保护测试">六、SCP 短路保护测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#六scp-短路保护测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="61-原理-principle">6.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#61-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="611-scp-的作用">6.1.1 SCP 的作用<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#611-scp-的作用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>短路保护 (Short Circuit Protection, SCP) 在 Buck-Boost 输出对地短路时保护芯片和系统：</p>
+<ul>
+<li><strong>限制短路电流</strong>：防止过大的短路电流烧毁开关管、电感和 PCB 走线</li>
+<li><strong>保护输入电源</strong>：防止短路导致输入电源电压崩溃</li>
+<li><strong>热保护</strong>：防止芯片在短路状态下过热损坏</li>
+</ul>
+<h4 id="612-保护模式">6.1.2 保护模式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#612-保护模式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>模式一：Hiccup 模式（打嗝模式）</strong></p>
+<p>这是最常用的 Buck-Boost SCP 模式：</p>
+<pre><code>短路发生 → 检测到过流 → 关断变换器
+    → 等待 T_hiccup_off (典型 1~10ms)
+    → 尝试重启 (软启动)
+    → 若短路仍存在 → 再次关断
+    → 循环重复
+</code></pre>
+<p><strong>平均短路电流</strong>：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">SC</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">vg</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span><span class="mord mathnormal mtight">imi</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.4943em;vertical-align:-0.6059em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8884em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mbin mtight">+</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">hi</span><span class="mord mathnormal mtight">cc</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight">p</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.10764em;">ff</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3727em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4101em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6059em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><strong>I_limit</strong>：逐周期限流值</li>
+<li><strong>T_on</strong>：每个 hiccup 周期中变换器工作的时间</li>
+<li><strong>T_hiccup_off</strong>：每个 hiccup 周期中变换器关断的时间</li>
+</ul>
+<p>由于 T_hiccup_off >> T_on，平均短路电流远小于限流值，芯片功耗可控：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">SC</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">SC</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">vg</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">SC</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">vg</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">0</span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">0.2</span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord cjk_fallback">很低</span></span></span></span></p>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>平均功耗低，芯片温度可控</li>
+<li>短路移除后自动恢复</li>
+<li>不需要外部复位</li>
+</ul>
+<p><strong>劣势</strong>：</p>
+<ul>
+<li>输出恢复时间取决于 hiccup 周期</li>
+<li>在短路状态下变换器仍在间歇工作</li>
+</ul>
+<p><strong>模式二：Latch-off 模式（锁断模式）</strong></p>
+<pre><code>短路发生 → 检测到过流 → 关断变换器 → 锁死
+    → 需要 POR (Power-On Reset) 或重新使能才能恢复
+</code></pre>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>短路状态下变换器完全停止工作</li>
+<li>最安全，功耗最低</li>
+</ul>
+<p><strong>劣势</strong>：</p>
+<ul>
+<li>短路移除后需要系统干预才能恢复</li>
+<li>不适用于热插拔等需要自动恢复的场景</li>
+</ul>
+<h3 id="62-测试方法-test-method">6.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#62-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="621-基本-scp-测试">6.2.1 基本 SCP 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#621-基本-scp-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：电子负载短路法</strong></p>
+<ol>
+<li>使能 Buck-Boost 带载正常工作</li>
+<li>使用电子负载或继电器将 VOUT 短路到 GND</li>
+<li>监控 VOUT 电压和输入电流</li>
+<li>观察保护行为（Hiccup 或 Latch-off）</li>
+<li>测量短路电流</li>
+</ol>
+<p><strong>方法二：开关管短路法</strong></p>
+<p>在测试板上预装一个 MOSFET 开关管连接 VOUT 和 GND：</p>
+<pre><code>VOUT ────┬──── DUT VOUT
+         │
+         └─── D (MOSFET) ──── GND
+                 G (控制信号) ←── ATE Digital
+                 S (GND)
+</code></pre>
+<ol>
+<li>Buck-Boost 正常工作</li>
+<li>ATE 控制 MOSFET 导通，将 VOUT 短接到 GND</li>
+<li>监控测试结果</li>
+</ol>
+<h4 id="622-限流值测量">6.2.2 限流值测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#622-限流值测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>在短路状态下，测量变换器的限流值：</p>
+<ul>
+<li>在电感支路串联精密采样电阻，测量电感峰值电流</li>
+<li>或测量输入电流结合效率推算电感电流</li>
+</ul>
+<h3 id="63-测试条件">6.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#63-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>数值</th><th>单位</th></tr></thead><tbody><tr><td>VIN</td><td>典型值</td><td>VIN_nom</td><td>V</td></tr><tr><td>VOUT</td><td>短路</td><td>0</td><td>V</td></tr><tr><td>短路持续时间</td><td>—</td><td>100 ~ 1000</td><td>ms</td></tr><tr><td>温度</td><td>常温</td><td>25</td><td>°C</td></tr></tbody></table></div>
+<blockquote>
+<p><strong>注意</strong>：长时间短路测试会产生热量，建议在高温测试前先做常温验证，确认保护功能正常后再进行高温测试。</p>
+</blockquote>
+<h3 id="64-判定标准">6.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#64-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>Hiccup 模式</th><th>Latch-off 模式</th><th>单位</th></tr></thead><tbody><tr><td>短路电流峰值 (I_limit)</td><td>设计值 ±15%</td><td>设计值 ±15%</td><td>A</td></tr><tr><td>Hiccup 导通时间</td><td>50 ~ 500</td><td>—</td><td>μs</td></tr><tr><td>Hiccup 关断时间</td><td>1 ~ 10</td><td>—</td><td>ms</td></tr><tr><td>保护动作时间</td><td>&lt; 10</td><td>&lt; 10</td><td>μs</td></tr><tr><td>短路移除后恢复</td><td>自动恢复</td><td>需重新使能</td><td>—</td></tr><tr><td>保护期间芯片温度</td><td>&lt; TSD_threshold</td><td>&lt; TSD_threshold</td><td>°C</td></tr></tbody></table></div>
+<h3 id="65-测试注意事项">6.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#65-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>热管理</strong>：短路测试会产生热量，需控制测试时间，必要时使用气流冷却</li>
+<li><strong>限流精度</strong>：限流值受温度和工艺影响，需要在多个温度点验证</li>
+<li><strong>Hiccup 检测</strong>：通过监控 VOUT 波形可观察 hiccup 行为（VOUT 周期性小幅上升）</li>
+<li><strong>ATE 程序保护</strong>：短路测试是破坏性测试，ATE 程序需设置最大测试时间保护</li>
+<li><strong>测板设计</strong>：短路路径需有足够的电流承载能力，避免烧毁 PCB</li>
+</ol>
+<hr/>
+<h2 id="七输出电压精度与纹波测试">七、输出电压精度与纹波测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#七输出电压精度与纹波测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="71-原理-principle">7.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#71-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="711-输出电压精度">7.1.1 输出电压精度<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#711-输出电压精度" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck-Boost 变换器的输出电压由以下公式决定：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.8em;vertical-align:-0.65em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8884em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.0077em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4101em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.0077em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4451em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span></span></p>
+<p><strong>误差来源</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>误差源</th><th>典型影响</th><th>说明</th></tr></thead><tbody><tr><td>VREF 精度</td><td>±1% ~ ±2%</td><td>Bandgap 基准电压的工艺偏差</td></tr><tr><td>R1/R2 精度</td><td>±0.5% ~ ±2%</td><td>片上反馈分压电阻的匹配精度</td></tr><tr><td>EA 失调电压</td><td>±1% ~ ±3%</td><td>误差放大器输入失调 Vos</td></tr><tr><td>负载调整率 (Load Reg)</td><td>±0.5% ~ ±1%</td><td>负载变化导致的输出偏移</td></tr><tr><td>线性调整率 (Line Reg)</td><td>±0.1% ~ ±0.5%</td><td>输入电压变化导致的输出偏移</td></tr><tr><td>温度漂移</td><td>±1% ~ ±2%</td><td>VREF 和电阻的温漂</td></tr></tbody></table></div>
+<p><strong>总精度</strong>（均方根叠加）：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight">cc</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">cy</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.84em;vertical-align:-0.7123em;"></span><span class="mord">±</span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1277em;"><span class="svg-align" style="top:-3.8em;"><span class="pstrut" style="height:3.8em;"></span><span class="mord" style="padding-left:1em;"><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7959em;"><span style="top:-2.4065em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">REF</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">err</span></span></span></span><span style="top:-3.0448em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5105em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7959em;"><span style="top:-2.4231em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight">o</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">err</span></span></span></span><span style="top:-3.0448em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4939em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.453em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">os</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">err</span></span></span></span><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.464em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">L</span><span class="mord mathnormal">o</span><span class="mord mathnormal">a</span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal">e</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">L</span><span class="mord mathnormal">in</span><span class="mord mathnormal">e</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal">e</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mord mathnormal">e</span><span class="mord mathnormal">m</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">Dr</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.0877em;"><span class="pstrut" style="height:3.8em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.88em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.88em" viewBox="0 0 400000 1944" preserveAspectRatio="xMinYMin slice"><path d="M983 90
+l0 -0
+c4,-6.7,10,-10,18,-10 H400000v40
+H1013.1s-83.4,268,-264.1,840c-180.7,572,-277,876.3,-289,913c-4.7,4.7,-12.7,7,-24,7
+s-12,0,-12,0c-1.3,-3.3,-3.7,-11.7,-7,-25c-35.3,-125.3,-106.7,-373.3,-214,-744
+c-10,12,-21,25,-33,39s-32,39,-32,39c-6,-5.3,-15,-14,-27,-26s25,-30,25,-30
+c26.7,-32.7,52,-63,76,-91s52,-60,52,-60s208,722,208,722
+c56,-175.3,126.3,-397.3,211,-666c84.7,-268.7,153.8,-488.2,207.5,-658.5
+c53.7,-170.3,84.5,-266.8,92.5,-289.5z
+M1001 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7123em;"><span></span></span></span></span></span></span></span></span></p>
+<p>典型总精度：±2% ~ ±5%（取决于芯片设计和修调与否）。</p>
+<h4 id="712-输出纹波">7.1.2 输出纹波<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#712-输出纹波" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>纹波 (Ripple) 是 Buck-Boost 输出上的交流分量，主要由以下因素决定：</p>
+<p><strong>电感电流纹波</strong> (ΔI_L) 在输出电容 ESR 上产生的电压纹波：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">L</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2336em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">W</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">ppl</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">L</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">ES</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">CO</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.3697em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">8</span><span class="mbin mtight">×</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0715em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mbin mtight">×</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.1076em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">W</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">Δ</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">L</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><strong>D</strong>：占空比</li>
+<li><strong>T_SW</strong>：开关周期</li>
+<li><strong>ESR_COUT</strong>：输出电容等效串联电阻</li>
+<li><strong>C_OUT</strong>：输出电容值</li>
+</ul>
+<p><strong>纹波组成</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>纹波分量</th><th>产生原因</th><th>频率特性</th><th>典型幅值</th></tr></thead><tbody><tr><td>开关纹波 (Switching Ripple)</td><td>电感电流纹波在 ESR 上产生</td><td>f_SW</td><td>数 mV ~ 数十 mV</td></tr><tr><td>谐振噪声</td><td>LC 谐振</td><td>f_LC</td><td>数 mV</td></tr><tr><td>高频尖峰 (Spike)</td><td>开关管切换时的振铃</td><td>数十 ~ 数百 MHz</td><td>数十 mV ~ 数百 mV</td></tr><tr><td>低频噪声</td><td>环路控制、参考噪声</td><td>&lt; 100 KHz</td><td>数 mV</td></tr></tbody></table></div>
+<h3 id="72-测试方法-test-method">7.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#72-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="721-直流精度测量">7.2.1 直流精度测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#721-直流精度测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>使用高精度 DVM (数字万用表) 或 ATE 精密测量板卡：</p>
+<ol>
+<li>使能 Buck-Boost，设置目标 VOUT 和负载电流</li>
+<li>等待输出稳定</li>
+<li>用 Kelvin (4-wire) 连接测量 VOUT</li>
+<li>计算误差：</li>
+</ol>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Error (%)</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.6439em;vertical-align:-0.6003em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0436em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">g</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3647em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.5653em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">m</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight">s</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3647em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.2222em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">g</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3647em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6003em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">100%</span></span></span></span></p>
+<p><strong>多条件组合测试</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>VIN</th><th>VOUT</th><th>ILOAD</th><th>温度</th></tr></thead><tbody><tr><td>VIN_min</td><td>VOUT_min</td><td>ILOAD_min</td><td>25°C</td></tr><tr><td>VIN_typ</td><td>VOUT_typ</td><td>ILOAD_typ</td><td>85°C</td></tr><tr><td>VIN_max</td><td>VOUT_max</td><td>ILOAD_max</td><td>-40°C</td></tr><tr><td>VIN_min</td><td>VOUT_max</td><td>ILOAD_typ</td><td>25°C</td></tr><tr><td>VIN_max</td><td>VOUT_min</td><td>ILOAD_typ</td><td>25°C</td></tr></tbody></table></div>
+<h4 id="722-纹波测量">7.2.2 纹波测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#722-纹波测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>示波器/Digitizer 测量法</strong>：</p>
+<ol>
+<li>使用 AC 耦合方式（滤除直流分量）</li>
+<li>设置适当的垂直分辨率（mV/div）和时基（μs/div）</li>
+<li>测量纹波的峰峰值 (Vpp) 和有效值 (Vrms)</li>
+<li>建议采样率 > 10 × f_SW，采样深度 > 1000 个开关周期</li>
+</ol>
+<p><strong>ATE 高速 Digitizer 实现</strong>：</p>
+<pre><code>DUT VOUT ──→ AC Coupling (电容, 如 10μF) ──→ ATE Digitizer
+                                                │
+                                           高采样率 (10~100 MS/s)
+                                           高分辨率 (12~16 bit)
+</code></pre>
+<p><strong>纹波参数计算</strong>：</p>
+<ul>
+<li><strong>Vpp (峰峰值)</strong>：Vmax - Vmin</li>
+<li><strong>Vrms (有效值)</strong>：<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.84em;vertical-align:-0.5369em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3031em;"><span class="svg-align" style="top:-3.8em;"><span class="pstrut" style="height:3.8em;"></span><span class="mord" style="padding-left:1em;"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9812em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8201em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span><span style="top:-3.2523em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">ˉ</span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.2631em;"><span class="pstrut" style="height:3.8em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.88em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.88em" viewBox="0 0 400000 1944" preserveAspectRatio="xMinYMin slice"><path d="M983 90
+l0 -0
+c4,-6.7,10,-10,18,-10 H400000v40
+H1013.1s-83.4,268,-264.1,840c-180.7,572,-277,876.3,-289,913c-4.7,4.7,-12.7,7,-24,7
+s-12,0,-12,0c-1.3,-3.3,-3.7,-11.7,-7,-25c-35.3,-125.3,-106.7,-373.3,-214,-744
+c-10,12,-21,25,-33,39s-32,39,-32,39c-6,-5.3,-15,-14,-27,-26s25,-30,25,-30
+c26.7,-32.7,52,-63,76,-91s52,-60,52,-60s208,722,208,722
+c56,-175.3,126.3,-397.3,211,-666c84.7,-268.7,153.8,-488.2,207.5,-658.5
+c53.7,-170.3,84.5,-266.8,92.5,-289.5z
+M1001 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5369em;"><span></span></span></span></span></span></span></span></span></li>
+<li><strong>纹波频率</strong>：FFT 分析确定主要纹波频率成分</li>
+</ul>
+<h3 id="73-测试条件">7.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#73-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件 1</th><th>条件 2</th><th>条件 3</th><th>单位</th></tr></thead><tbody><tr><td>VIN</td><td>VIN_min</td><td>VIN_typ</td><td>VIN_max</td><td>V</td></tr><tr><td>VOUT</td><td>VOUT_min / typ / max</td><td>同左</td><td>同左</td><td>V</td></tr><tr><td>ILOAD</td><td>ILOAD_min (0)</td><td>ILOAD_typ</td><td>ILOAD_max</td><td>A</td></tr><tr><td>温度</td><td>25°C</td><td>85°C</td><td>-40°C</td><td>°C</td></tr><tr><td>COUT</td><td>COUT_min</td><td>COUT_nom</td><td>COUT_max</td><td>μF</td></tr></tbody></table></div>
+<h3 id="74-判定标准">7.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#74-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>条件</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>VOUT DC 精度</td><td>所有条件</td><td>-2</td><td>—</td><td>+2</td><td>%</td></tr><tr><td>VOUT DC 精度</td><td>含全温度范围</td><td>-3</td><td>—</td><td>+3</td><td>%</td></tr><tr><td>输出纹波 (Vpp)</td><td>f_SW 处，ILOAD_typ</td><td>—</td><td>5</td><td>20</td><td>mV</td></tr><tr><td>输出纹波 (Vpp)</td><td>含高频尖峰</td><td>—</td><td>10</td><td>50</td><td>mV</td></tr><tr><td>负载调整率</td><td>0 → ILOAD_max</td><td>—</td><td>0.5</td><td>2</td><td>%</td></tr><tr><td>线性调整率</td><td>VIN_min → VIN_max</td><td>—</td><td>0.2</td><td>1</td><td>%</td></tr></tbody></table></div>
+<h3 id="75-测试注意事项">7.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#75-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>Kelvin 连接</strong>：直流精度测量必须使用 4-wire Kelvin 连接，消除接触电阻和测试导线压降</li>
+<li><strong>探头带宽</strong>：纹波测量探头带宽需 > 500 MHz，以捕获高频尖峰</li>
+<li><strong>接地回路</strong>：探头接地线尽量短，减少接地回路引入的噪声</li>
+<li><strong>AC 耦合 vs DC 耦合</strong>：小纹波测量建议 AC 耦合，充分利用 Digitizer 的动态范围</li>
+<li><strong>测试点位置</strong>：纹波测量点应在 VOUT 电容两端，而非芯片管脚处（管脚处的寄生电感会引入额外噪声）</li>
+</ol>
+<hr/>
+<h2 id="八状态寄存器-bb_state-测试">八、状态寄存器 BB_STATE 测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#八状态寄存器-bb_state-测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="81-原理-principle">8.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#81-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="811-bb_state-寄存器的作用">8.1.1 BB_STATE 寄存器的作用<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#811-bb_state-寄存器的作用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck-Boost 变换器内部有一个状态机，实时追踪当前的工作模式。BB_STATE 寄存器通过 I2C/SPI 接口将状态信息暴露给主机：</p>
+<p><strong>典型状态寄存器定义</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>位域</th><th>名称</th><th>描述</th></tr></thead><tbody><tr><td>[1:0]</td><td>BB_MODE</td><td>00 = Buck 模式, 01 = Boost 模式, 10 = Buck-Boost 模式, 11 = Pass-Through 模式</td></tr><tr><td>[2]</td><td>BUCK_ACTIVE</td><td>Buck 开关管是否在切换 (1=是)</td></tr><tr><td>[3]</td><td>BOOST_ACTIVE</td><td>Boost 开关管是否在切换 (1=是)</td></tr><tr><td>[4]</td><td>PWM_MODE</td><td>当前控制模式 (0=PFM, 1=PWM)</td></tr><tr><td>[5]</td><td>OVP_FLAG</td><td>过压保护标志</td></tr><tr><td>[6]</td><td>SCP_FLAG</td><td>短路保护标志</td></tr><tr><td>[7]</td><td>READY</td><td>变换器输出就绪</td></tr></tbody></table></div>
+<h4 id="812-工作模式判断逻辑">8.1.2 工作模式判断逻辑<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#812-工作模式判断逻辑" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck-Boost 变换器根据 VIN 和 VOUT 的比值自动选择工作模式：</p>
+<pre><code>VIN >> VOUT + V_hysteresis      → Buck 模式
+VIN &lt;&lt; VOUT - V_hysteresis      → Boost 模式
+VOUT - V_hysteresis ≤ VIN ≤ VOUT + V_hysteresis  → Buck-Boost 模式
+</code></pre>
+<p>其中 <strong>V_hysteresis</strong> 是迟滞电压，防止 VIN 和 VOUT 接近时模式频繁切换。</p>
+<h3 id="82-测试方法-test-method">8.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#82-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="821-模式验证">8.2.1 模式验证<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#821-模式验证" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>设置 VOUT 为目标值（如 3.3V）</li>
+<li>调整 VIN，使其分别处于 Buck/Boost/Buck-Boost 区域</li>
+<li>通过 I2C/SPI 读取 BB_STATE 寄存器</li>
+<li>验证读取的模式与期望模式一致</li>
+</ol>
+<p><strong>测试序列</strong>：</p>
+<pre><code>VIN = 5.0V (VIN >> VOUT)    → 期望 Buck 模式
+VIN = 3.3V (VIN ≈ VOUT)     → 期望 Buck-Boost 模式
+VIN = 2.5V (VIN &lt;&lt; VOUT)    → 期望 Boost 模式
+VIN = 4.0V → 3.0V → 4.0V   → 验证模式切换迟滞
+</code></pre>
+<h4 id="822-切换点精度">8.2.2 切换点精度<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#822-切换点精度" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>测量模式切换点的 VIN/VOUT 比值，验证是否符合设计值：</p>
+<ol>
+<li>固定 VOUT，缓慢扫描 VIN</li>
+<li>读取 BB_STATE，记录模式切换时刻的 VIN 值</li>
+<li>计算切换阈值：</li>
+</ol>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0614em;vertical-align:-0.367em;"></span><span class="mord text"><span class="mord">Buck → Buck-Boost </span><span class="mord cjk_fallback">切换点</span><span class="mord">: </span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">o</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">BB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight">ys</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">o</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">BB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0614em;vertical-align:-0.367em;"></span><span class="mord text"><span class="mord">Buck-Boost → Boost </span><span class="mord cjk_fallback">切换点</span><span class="mord">: </span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">BB</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">o</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="mord mathnormal mtight">oos</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">O</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">U</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0503em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight">ys</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">BB</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">o</span><span class="mord mtight" style="margin-right:0.02778em;">_</span><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="mord mathnormal mtight">oos</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span></span></span></span></p>
+<h3 id="83-测试条件">8.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#83-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>Buck 模式</th><th>Buck-Boost 模式</th><th>Boost 模式</th><th>单位</th></tr></thead><tbody><tr><td>VOUT</td><td>VOUT_nom</td><td>VOUT_nom</td><td>VOUT_nom</td><td>V</td></tr><tr><td>VIN</td><td>VOUT_nom + 1.0</td><td>VOUT_nom ± 0.2</td><td>VOUT_nom - 1.0</td><td>V</td></tr><tr><td>ILOAD</td><td>ILOAD_typ</td><td>ILOAD_typ</td><td>ILOAD_typ</td><td>A</td></tr><tr><td>温度</td><td>25°C</td><td>25°C</td><td>25°C</td><td>°C</td></tr></tbody></table></div>
+<h3 id="84-判定标准">8.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#84-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>Buck → Buck-Boost 切换点</td><td>VOUT + 0.3</td><td>VOUT + 0.5</td><td>VOUT + 0.7</td><td>V</td></tr><tr><td>Buck-Boost → Boost 切换点</td><td>VOUT - 0.7</td><td>VOUT - 0.5</td><td>VOUT - 0.3</td><td>V</td></tr><tr><td>模式切换迟滞</td><td>0.2</td><td>0.4</td><td>0.6</td><td>V</td></tr><tr><td>BB_STATE 读取正确性</td><td>100</td><td>100</td><td>—</td><td>%</td></tr></tbody></table></div>
+<h3 id="85-测试注意事项">8.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#85-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>通信稳定性</strong>：多次读取 BB_STATE，确认读取结果一致，排除 I2C/SPI 通信错误</li>
+<li><strong>缓慢扫描</strong>：VIN 变化速率不宜过快（建议 &lt; 0.1 V/ms），确保状态机有足够时间响应</li>
+<li><strong>迟滞验证</strong>：双向扫描（VIN 上升和下降），确认迟滞窗口正确</li>
+<li><strong>寄存器描述确认</strong>：不同芯片的 BB_STATE 寄存器位定义可能不同，需仔细核对数据手册</li>
+</ol>
+<hr/>
+<h2 id="九dcmccm-切换点测试">九、DCM/CCM 切换点测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#九dcmccm-切换点测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="91-原理-principle">9.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#91-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="911-dcm-vs-ccm">9.1.1 DCM vs CCM<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#911-dcm-vs-ccm" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>CCM (Continuous Conduction Mode)</strong>：</p>
+<ul>
+<li>电感电流在整个开关周期中始终 > 0</li>
+<li>负载较重时工作</li>
+<li>开关频率固定（PWM 模式）</li>
+<li>效率在中~重载时较高</li>
+<li>输出纹波较小</li>
+</ul>
+<p><strong>DCM (Discontinuous Conduction Mode)</strong>：</p>
+<ul>
+<li>电感电流在每个开关周期中降到 0 并保持一段时间</li>
+<li>负载较轻时工作</li>
+<li>开关频率可变（PFM 模式）或固定</li>
+<li>效率在轻载时较高（开关损耗降低）</li>
+<li>输出纹波较大</li>
+</ul>
+<p><strong>电感电流波形对比</strong>：</p>
+<pre><code>CCM:          DCM:
+  IL            IL
+  │             │
+  │  /\         │  /\
+  │ /  \        │ /  \
+  │/    \       │/    \____
+  └──────── t   └──────────── t
+  始终 > 0       有 = 0 区间
+</code></pre>
+<h4 id="912-dmd--dcm-ccm-切换点">9.1.2 DMD — DCM-CCM 切换点<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#912-dmd--dcm-ccm-切换点" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>DMD (DCM-CCM Transition Point)</strong> 定义为变换器从 DCM 切换到 CCM 的负载电流阈值。</p>
+<p><strong>理论计算</strong>：</p>
+<p>DCM 和 CCM 边界发生在电感电流谷值刚好为 0 时：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">D</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">M</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">D</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2336em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8886em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4103em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">Δ</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0785em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">L</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mclose">)</span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><strong>ΔI_L</strong>：电感电流峰峰值纹波</li>
+<li><strong>D</strong>：占空比</li>
+</ul>
+<p><strong>影响因素</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>因素</th><th>对 DMD 的影响</th><th>说明</th></tr></thead><tbody><tr><td>输入电压 VIN</td><td>VIN ↑ → DMD ↑</td><td>VIN 升高 → 电感纹波增大</td></tr><tr><td>输出电压 VOUT</td><td>VOUT ↑ → DMD ↑</td><td>VOUT 升高 → 电感纹波增大</td></tr><tr><td>电感值 L</td><td>L ↑ → DMD ↓</td><td>电感增大 → 纹波减小</td></tr><tr><td>开关频率 f_SW</td><td>f_SW ↑ → DMD ↓</td><td>频率升高 → 纹波减小</td></tr></tbody></table></div>
+<h3 id="92-测试方法-test-method">9.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#92-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="921-波形观察法">9.2.1 波形观察法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#921-波形观察法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>使能变换器，设置目标 VOUT</li>
+<li>设置 ILOAD = 0（空载）</li>
+<li>使用示波器探头测量 LX 节点电压或通过电流探头测量电感电流</li>
+<li>从空载开始逐渐增加负载电流</li>
+<li>观察电感电流波形：当电感电流谷值刚好达到 0A 时为 DCM/CCM 边界</li>
+<li>记录此时的负载电流 I_DMD</li>
+</ol>
+<pre><code>空载 (DCM):                 加重到 DMD 点:
+LX波形:                      LX波形:
+  ││  ││  ││  ││               ││  ││  ││  ││
+  ││  ││  ││  ││               ││  ││  ││  ││
+  └┘  └┘  └┘  └┘               └──┘──┴──┘──┘
+  有死区 (不连续)            谷值刚好到 0
+</code></pre>
+<h4 id="922-频率变化法-pfm-模式">9.2.2 频率变化法 (PFM 模式)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#922-频率变化法-pfm-模式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>在 PFM 模式下，开关频率随负载变化：</p>
+<ul>
+<li>轻载 → 低频（跳过多个周期）</li>
+<li>负载增加 → 频率升高</li>
+<li>DMD 点 → 频率达到最高并进入 CCM</li>
+</ul>
+<p>测量方法：</p>
+<ol>
+<li>扫描负载电流</li>
+<li>测量 LX 开关频率</li>
+<li>频率不再随负载增加的位置即为 DMD 点</li>
+</ol>
+<h4 id="923-效率拐点法">9.2.3 效率拐点法<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#923-效率拐点法" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>绘制效率 η vs 负载电流 ILOAD 曲线</li>
+<li>DCM 模式下效率随负载增加而升高</li>
+<li>CCM 模式下效率随负载增加先升后降</li>
+<li>效率曲线的拐点通常对应 DMD 附近</li>
+</ul>
+<h3 id="93-测试条件">9.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#93-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>数值</th><th>单位</th></tr></thead><tbody><tr><td>VIN</td><td>典型值</td><td>VIN_nom</td><td>V</td></tr><tr><td>VOUT</td><td>目标值</td><td>VOUT_nom</td><td>V</td></tr><tr><td>ILOAD 扫描范围</td><td>0 → ILOAD_rated</td><td>—</td><td>A</td></tr><tr><td>负载步进</td><td>扫描步长</td><td>10 ~ 50</td><td>mA</td></tr><tr><td>温度</td><td>常温</td><td>25</td><td>°C</td></tr></tbody></table></div>
+<h3 id="94-判定标准">9.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#94-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>DMD (DCM/CCM 切换点)</td><td>50</td><td>100</td><td>200</td><td>mA</td></tr><tr><td>DCM 频率 @ 空载</td><td>10</td><td>50</td><td>200</td><td>KHz</td></tr><tr><td>模式切换平滑程度</td><td>无明显跳变</td><td>—</td><td>—</td><td>—</td></tr></tbody></table></div>
+<blockquote>
+<p><strong>注意</strong>：DMD 值设计上要确保在轻载时进入 DCM（提高效率），同时 DMD 不能过低以避免在中等负载时频繁模式切换。</p>
+</blockquote>
+<hr/>
+<h2 id="十lx-频率测试">十、LX 频率测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十lx-频率测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="101-原理-principle">10.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#101-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1011-lx-开关频率">10.1.1 LX 开关频率<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1011-lx-开关频率" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck-Boost 变换器的 LX 管脚是开关节点，其开关频率是变换器工作的基本参数：</p>
+<ul>
+<li><strong>PWM 模式</strong>：开关频率固定，由内部振荡器或 PLL 决定</li>
+<li><strong>PFM 模式</strong>：开关频率随负载变化</li>
+<li><strong>频率范围</strong>：典型值 500KHz ~ 3MHz（消费类 PMIC），或低至 100KHz（汽车级）</li>
+</ul>
+<p><strong>频率决定因素</strong>：</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05764em;">S</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">W</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2904em;vertical-align:-0.4453em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">ON</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mbin mtight">+</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.1389em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">OFF</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4453em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>对于 PWM 模式，频率固定，但可能因以下原因偏离设计值：</p>
+<ul>
+<li>内部振荡器频率偏差（取决于 RC 振荡器精度）</li>
+<li>频率抖动 (Frequency Dithering) 用于 EMI 降低</li>
+<li>温度/电压导致振荡器频率漂移</li>
+<li>展频调制 (Spread Spectrum) 引入的频率变化</li>
+</ul>
+<h3 id="102-测试方法-test-method">10.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#102-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1021-频率测量">10.2.1 频率测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1021-频率测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：LX 管脚直接测量</strong></p>
+<ol>
+<li>使能变换器，设置目标 VOUT 和负载条件</li>
+<li>使用示波器探头连接 LX 管脚</li>
+<li>测量 LX 波形的开关频率</li>
+</ol>
+<p><strong>方法二：ATE 频率计测量</strong></p>
+<p>通过测试 MUX 将 LX 信号路由到测试管脚，或直接测量 LX 管脚：</p>
+<pre><code>DUT LX ──→ 测试板缓冲器 (可选) ──→ ATE TMU / 频率计
+</code></pre>
+<p><strong>方法三：从输出电压纹波推算</strong></p>
+<p>如果 LX 管脚不可接触，可通过测量 VOUT 纹波频率间接获得开关频率。</p>
+<h4 id="1022-多条件测试">10.2.2 多条件测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1022-多条件测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>条件</th><th>VIN</th><th>VOUT</th><th>ILOAD</th><th>期望行为</th></tr></thead><tbody><tr><td>PWM, 轻载</td><td>VIN_nom</td><td>VOUT_nom</td><td>ILOAD_min</td><td>f_SW = f_nom</td></tr><tr><td>PWM, 重载</td><td>VIN_nom</td><td>VOUT_nom</td><td>ILOAD_max</td><td>f_SW = f_nom</td></tr><tr><td>PFM, 轻载</td><td>VIN_nom</td><td>VOUT_nom</td><td>ILOAD_min</td><td>f_SW &lt; f_nom (PFM)</td></tr><tr><td>全电压范围</td><td>VIN_min/max</td><td>VOUT_nom</td><td>ILOAD_typ</td><td>f_SW 偏差在规格内</td></tr></tbody></table></div>
+<h3 id="103-判定标准">10.3 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#103-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>模式</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>PWM 开关频率</td><td>VIN_typ, VOUT_typ, ILOAD_typ</td><td>-10%</td><td>f_nom</td><td>+10%</td><td>Hz</td></tr><tr><td>PWM 开关频率</td><td>全电压/全温度</td><td>-15%</td><td>f_nom</td><td>+15%</td><td>Hz</td></tr><tr><td>PFM 频率 @ 空载</td><td>—</td><td>—</td><td>—</td><td>f_nom/10</td><td>Hz</td></tr><tr><td>频率稳定性 (短期)</td><td>PWM 模式</td><td>—</td><td>—</td><td>±2</td><td>%</td></tr></tbody></table></div>
+<h3 id="104-测试注意事项">10.4 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#104-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>探头加载</strong>：LX 管脚的高频信号（含振铃）可能受探头寄生电容影响，建议使用 10:1 或 100:1 衰减探头</li>
+<li><strong>频率平均</strong>：建议测量 100 个以上周期的平均频率，排除单周期抖动的影响</li>
+<li><strong>频率抖动</strong>：如果芯片使用了展频技术，频率测量需取足够长时间的统计值</li>
+</ol>
+<hr/>
+<h2 id="十一vinvo-内部比较器翻转点测试">十一、VIN/VO 内部比较器翻转点测试<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十一vinvo-内部比较器翻转点测试" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="111-原理-principle">11.1 原理 (Principle)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#111-原理-principle" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1111-比较器的作用">11.1.1 比较器的作用<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1111-比较器的作用" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>Buck-Boost 变换器内部使用比较器检测 VIN 和 VOUT 之间的关系，以确定变换器应工作在哪种模式（Buck / Boost / Buck-Boost）：</p>
+<pre><code>VIN ──┬──┐
+       │  ├── 比较器 1 (VIN > VOUT + Vhys?)
+       │  │
+VOUT ──┴──┘
+       │
+       │  ┌── 比较器 2 (VIN &lt; VOUT - Vhys?)
+       │  │
+       └──┘
+</code></pre>
+<p>比较器输出连接到状态机，控制四个开关管的导通模式：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>比较器结果</th><th>工作模式</th><th>SW1</th><th>SW2</th><th>SW3</th><th>SW4</th></tr></thead><tbody><tr><td>VIN > VOUT + Vhys</td><td>Buck</td><td>PWM</td><td>ON</td><td>PWM</td><td>OFF</td></tr><tr><td>VIN ≈ VOUT</td><td>Buck-Boost</td><td>PWM</td><td>PWM</td><td>PWM</td><td>PWM</td></tr><tr><td>VIN &lt; VOUT - Vhys</td><td>Boost</td><td>ON</td><td>PWM</td><td>OFF</td><td>PWM</td></tr></tbody></table></div>
+<h4 id="1112-比较器的重要参数">11.1.2 比较器的重要参数<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1112-比较器的重要参数" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li><strong>翻转阈值 (Threshold)</strong>：VIN 相对于 VOUT 何时判断为 “高” 或 “低”</li>
+<li><strong>迟滞 (Hysteresis)</strong>：防止在阈值附近频繁翻转</li>
+<li><strong>延迟时间 (Propagation Delay)</strong>：从 VIN 变化到比较器输出的时间</li>
+<li><strong>失调电压 (Offset)</strong>：比较器输入对管的失配导致实际阈值偏离理想值</li>
+</ol>
+<h3 id="112-测试方法-test-method">11.2 测试方法 (Test Method)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#112-测试方法-test-method" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1121-翻转点测量">11.2.1 翻转点测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1121-翻转点测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p><strong>方法一：寄存器读取法</strong></p>
+<ol>
+<li>固定 VOUT 为目标值</li>
+<li>缓慢扫描 VIN（从高到低和从低到高）</li>
+<li>在每个 VIN 点读取 BB_STATE 寄存器（或类似状态寄存器）</li>
+<li>记录模式切换时的 VIN/VOUT 比值</li>
+</ol>
+<p><strong>方法二：LX 波形观察法</strong></p>
+<ol>
+<li>固定 VOUT，扫描 VIN</li>
+<li>通过示波器观察 LX 节点波形</li>
+<li>根据 LX 波形形态判断当前模式</li>
+<li>记录切换点的 VIN 值</li>
+</ol>
+<p><strong>LX 波形模式识别</strong>：</p>
+<pre><code>Buck 模式 LX:         ┌──┐  ┌──┐  ┌──┐
+               ──────┘  └──┘  └──┘  └──── VIN ~ VOUT (SW1 开关)
+
+Buck-Boost LX:     ┌──┐  ┌──┐  ┌──┐
+              ─────┘  └──┘  └──┘  └───── 四个开关均参与
+
+Boost 模式 LX:     ┌─┐  ┌─┐  ┌─┐
+              ─────┘ └──┘ └──┘ └─────── GND ~ VOUT (SW2 开关)
+</code></pre>
+<h4 id="1122-迟滞测量">11.2.2 迟滞测量<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1122-迟滞测量" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>VIN 从高到低扫描 → 记录 Buck→Buck-Boost 切换点 V_B_to_BB_hi</li>
+<li>VIN 从低到高扫描 → 记录 Buck-Boost→Buck 切换点 V_BB_to_B_lo</li>
+<li>迟滞 = V_B_to_BB_hi - V_BB_to_B_lo</li>
+</ol>
+<p>类似地测量 Boost 侧的迟滞：</p>
+<ol>
+<li>VIN 从低到高扫描 → 记录 Boost→Buck-Boost 切换点 V_Boost_to_BB_lo</li>
+<li>VIN 从高到低扫描 → 记录 Buck-Boost→Boost 切换点 V_BB_to_Boost_hi</li>
+<li>迟滞 = V_Boost_to_BB_lo - V_BB_to_Boost_hi</li>
+</ol>
+<h3 id="113-测试条件">11.3 测试条件<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#113-测试条件" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>参数</th><th>条件</th><th>数值</th><th>单位</th></tr></thead><tbody><tr><td>VOUT</td><td>固定值</td><td>VOUT_nom (如 3.3V)</td><td>V</td></tr><tr><td>VIN 扫描范围</td><td>从 VIN_min 到 VIN_max</td><td>2.5 ~ 5.5</td><td>V</td></tr><tr><td>VIN 扫描步长</td><td>精细扫描</td><td>10 ~ 50</td><td>mV</td></tr><tr><td>VIN 扫描速率</td><td>缓慢，避免比较器响应不及</td><td>&lt; 10</td><td>mV/ms</td></tr><tr><td>ILOAD</td><td>轻载</td><td>10</td><td>mA</td></tr><tr><td>温度</td><td>常温</td><td>25</td><td>°C</td></tr></tbody></table></div>
+<h3 id="114-判定标准">11.4 判定标准<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#114-判定标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>最小值</th><th>典型值</th><th>最大值</th><th>单位</th></tr></thead><tbody><tr><td>Buck → Buck-Boost 翻转点 (VIN 下降)</td><td>VOUT + 0.2</td><td>VOUT + 0.4</td><td>VOUT + 0.6</td><td>V</td></tr><tr><td>Buck-Boost → Buck 翻转点 (VIN 上升)</td><td>VOUT + 0.1</td><td>VOUT + 0.3</td><td>VOUT + 0.5</td><td>V</td></tr><tr><td>Buck 侧迟滞</td><td>0.05</td><td>0.1</td><td>0.2</td><td>V</td></tr><tr><td>Boost → Buck-Boost 翻转点 (VIN 上升)</td><td>VOUT - 0.6</td><td>VOUT - 0.4</td><td>VOUT - 0.2</td><td>V</td></tr><tr><td>Buck-Boost → Boost 翻转点 (VIN 下降)</td><td>VOUT - 0.5</td><td>VOUT - 0.3</td><td>VOUT - 0.1</td><td>V</td></tr><tr><td>Boost 侧迟滞</td><td>0.05</td><td>0.1</td><td>0.2</td><td>V</td></tr></tbody></table></div>
+<h3 id="115-测试注意事项">11.5 测试注意事项<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#115-测试注意事项" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ol>
+<li><strong>VIN 扫描速率</strong>：VIN 变化过快会导致比较器输出来不及稳定，测得翻转点不准</li>
+<li><strong>负载影响</strong>：负载电流变化会改变 VOUT 实际值，间接影响 VIN/VOUT 比较结果</li>
+<li><strong>噪声滤波</strong>：比较器输入端的小幅度噪声可能导致误翻转，建议进行多次测量取平均</li>
+<li><strong>温度效应</strong>：比较器失调电压随温度变化，全温度范围需重新验证翻转点</li>
+</ol>
+<hr/>
+<h2 id="十二总结">十二、总结<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#十二总结" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Buck-Boost 变换器 FT 测试涵盖了从启动特性到保护功能、从输出质量到模式切换的全面验证。以下是对各测试项的关键要点总结：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>测试项</th><th>测试重点</th><th>主要风险/挑战</th></tr></thead><tbody><tr><td><strong>软启动时间</strong></td><td>10%-90% 上升时间，浪涌电流</td><td>负载和电容条件标准化</td></tr><tr><td><strong>静态电流 IQ</strong></td><td>PWM/PFM/Shutdown 三种模式</td><td>超低电流时测试板漏电流干扰</td></tr><tr><td><strong>下拉电阻 R_pd</strong></td><td>关断状态下 VOUT 到 GND 电阻</td><td>接触电阻消除</td></tr><tr><td><strong>OVP</strong></td><td>反馈 OVP 和输出 OVP 阈值</td><td>注入方法不当影响环路</td></tr><tr><td><strong>SCP</strong></td><td>Hiccup/Latch-off 行为验证</td><td>热管理、限流值精度</td></tr><tr><td><strong>VOUT 精度/纹波</strong></td><td>DC 精度 ±2%，纹波 &lt; 20mV</td><td>高频分量捕获、Kelvin 连接</td></tr><tr><td><strong>BB_STATE</strong></td><td>模式寄存器正确性</td><td>通信可靠性、模式切换点</td></tr><tr><td><strong>DCM/CCM 切换</strong></td><td>DMD 负载电流阈值</td><td>电感/频率/电压依赖性</td></tr><tr><td><strong>LX 频率</strong></td><td>PWM 固定频率精度</td><td>展频模式下的测量方法</td></tr><tr><td><strong>VIN/VO 比较器</strong></td><td>翻转点阈值和迟滞</td><td>VIN 扫描速率、温度效应</td></tr></tbody></table></div>
+<p><strong>核心工程经验</strong>：</p>
+<ol>
+<li><strong>测试顺序优化</strong>：保护功能测试（OVP/SCP）应在基础功能测试之后进行，避免因测试时序问题损坏芯片</li>
+<li><strong>条件组合管理</strong>：Buck-Boost 测试条件多（VIN × VOUT × ILOAD × Temp），需合理设计测试组以覆盖有效边界</li>
+<li><strong>保护测试安全</strong>：SCP 和 OVP 测试具有一定破坏性，建议在程序末尾执行，并设置超时保护</li>
+<li><strong>多 site 同测考虑</strong>：Buck-Boost 开关噪声可能通过电源/地耦合串扰到相邻 site，需注意测试板的隔离设计</li>
+<li><strong>失效分析</strong>：FT 失效需区分是芯片本身问题还是测试条件/测板导致的问题</li>
+</ol>
+<hr/>
+<blockquote>
+<p><strong>参考资料</strong>：</p>
+<ul>
+<li>芯片数据手册 (Datasheet) — Buck-Boost 部分</li>
+<li>FT 测试程序规格文档</li>
+<li>PMIC DC-DC 变换器设计指南</li>
+<li>开关电源纹波测量技术 (Ripple Measurement Techniques)</li>
+</ul>
+<p><strong>相关文档</strong>：</p>
+<ul>
+<li>[[<em>index</em>.md|FT 测试知识库索引]]</li>
+<li><a href="../../../PMIC/PMIC知识库/FT测试知识库/04_时钟测试" class="internal alias" data-slug="PMIC/PMIC知识库/FT测试知识库/04_时钟测试">时钟测试</a>（开关频率相关）</li>
+<li><a href="../../.././../PMIC知识库/02_BuckBoost变换器修调" class="internal alias" data-slug="PMIC知识库/02_BuckBoost变换器修调">Buck-Boost 变换器修调</a></li>
+</ul>
+<p>最后更新: 2026-07-24</p>
+</blockquote></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>关系图谱</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-85" aria-expanded="true"><h3>目录</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul id="list-1" class="toc-content overflow"><li class="depth-0"><a href="#buckboost-测试--pmic-升降压变换器-ft-测试" data-for="buckboost-测试--pmic-升降压变换器-ft-测试">BuckBoost 测试 — PMIC 升降压变换器 FT 测试</a></li><li class="depth-1"><a href="#目录" data-for="目录">目录</a></li><li class="depth-1"><a href="#一概述" data-for="一概述">一、概述</a></li><li class="depth-2"><a href="#11-buck-boost-变换器简介" data-for="11-buck-boost-变换器简介">1.1 Buck-Boost 变换器简介</a></li><li class="depth-2"><a href="#12-ft-测试关注点" data-for="12-ft-测试关注点">1.2 FT 测试关注点</a></li><li class="depth-1"><a href="#二软启动时间测试" data-for="二软启动时间测试">二、软启动时间测试</a></li><li class="depth-2"><a href="#21-原理-principle" data-for="21-原理-principle">2.1 原理 (Principle)</a></li><li class="depth-2"><a href="#22-测试方法-test-method" data-for="22-测试方法-test-method">2.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#23-测试条件" data-for="23-测试条件">2.3 测试条件</a></li><li class="depth-2"><a href="#24-判定标准" data-for="24-判定标准">2.4 判定标准</a></li><li class="depth-2"><a href="#25-测试注意事项" data-for="25-测试注意事项">2.5 测试注意事项</a></li><li class="depth-1"><a href="#三静态电流测试" data-for="三静态电流测试">三、静态电流测试</a></li><li class="depth-2"><a href="#31-原理-principle" data-for="31-原理-principle">3.1 原理 (Principle)</a></li><li class="depth-2"><a href="#32-测试方法-test-method" data-for="32-测试方法-test-method">3.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#33-测试条件" data-for="33-测试条件">3.3 测试条件</a></li><li class="depth-2"><a href="#34-判定标准" data-for="34-判定标准">3.4 判定标准</a></li><li class="depth-2"><a href="#35-测试注意事项" data-for="35-测试注意事项">3.5 测试注意事项</a></li><li class="depth-1"><a href="#四下拉电阻测试" data-for="四下拉电阻测试">四、下拉电阻测试</a></li><li class="depth-2"><a href="#41-原理-principle" data-for="41-原理-principle">4.1 原理 (Principle)</a></li><li class="depth-2"><a href="#42-测试方法-test-method" data-for="42-测试方法-test-method">4.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#43-测试条件" data-for="43-测试条件">4.3 测试条件</a></li><li class="depth-2"><a href="#44-判定标准" data-for="44-判定标准">4.4 判定标准</a></li><li class="depth-1"><a href="#五ovp-过压保护测试" data-for="五ovp-过压保护测试">五、OVP 过压保护测试</a></li><li class="depth-2"><a href="#51-原理-principle" data-for="51-原理-principle">5.1 原理 (Principle)</a></li><li class="depth-2"><a href="#52-测试方法-test-method" data-for="52-测试方法-test-method">5.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#53-测试条件" data-for="53-测试条件">5.3 测试条件</a></li><li class="depth-2"><a href="#54-判定标准" data-for="54-判定标准">5.4 判定标准</a></li><li class="depth-2"><a href="#55-测试注意事项" data-for="55-测试注意事项">5.5 测试注意事项</a></li><li class="depth-1"><a href="#六scp-短路保护测试" data-for="六scp-短路保护测试">六、SCP 短路保护测试</a></li><li class="depth-2"><a href="#61-原理-principle" data-for="61-原理-principle">6.1 原理 (Principle)</a></li><li class="depth-2"><a href="#62-测试方法-test-method" data-for="62-测试方法-test-method">6.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#63-测试条件" data-for="63-测试条件">6.3 测试条件</a></li><li class="depth-2"><a href="#64-判定标准" data-for="64-判定标准">6.4 判定标准</a></li><li class="depth-2"><a href="#65-测试注意事项" data-for="65-测试注意事项">6.5 测试注意事项</a></li><li class="depth-1"><a href="#七输出电压精度与纹波测试" data-for="七输出电压精度与纹波测试">七、输出电压精度与纹波测试</a></li><li class="depth-2"><a href="#71-原理-principle" data-for="71-原理-principle">7.1 原理 (Principle)</a></li><li class="depth-2"><a href="#72-测试方法-test-method" data-for="72-测试方法-test-method">7.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#73-测试条件" data-for="73-测试条件">7.3 测试条件</a></li><li class="depth-2"><a href="#74-判定标准" data-for="74-判定标准">7.4 判定标准</a></li><li class="depth-2"><a href="#75-测试注意事项" data-for="75-测试注意事项">7.5 测试注意事项</a></li><li class="depth-1"><a href="#八状态寄存器-bb_state-测试" data-for="八状态寄存器-bb_state-测试">八、状态寄存器 BB_STATE 测试</a></li><li class="depth-2"><a href="#81-原理-principle" data-for="81-原理-principle">8.1 原理 (Principle)</a></li><li class="depth-2"><a href="#82-测试方法-test-method" data-for="82-测试方法-test-method">8.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#83-测试条件" data-for="83-测试条件">8.3 测试条件</a></li><li class="depth-2"><a href="#84-判定标准" data-for="84-判定标准">8.4 判定标准</a></li><li class="depth-2"><a href="#85-测试注意事项" data-for="85-测试注意事项">8.5 测试注意事项</a></li><li class="depth-1"><a href="#九dcmccm-切换点测试" data-for="九dcmccm-切换点测试">九、DCM/CCM 切换点测试</a></li><li class="depth-2"><a href="#91-原理-principle" data-for="91-原理-principle">9.1 原理 (Principle)</a></li><li class="depth-2"><a href="#92-测试方法-test-method" data-for="92-测试方法-test-method">9.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#93-测试条件" data-for="93-测试条件">9.3 测试条件</a></li><li class="depth-2"><a href="#94-判定标准" data-for="94-判定标准">9.4 判定标准</a></li><li class="depth-1"><a href="#十lx-频率测试" data-for="十lx-频率测试">十、LX 频率测试</a></li><li class="depth-2"><a href="#101-原理-principle" data-for="101-原理-principle">10.1 原理 (Principle)</a></li><li class="depth-2"><a href="#102-测试方法-test-method" data-for="102-测试方法-test-method">10.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#103-判定标准" data-for="103-判定标准">10.3 判定标准</a></li><li class="depth-2"><a href="#104-测试注意事项" data-for="104-测试注意事项">10.4 测试注意事项</a></li><li class="depth-1"><a href="#十一vinvo-内部比较器翻转点测试" data-for="十一vinvo-内部比较器翻转点测试">十一、VIN/VO 内部比较器翻转点测试</a></li><li class="depth-2"><a href="#111-原理-principle" data-for="111-原理-principle">11.1 原理 (Principle)</a></li><li class="depth-2"><a href="#112-测试方法-test-method" data-for="112-测试方法-test-method">11.2 测试方法 (Test Method)</a></li><li class="depth-2"><a href="#113-测试条件" data-for="113-测试条件">11.3 测试条件</a></li><li class="depth-2"><a href="#114-判定标准" data-for="114-判定标准">11.4 判定标准</a></li><li class="depth-2"><a href="#115-测试注意事项" data-for="115-测试注意事项">11.5 测试注意事项</a></li><li class="depth-1"><a href="#十二总结" data-for="十二总结">十二、总结</a></li><li class="overflow-end"></li></ul></div><div class="backlinks"><h3>反向链接</h3><ul id="list-2" class="overflow"><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/06_迟滞Buck测试" class="internal">迟滞Buck测试 — PMIC 迟滞型降压变换器 FT 测试</a></li><li><a href="../../../PMIC/PMIC知识库/FT测试知识库/_index_" class="internal">PMIC FT测试知识库索引 (PMIC Final Test Knowledge Base)</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.2</a> © 2026</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../../../postscript.js" type="module"></script></html>
